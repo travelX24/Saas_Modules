@@ -15,32 +15,57 @@ class ForceCompanyDomain
             return $next($request);
         }
 
+        // ✅ التحقق من الدومين أولاً
+        $host = strtolower($request->getHost());
+        $base = strtolower(env('TENANT_BASE_DOMAIN', 'athkahr.lvh.me'));
+        $central = strtolower(env('CENTRAL_DOMAIN', $base));
+
+        // ✅ لو نحن على nip.io استخرج IP واصنع base/central ديناميكي
+        if (preg_match('/\.(\d{1,3}(?:\.\d{1,3}){3})\.nip\.io$/', $host, $m)) {
+            $ip = $m[1];
+            $base = "athkahr.$ip.nip.io";
+            $central = $base;
+        }
+
+        // ✅ إذا كان على الدومين المركزي (SaaS) -> لا تعيد التوجيه
+        // هذا يسمح للمستخدم بالعمل على SaaS و Company في نفس الوقت
+        $isOnCentralDomain = ($host === $central || $host === 'www.'.$central);
+        if ($isOnCentralDomain) {
+            // ✅ إذا كان على route SaaS -> لا تعيد التوجيه
+            if ($request->is('saas*')) {
+                return $next($request);
+            }
+        }
+
         $company = SaasCompany::find($user->saas_company_id);
-        if (! $company || empty($company->slug)) {
+        if (! $company || empty($company->primary_domain)) {
             return $next($request);
         }
 
-        $base = strtolower(env('TENANT_BASE_DOMAIN', 'athkahr.lvh.me'));
         $desiredHost = strtolower($company->primary_domain.'.'.$base);
 
-        $currentHost = strtolower($request->getHost());
-
         // لو نحن فعلًا على الدومين الصحيح: كمل
-        if ($currentHost === $desiredHost) {
+        if ($host === $desiredHost) {
             return $next($request);
         }
 
-        // ابني نفس الرابط لكن على الدومين الجديد
-        $scheme = $request->isSecure() ? 'https' : 'http';
-        $port = $request->getPort();
+        // ✅ فقط إذا كان على route الشركة -> إعادة التوجيه
+        // إذا كان على SaaS route -> لا تعيد التوجيه
+        if ($request->is('company-admin*')) {
+            // ابني نفس الرابط لكن على الدومين الجديد
+            $scheme = $request->isSecure() ? 'https' : 'http';
+            $port = $request->getPort();
 
-        $portPart = '';
-        if (! in_array($port, [80, 443], true)) {
-            $portPart = ':'.$port; // مهم في local (8000)
+            $portPart = '';
+            if (! in_array($port, [80, 443], true)) {
+                $portPart = ':'.$port; // مهم في local (8000)
+            }
+
+            $target = $scheme.'://'.$desiredHost.$portPart.$request->getRequestUri();
+
+            return redirect()->away($target);
         }
 
-        $target = $scheme.'://'.$desiredHost.$portPart.$request->getRequestUri();
-
-        return redirect()->away($target);
+        return $next($request);
     }
 }
