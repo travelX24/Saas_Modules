@@ -1,0 +1,42 @@
+{
+    "name": "athka/saas",
+    "description": "SaaS Multi-tenant Package for Laravel - Company Management System",
+    "type": "library",
+    "license": "MIT",
+    "version": "1.0.0",
+    "keywords": [
+        "laravel",
+        "saas",
+        "multi-tenant",
+        "company-management"
+    ],
+    "authors": [
+        {
+            "name": "Athka",
+            "email": "info@athka.com"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "laravel/framework": "^12.0",
+        "livewire/livewire": "^3.7",
+        "spatie/laravel-permission": "^6.24"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.24"
+    },
+    "autoload": {
+        "psr-4": {
+            "Athka\\Saas\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Athka\\Saas\\Providers\\SaasServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
