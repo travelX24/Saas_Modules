@@ -15,11 +15,11 @@
         </p>
 
         <div class="mt-6">
-            <form method="GET" action="/login" class="w-full">
-                <x-ui.primary-button :arrow="false" :fullWidth="true" type="submit">
+            <a href="{{ $loginUrl }}" class="block w-full">
+                <x-ui.primary-button :arrow="false" :fullWidth="true" type="button">
                     {{ tr('Go to Login') }}
                 </x-ui.primary-button>
-            </form>
+            </a>
         </div>
 
     </div>

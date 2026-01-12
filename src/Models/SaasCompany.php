@@ -29,6 +29,16 @@ class SaasCompany extends Model
         'lng' => 'decimal:7',
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        // حذف جميع المستخدمين المرتبطين بالشركة عند حذف الشركة
+        static::deleting(function ($company) {
+            $company->users()->delete();
+        });
+    }
+
     public function settings()
     {
         return $this->hasOne(SaasCompanyOtherinfo::class, 'company_id');
