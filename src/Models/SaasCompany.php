@@ -16,6 +16,7 @@ class SaasCompany extends Model
         'primary_domain',
 
         'company_type',
+        'is_active',
         'logo_path',
         'main_industry', 'sub_industries', 'bio',
         'official_email', 'phone_1', 'phone_2',
@@ -27,6 +28,7 @@ class SaasCompany extends Model
         'sub_industries' => 'array',
         'lat' => 'decimal:7',
         'lng' => 'decimal:7',
+        'is_active' => 'boolean',
     ];
 
     protected static function boot()

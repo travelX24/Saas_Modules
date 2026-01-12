@@ -93,6 +93,8 @@ class Edit extends Component
 
     public $doc_owner_id = null;
 
+    public $doc_national_address = null;
+
     // Store existing documents info for display
     public array $existingDocuments = [];
 
@@ -251,6 +253,7 @@ class Edit extends Component
                 $this->saveDoc($company->id, 'activity_license', $this->doc_activity_license);
                 $this->saveDoc($company->id, 'incorporation', $this->doc_incorporation);
                 $this->saveDoc($company->id, 'owner_id', $this->doc_owner_id);
+                $this->saveDoc($company->id, 'national_address', $this->doc_national_address);
             });
 
             session()->flash('status', tr('Company updated successfully'));
@@ -312,7 +315,7 @@ class Edit extends Component
 
     private function rulesTab4(): array
     {
-        $file = ['nullable', 'file', 'max:10240'];
+        $file = ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'];
 
         return [
             'doc_cr' => $file,
@@ -320,6 +323,7 @@ class Edit extends Component
             'doc_activity_license' => $file,
             'doc_incorporation' => $file,
             'doc_owner_id' => $file,
+            'doc_national_address' => $file,
         ];
     }
 

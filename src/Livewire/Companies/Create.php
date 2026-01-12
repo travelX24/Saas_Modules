@@ -103,6 +103,8 @@ class Create extends Component
 
     public $doc_owner_id = null;
 
+    public $doc_national_address = null;
+
     // Store existing documents info for display (empty for create, populated for edit)
     public array $existingDocuments = [];
 
@@ -205,6 +207,7 @@ class Create extends Component
             'max' => $this->txt('قيمة :attribute يجب ألا تزيد عن :max.', 'The :attribute may not be greater than :max.'),
             'image' => $this->txt('يرجى رفع صورة صالحة في :attribute.', 'The :attribute must be an image.'),
             'file' => $this->txt('يرجى رفع ملف صالح في :attribute.', 'Please upload a valid file for :attribute.'),
+            'mimes' => $this->txt('يجب أن يكون الملف في :attribute من نوع: :values.', 'The :attribute must be a file of type: :values.'),
         ];
     }
 
@@ -251,6 +254,7 @@ class Create extends Component
             'doc_activity_license' => tr('Activity License'),
             'doc_incorporation' => tr('Incorporation Contract'),
             'doc_owner_id' => tr('Owner ID / Passport'),
+            'doc_national_address' => tr('National Address Document'),
         ];
     }
 
@@ -357,7 +361,7 @@ class Create extends Component
 
     private function rulesTab4(): array
     {
-        $file = ['nullable', 'file', 'max:10240']; // 10MB
+        $file = ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240']; // 10MB
 
         return [
             'doc_cr' => $file,
@@ -365,6 +369,7 @@ class Create extends Component
             'doc_activity_license' => $file,
             'doc_incorporation' => $file,
             'doc_owner_id' => $file,
+            'doc_national_address' => $file,
         ];
     }
 
@@ -538,6 +543,7 @@ class Create extends Component
                 $this->saveDoc($company->id, 'activity_license', $this->doc_activity_license);
                 $this->saveDoc($company->id, 'incorporation', $this->doc_incorporation);
                 $this->saveDoc($company->id, 'owner_id', $this->doc_owner_id);
+                $this->saveDoc($company->id, 'national_address', $this->doc_national_address);
 
                 return [$company->id, $admin->id];
             });

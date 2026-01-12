@@ -58,6 +58,19 @@
             />
         </div>
 
+        <div class="sm:col-span-2">
+            <x-ui.file
+                :label="tr('National Address Document')"
+                name="doc_national_address"
+                wire:model="doc_national_address"
+                target="doc_national_address"
+                :file="$doc_national_address"
+                :existingFile="$this->existingDocument('national_address')"
+                accept=".pdf,.jpg,.jpeg,.png"
+                :hint="tr('PDF/JPG/PNG — max 10MB')"
+            />
+        </div>
+
     </div>
 
     <div class="rounded-xl sm:rounded-2xl border bg-gray-50 p-3 sm:p-4 text-[11px] sm:text-[12px] text-gray-600">

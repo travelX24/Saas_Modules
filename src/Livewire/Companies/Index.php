@@ -98,22 +98,24 @@ class Index extends Component
         $this->resetPage();
     }
 
-    public function deleteCompany(int $companyId): void
+    public function toggleCompanyStatus(int $companyId): void
     {
         try {
             $company = SaasCompany::findOrFail($companyId);
 
-            // حذف الشركة (سيتم حذف البيانات المرتبطة تلقائياً بسبب cascade)
-            $company->delete();
+            // تبديل حالة الشركة (تفعيل/إيقاف)
+            $company->is_active = !$company->is_active;
+            $company->save();
 
-            // مسح Cache الفلاتر عند الحذف
+            // مسح Cache الفلاتر عند التغيير
             $this->clearFiltersCache();
 
             // إظهار رسالة نجاح
-            session()->flash('status', tr('Company deleted successfully'));
+            $status = $company->is_active ? tr('Company activated successfully') : tr('Company deactivated successfully');
+            session()->flash('status', $status);
         } catch (\Throwable $e) {
             report($e);
-            session()->flash('error', tr('Failed to delete company. Please try again.'));
+            session()->flash('error', tr('Failed to update company status. Please try again.'));
         }
     }
 

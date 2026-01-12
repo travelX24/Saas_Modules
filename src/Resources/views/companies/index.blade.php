@@ -351,12 +351,17 @@
                                             </x-ui.dropdown-item>
                                             <div class="border-t border-gray-100 my-1"></div>
                                             <x-ui.dropdown-item 
-                                                danger="true" 
+                                                :class="$company->is_active ? 'text-orange-600 hover:bg-orange-50' : 'text-green-600 hover:bg-green-50'"
                                                 href="#"
-                                                x-on:click="$dispatch('open-confirm-delete-company-{{ $company->id }}')"
+                                                wire:click="toggleCompanyStatus({{ $company->id }})"
                                             >
-                                                <i class="fas fa-trash w-4 me-2"></i>
-                                                {{ tr('Delete') }}
+                                                @if($company->is_active)
+                                                    <i class="fas fa-pause w-4 me-2"></i>
+                                                    {{ tr('Deactivate') }}
+                                                @else
+                                                    <i class="fas fa-play w-4 me-2"></i>
+                                                    {{ tr('Activate') }}
+                                                @endif
                                             </x-ui.dropdown-item>
                                         </x-ui.dropdown-menu>
                                     </td>
@@ -439,12 +444,17 @@
                             </x-ui.dropdown-item>
                             <div class="border-t border-gray-100 my-1"></div>
                             <x-ui.dropdown-item 
-                                danger="true" 
+                                :class="$company->is_active ? 'text-orange-600 hover:bg-orange-50' : 'text-green-600 hover:bg-green-50'"
                                 href="#"
-                                x-on:click="$dispatch('open-confirm-delete-company-{{ $company->id }}')"
+                                wire:click="toggleCompanyStatus({{ $company->id }})"
                             >
-                                <i class="fas fa-trash w-4 me-2"></i>
-                                {{ tr('Delete') }}
+                                @if($company->is_active)
+                                    <i class="fas fa-pause w-4 me-2"></i>
+                                    {{ tr('Deactivate') }}
+                                @else
+                                    <i class="fas fa-play w-4 me-2"></i>
+                                    {{ tr('Activate') }}
+                                @endif
                             </x-ui.dropdown-item>
                         </x-ui.dropdown-menu>
                     </div>
@@ -510,22 +520,6 @@
         @foreach($companies as $company)
             {{-- View Company Modal --}}
             @include('saas::components.view-company-modal', ['company' => $company])
-            
-            {{-- Confirm Delete Dialog --}}
-            @php
-                $companyName = app()->getLocale() === 'ar' ? $company->legal_name_ar : ($company->legal_name_en ?: $company->legal_name_ar);
-                $deleteMessage = tr('Are you sure you want to delete') . ' ' . $companyName . '? ' . tr('This action cannot be undone.');
-            @endphp
-            <x-ui.confirm-dialog
-                id="delete-company-{{ $company->id }}"
-                :title="tr('Confirm Delete Company')"
-                :message="$deleteMessage"
-                :confirmText="tr('Yes, Delete')"
-                :cancelText="tr('Cancel')"
-                confirmAction="wire:deleteCompany({{ $company->id }})"
-                type="danger"
-                icon="fa-trash"
-            />
         @endforeach
     @else
         {{-- Empty State --}}

@@ -6,6 +6,7 @@
         'activity_license' => tr('Activity License'),
         'incorporation' => tr('Incorporation Contract'),
         'owner_id' => tr('Owner ID / Passport'),
+        'national_address' => tr('National Address Document'),
     ];
 @endphp
 
