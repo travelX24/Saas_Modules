@@ -29,6 +29,7 @@ class Index extends Component
                 'totalCompanies' => SaasCompany::count(),
                 'activeCompanies' => $this->getActiveCompaniesCount(),
                 'expiredCompanies' => $this->getExpiredCompaniesCount(),
+                'inactiveCompanies' => $this->getInactiveCompaniesCount(),
                 'totalUsers' => User::whereNotNull('saas_company_id')->count(),
                 'newUsersThisMonth' => User::whereNotNull('saas_company_id')
                     ->whereMonth('created_at', now()->month)
@@ -78,6 +79,7 @@ $charts = Cache::remember($chartCacheKey, now()->addMinutes(5), function () {
             'totalCompanies' => $stats['totalCompanies'],
             'activeCompanies' => $stats['activeCompanies'],
             'expiredCompanies' => $stats['expiredCompanies'],
+            'inactiveCompanies' => $stats['inactiveCompanies'],
             'totalUsers' => $stats['totalUsers'],
             'newUsersThisMonth' => $stats['newUsersThisMonth'],
             'subscriptionsExpiringSoon' => $stats['subscriptionsExpiringSoon'],
@@ -112,6 +114,12 @@ $charts = Cache::remember($chartCacheKey, now()->addMinutes(5), function () {
             })
             ->distinct('saas_companies.id')
             ->count('saas_companies.id');
+    }
+
+    private function getInactiveCompaniesCount(): int
+    {
+        // الشركات غير المنشطة: is_active = false
+        return SaasCompany::where('is_active', false)->count();
     }
 
     private function getSubscriptionsExpiringSoonCount(): int

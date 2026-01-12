@@ -93,6 +93,8 @@
                         :options="[
                             ['value' => 'active', 'label' => tr('Active')],
                             ['value' => 'expired', 'label' => tr('Expired')],
+                            ['value' => 'inactive', 'label' => tr('Inactive')],
+                            ['value' => 'expiring_soon', 'label' => tr('Expiring Soon (30 days)')],
                         ]"
                         width="md"
                         :defer="false"

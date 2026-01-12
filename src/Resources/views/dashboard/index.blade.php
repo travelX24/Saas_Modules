@@ -28,21 +28,21 @@
     </div>
 
     {{-- Stats Cards --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="flex flex-row gap-3">
         {{-- Total Companies --}}
-        <x-ui.card class="relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-500/10 to-blue-600/5 rounded-bl-full"></div>
+        <x-ui.card class="relative overflow-hidden p-4 flex-1 min-w-0">
+            <div class="absolute top-0 right-0 w-14 h-14 bg-gradient-to-br from-blue-500/10 to-blue-600/5 rounded-bl-full"></div>
             <div class="relative">
-                <div class="flex items-center justify-between mb-3">
-                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
-                        <i class="fas fa-building text-white text-xl"></i>
+                <div class="flex items-center mb-3 gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg flex-shrink-0">
+                        <i class="fas fa-building text-white text-base"></i>
                     </div>
-                    <div class="text-right">
+                    <div class="text-right flex-1">
                         <div class="text-xs text-gray-500 mb-1">{{ tr('Total Companies') }}</div>
-                        <div class="text-2xl font-bold text-gray-900">{{ number_format($totalCompanies) }}</div>
+                        <div class="text-xl font-bold text-gray-900">{{ number_format($totalCompanies) }}</div>
                     </div>
                 </div>
-                <div class="flex items-center gap-2 text-xs">
+                <div class="flex items-center gap-1.5 text-xs mt-2">
                     <span class="text-green-600 font-semibold">
                         <i class="fas fa-arrow-up"></i> {{ $newCompaniesThisMonth }}
                     </span>
@@ -52,19 +52,19 @@
         </x-ui.card>
 
         {{-- Active Companies --}}
-        <x-ui.card class="relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-green-500/10 to-green-600/5 rounded-bl-full"></div>
+        <x-ui.card class="relative overflow-hidden p-4 flex-1 min-w-0">
+            <div class="absolute top-0 right-0 w-14 h-14 bg-gradient-to-br from-green-500/10 to-green-600/5 rounded-bl-full"></div>
             <div class="relative">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-lg">
-                        <i class="fas fa-check-circle text-white text-xl"></i>
+                <div class="flex items-center mb-3 gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-lg flex-shrink-0">
+                        <i class="fas fa-check-circle text-white text-base"></i>
                     </div>
-                    <div class="text-right">
+                    <div class="text-right flex-1">
                         <div class="text-xs text-gray-500 mb-1">{{ tr('Active Companies') }}</div>
-                        <div class="text-2xl font-bold text-gray-900">{{ number_format($activeCompanies) }}</div>
+                        <div class="text-xl font-bold text-gray-900">{{ number_format($activeCompanies) }}</div>
                     </div>
                 </div>
-                <div class="flex items-center gap-2 text-xs">
+                <div class="flex items-center gap-1.5 text-xs mt-2">
                     <span class="text-gray-500">
                         {{ $totalCompanies > 0 ? number_format(($activeCompanies / $totalCompanies) * 100, 1) : 0 }}%
                     </span>
@@ -74,19 +74,19 @@
         </x-ui.card>
 
         {{-- Total Users --}}
-        <x-ui.card class="relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-purple-500/10 to-purple-600/5 rounded-bl-full"></div>
+        <x-ui.card class="relative overflow-hidden p-4 flex-1 min-w-0">
+            <div class="absolute top-0 right-0 w-14 h-14 bg-gradient-to-br from-purple-500/10 to-purple-600/5 rounded-bl-full"></div>
             <div class="relative">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg">
-                        <i class="fas fa-users text-white text-xl"></i>
+                <div class="flex items-center mb-3 gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg flex-shrink-0">
+                        <i class="fas fa-users text-white text-base"></i>
                     </div>
-                    <div class="text-right">
+                    <div class="text-right flex-1">
                         <div class="text-xs text-gray-500 mb-1">{{ tr('Total Users') }}</div>
-                        <div class="text-2xl font-bold text-gray-900">{{ number_format($totalUsers) }}</div>
+                        <div class="text-xl font-bold text-gray-900">{{ number_format($totalUsers) }}</div>
                     </div>
                 </div>
-                <div class="flex items-center gap-2 text-xs">
+                <div class="flex items-center gap-1.5 text-xs mt-2">
                     <span class="text-green-600 font-semibold">
                         <i class="fas fa-arrow-up"></i> {{ $newUsersThisMonth }}
                     </span>
@@ -96,23 +96,45 @@
         </x-ui.card>
 
         {{-- Expiring Soon --}}
-        <x-ui.card class="relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-orange-500/10 to-orange-600/5 rounded-bl-full"></div>
+        <x-ui.card class="relative overflow-hidden p-4 flex-1 min-w-0">
+            <div class="absolute top-0 right-0 w-14 h-14 bg-gradient-to-br from-orange-500/10 to-orange-600/5 rounded-bl-full"></div>
             <div class="relative">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg">
-                        <i class="fas fa-exclamation-triangle text-white text-xl"></i>
+                <div class="flex items-center mb-3 gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg flex-shrink-0">
+                        <i class="fas fa-exclamation-triangle text-white text-base"></i>
                     </div>
-                    <div class="text-right">
+                    <div class="text-right flex-1">
                         <div class="text-xs text-gray-500 mb-1">{{ tr('Expiring Soon') }}</div>
-                        <div class="text-2xl font-bold text-gray-900">{{ number_format($subscriptionsExpiringSoon) }}</div>
+                        <div class="text-xl font-bold text-gray-900">{{ number_format($subscriptionsExpiringSoon) }}</div>
                     </div>
                 </div>
-                <div class="flex items-center gap-2 text-xs">
+                <div class="flex items-center gap-1.5 text-xs mt-2">
                     <span class="text-orange-600 font-semibold">
                         <i class="fas fa-clock"></i>
                     </span>
                     <span class="text-gray-500">{{ tr('next 30 days') }}</span>
+                </div>
+            </div>
+        </x-ui.card>
+
+        {{-- Inactive Companies --}}
+        <x-ui.card class="relative overflow-hidden p-4 flex-1 min-w-0">
+            <div class="absolute top-0 right-0 w-14 h-14 bg-gradient-to-br from-red-500/10 to-red-600/5 rounded-bl-full"></div>
+            <div class="relative">
+                <div class="flex items-center mb-3 gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center shadow-lg flex-shrink-0">
+                        <i class="fas fa-pause-circle text-white text-base"></i>
+                    </div>
+                    <div class="text-right flex-1">
+                        <div class="text-xs text-gray-500 mb-1">{{ tr('Inactive Companies') }}</div>
+                        <div class="text-xl font-bold text-gray-900">{{ number_format($inactiveCompanies) }}</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-1.5 text-xs mt-2">
+                    <span class="text-red-600 font-semibold">
+                        <i class="fas fa-ban"></i>
+                    </span>
+                    <span class="text-gray-500">{{ tr('deactivated') }}</span>
                 </div>
             </div>
         </x-ui.card>

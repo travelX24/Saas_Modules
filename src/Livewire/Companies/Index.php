@@ -139,11 +139,12 @@ class Index extends Component
             })
             ->when($this->statusFilter !== 'all', function ($q) {
                 if ($this->statusFilter === 'active') {
-                    // الشركات النشطة: لديها settings و subscription_ends_at في المستقبل
-                    $q->whereHas('settings', function ($query) {
-                        $query->whereNotNull('subscription_ends_at')
-                            ->where('subscription_ends_at', '>=', now());
-                    });
+                    // الشركات النشطة: لديها settings و subscription_ends_at في المستقبل و is_active = true
+                    $q->where('is_active', true)
+                        ->whereHas('settings', function ($query) {
+                            $query->whereNotNull('subscription_ends_at')
+                                ->where('subscription_ends_at', '>=', now());
+                        });
                 } elseif ($this->statusFilter === 'expired') {
                     // الشركات المنتهية: ليس لها settings أو subscription_ends_at في الماضي أو null
                     $q->where(function ($query) {
@@ -155,6 +156,17 @@ class Index extends Component
                                 });
                             });
                     });
+                } elseif ($this->statusFilter === 'inactive') {
+                    // الشركات غير المنشطة: is_active = false
+                    $q->where('is_active', false);
+                } elseif ($this->statusFilter === 'expiring_soon') {
+                    // الشركات قريبة الانتهاء: subscription_ends_at بين الآن و 30 يوم من الآن
+                    $q->where('is_active', true)
+                        ->whereHas('settings', function ($query) {
+                            $query->whereNotNull('subscription_ends_at')
+                                ->where('subscription_ends_at', '>=', now())
+                                ->where('subscription_ends_at', '<=', now()->addDays(30));
+                        });
                 }
             })
             ->when($this->industryFilter !== 'all', function ($q) {

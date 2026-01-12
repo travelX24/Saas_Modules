@@ -45,31 +45,27 @@
             :hint="tr('PDF/JPG/PNG — max 10MB')"
         />
 
-        <div class="sm:col-span-2">
-            <x-ui.file
-                :label="tr('Owner ID / Passport')"
-                name="doc_owner_id"
-                wire:model="doc_owner_id"
-                target="doc_owner_id"
-                :file="$doc_owner_id"
-                :existingFile="$this->existingDocument('owner_id')"
-                accept=".pdf,.jpg,.jpeg,.png"
-                :hint="tr('PDF/JPG/PNG — max 10MB')"
-            />
-        </div>
+        <x-ui.file
+            :label="tr('Owner ID / Passport')"
+            name="doc_owner_id"
+            wire:model="doc_owner_id"
+            target="doc_owner_id"
+            :file="$doc_owner_id"
+            :existingFile="$this->existingDocument('owner_id')"
+            accept=".pdf,.jpg,.jpeg,.png"
+            :hint="tr('PDF/JPG/PNG — max 10MB')"
+        />
 
-        <div class="sm:col-span-2">
-            <x-ui.file
-                :label="tr('National Address Document')"
-                name="doc_national_address"
-                wire:model="doc_national_address"
-                target="doc_national_address"
-                :file="$doc_national_address"
-                :existingFile="$this->existingDocument('national_address')"
-                accept=".pdf,.jpg,.jpeg,.png"
-                :hint="tr('PDF/JPG/PNG — max 10MB')"
-            />
-        </div>
+        <x-ui.file
+            :label="tr('National Address Document')"
+            name="doc_national_address"
+            wire:model="doc_national_address"
+            target="doc_national_address"
+            :file="$doc_national_address"
+            :existingFile="$this->existingDocument('national_address')"
+            accept=".pdf,.jpg,.jpeg,.png"
+            :hint="tr('PDF/JPG/PNG — max 10MB')"
+        />
 
     </div>
 
