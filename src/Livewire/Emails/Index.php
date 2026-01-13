@@ -213,7 +213,19 @@ class Index extends Component
 
         // Get templates for templates tab
         $templates = null;
-        $types = null;
+        
+        // Always define types array (needed for filters even when tab is not active)
+        $types = [
+            ['value' => 'all', 'label' => tr('All Types')],
+            ['value' => 'subscription_expiry', 'label' => tr('Subscription Expiry')],
+            ['value' => 'subscription_anniversary', 'label' => tr('Subscription Anniversary')],
+            ['value' => 'update_notification', 'label' => tr('Update Notification')],
+            ['value' => 'greeting', 'label' => tr('Greeting')],
+            ['value' => 'user_welcome', 'label' => tr('User Welcome')],
+            ['value' => 'new_year_greeting', 'label' => tr('New Year Greeting')],
+            ['value' => 'holiday_greeting', 'label' => tr('Holiday Greeting')],
+            ['value' => 'custom', 'label' => tr('Custom')],
+        ];
 
         if ($this->activeTab === 'templates') {
             $query = EmailTemplate::query()
@@ -236,18 +248,6 @@ class Index extends Component
                 ->latest();
 
             $templates = $query->paginate(12);
-
-            $types = [
-                ['value' => 'all', 'label' => tr('All Types')],
-                ['value' => 'subscription_expiry', 'label' => tr('Subscription Expiry')],
-                ['value' => 'subscription_anniversary', 'label' => tr('Subscription Anniversary')],
-                ['value' => 'update_notification', 'label' => tr('Update Notification')],
-                ['value' => 'greeting', 'label' => tr('Greeting')],
-                ['value' => 'user_welcome', 'label' => tr('User Welcome')],
-                ['value' => 'new_year_greeting', 'label' => tr('New Year Greeting')],
-                ['value' => 'holiday_greeting', 'label' => tr('Holiday Greeting')],
-                ['value' => 'custom', 'label' => tr('Custom')],
-            ];
         }
 
         return view('saas::emails.index', [

@@ -36,7 +36,6 @@ class SaasServiceProvider extends ServiceProvider
             Livewire::component('saas.translations.index', \Athka\Saas\Livewire\Translations\Index::class);
             
             // Email Templates
-            Livewire::component('saas.email-templates.index', \Athka\Saas\Livewire\EmailTemplates\Index::class);
             Livewire::component('saas.email-templates.create', \Athka\Saas\Livewire\EmailTemplates\Create::class);
             Livewire::component('saas.email-templates.edit', \Athka\Saas\Livewire\EmailTemplates\Edit::class);
             

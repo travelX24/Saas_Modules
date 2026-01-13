@@ -8,7 +8,6 @@ use Athka\Saas\Livewire\Companies\Create as CompanyCreate;
 use Athka\Saas\Livewire\Companies\Index as CompanyIndex;
 use Athka\Saas\Livewire\Dashboard\Index as SaasDashboard;
 use Athka\Saas\Livewire\Translations\Index as TranslationsIndex;
-use Athka\Saas\Livewire\EmailTemplates\Index as EmailTemplatesIndex;
 use Athka\Saas\Livewire\EmailTemplates\Create as EmailTemplatesCreate;
 use Athka\Saas\Livewire\EmailTemplates\Edit as EmailTemplatesEdit;
 use Athka\Saas\Livewire\Emails\Index as EmailsIndex;
