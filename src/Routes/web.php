@@ -8,6 +8,12 @@ use Athka\Saas\Livewire\Companies\Create as CompanyCreate;
 use Athka\Saas\Livewire\Companies\Index as CompanyIndex;
 use Athka\Saas\Livewire\Dashboard\Index as SaasDashboard;
 use Athka\Saas\Livewire\Translations\Index as TranslationsIndex;
+use Athka\Saas\Livewire\EmailTemplates\Index as EmailTemplatesIndex;
+use Athka\Saas\Livewire\EmailTemplates\Create as EmailTemplatesCreate;
+use Athka\Saas\Livewire\EmailTemplates\Edit as EmailTemplatesEdit;
+use Athka\Saas\Livewire\Emails\Index as EmailsIndex;
+use Athka\Saas\Livewire\Emails\Send as EmailsSend;
+use Athka\Saas\Livewire\Emails\Scheduled as EmailsScheduled;
 use Illuminate\Support\Facades\Route;
 
 /**
@@ -25,6 +31,16 @@ Route::prefix('saas')
         Route::get('/companies/create', CompanyCreate::class)->name('companies.create');
 
         Route::get('/translations', TranslationsIndex::class)->name('translations.index');
+
+        // Email Messages (Unified interface with tabs)
+        Route::get('/emails', EmailsIndex::class)->name('emails.index');
+        Route::get('/emails/send', EmailsSend::class)->name('emails.send');
+        Route::get('/emails/scheduled', EmailsScheduled::class)->name('emails.scheduled');
+
+        // Email Templates
+        Route::get('/email-templates', EmailTemplatesIndex::class)->name('email-templates.index');
+        Route::get('/email-templates/create', EmailTemplatesCreate::class)->name('email-templates.create');
+        Route::get('/email-templates/{id}/edit', EmailTemplatesEdit::class)->name('email-templates.edit');
     });
 
 /**

@@ -33,6 +33,13 @@
             'disabled' => false,
             'icon' => '<i class="fas fa-language"></i>',
         ],
+        [
+            'href' => route('saas.emails.index'),
+            'label' => tr('Email Messages'),
+            'active' => request()->routeIs('saas.email-templates.*') || request()->routeIs('saas.emails.*'),
+            'disabled' => false,
+            'icon' => '<i class="fas fa-envelope"></i>',
+        ],
 
     ];
 @endphp

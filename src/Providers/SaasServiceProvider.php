@@ -34,11 +34,23 @@ class SaasServiceProvider extends ServiceProvider
             Livewire::component('saas.companies.create', \Athka\Saas\Livewire\Companies\Create::class);
             Livewire::component('saas.companies.edit', \Athka\Saas\Livewire\Companies\Edit::class);
             Livewire::component('saas.translations.index', \Athka\Saas\Livewire\Translations\Index::class);
+            
+            // Email Templates
+            Livewire::component('saas.email-templates.index', \Athka\Saas\Livewire\EmailTemplates\Index::class);
+            Livewire::component('saas.email-templates.create', \Athka\Saas\Livewire\EmailTemplates\Create::class);
+            Livewire::component('saas.email-templates.edit', \Athka\Saas\Livewire\EmailTemplates\Edit::class);
+            Livewire::component('saas.emails.send', \Athka\Saas\Livewire\Emails\Send::class);
+            Livewire::component('saas.emails.scheduled', \Athka\Saas\Livewire\Emails\Scheduled::class);
         }
     }
 
     public function register(): void
     {
-        //
+        // Register commands
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \Athka\Saas\Commands\ProcessScheduledEmails::class,
+            ]);
+        }
     }
 }

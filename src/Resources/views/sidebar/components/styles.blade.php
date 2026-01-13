@@ -176,6 +176,10 @@
         overflow-y: auto;
     }
 
+    .sidebar.collapsed .nav-links {
+        overflow-y: visible;
+    }
+
     .nav-item { margin-bottom: 5px; }
 
     .nav-link {

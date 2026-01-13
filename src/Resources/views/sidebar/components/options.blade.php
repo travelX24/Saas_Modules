@@ -28,10 +28,6 @@
 
 {{-- ✅ Collapsed sidebar: mini buttons centered --}}
 <div class="language-switcher collapsed-only lang-center-col">
-    <div class="lang-title-mini" title="{{ tr('Language') }}">
-        <i class="fas fa-globe"></i>
-    </div>
-
     <a href="{{ route('lang.switch', 'ar') }}"
        class="lang-mini {{ $isAr ? 'active' : '' }}"
        title="AR">AR</a>
