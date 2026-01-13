@@ -37,8 +37,10 @@ Route::prefix('saas')
         Route::get('/emails/send', EmailsSend::class)->name('emails.send');
         Route::get('/emails/scheduled', EmailsScheduled::class)->name('emails.scheduled');
 
-        // Email Templates
-        Route::get('/email-templates', EmailTemplatesIndex::class)->name('email-templates.index');
+        // Email Templates - Redirect old route to new unified interface
+        Route::get('/email-templates', function () {
+            return redirect()->route('saas.emails.index', ['tab' => 'templates']);
+        })->name('email-templates.index');
         Route::get('/email-templates/create', EmailTemplatesCreate::class)->name('email-templates.create');
         Route::get('/email-templates/{id}/edit', EmailTemplatesEdit::class)->name('email-templates.edit');
     });

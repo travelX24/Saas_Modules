@@ -230,10 +230,13 @@
             {{-- Templates Tab --}}
             @if($activeTab === 'templates')
                 <div class="space-y-4 sm:space-y-6">
-                    {{-- Search and Filters --}}
-                    <div class="space-y-4">
+                    {{-- Search and Filters in same row --}}
+                    <div 
+                        x-data="{ open: @js(true) }"
+                        class="flex flex-col lg:flex-row gap-4 items-start lg:items-end"
+                    >
                         {{-- Search Bar --}}
-                        <div class="flex flex-col sm:flex-row gap-3">
+                        <div class="flex-1 w-full lg:max-w-md">
                             <x-ui.search-box
                                 model="search"
                                 :placeholder="tr('Search by name or subject...')"
@@ -242,22 +245,17 @@
                         </div>
 
                         {{-- Filters --}}
-                        <div 
-                            x-data="{ open: @js(true) }"
-                            class="space-y-3"
-                        >
-                            <div class="flex items-center justify-between">
+                        <div class="flex flex-col gap-3 lg:flex-shrink-0">
+                            <div class="flex items-center justify-between lg:justify-end">
                                 <button
                                     type="button"
                                     @click="open = !open"
-                                    class="flex items-center justify-between text-sm font-semibold text-gray-700 hover:text-gray-900 transition-colors"
+                                    class="flex items-center gap-2 text-sm font-semibold text-gray-700 hover:text-gray-900 transition-colors"
                                 >
-                                    <span class="flex items-center gap-2">
-                                        <i class="fas fa-filter"></i>
-                                        <span>{{ tr('Filters') }}</span>
-                                    </span>
+                                    <i class="fas fa-filter"></i>
+                                    <span>{{ tr('Filters') }}</span>
                                     <i 
-                                        class="fas fa-chevron-down transition-transform ms-2"
+                                        class="fas fa-chevron-down transition-transform ms-1"
                                         :class="open ? 'rotate-180' : ''"
                                     ></i>
                                 </button>

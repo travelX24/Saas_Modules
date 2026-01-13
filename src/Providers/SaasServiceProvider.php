@@ -39,6 +39,16 @@ class SaasServiceProvider extends ServiceProvider
             Livewire::component('saas.email-templates.index', \Athka\Saas\Livewire\EmailTemplates\Index::class);
             Livewire::component('saas.email-templates.create', \Athka\Saas\Livewire\EmailTemplates\Create::class);
             Livewire::component('saas.email-templates.edit', \Athka\Saas\Livewire\EmailTemplates\Edit::class);
+            
+            // Emails (Unified interface with tabs)
+            $emailsIndexComponent = \Athka\Saas\Livewire\Emails\Index::class;
+            Livewire::component('saas.emails.index', $emailsIndexComponent);
+            // Register with all possible names that Livewire might use for discovery
+            Livewire::component('athka.saas.livewire.emails.index', $emailsIndexComponent);
+            Livewire::component('athka.saas.livewire.emails', $emailsIndexComponent);
+            // Also register without namespace prefix (for auto-discovery)
+            Livewire::component('emails.index', $emailsIndexComponent);
+            Livewire::component('emails', $emailsIndexComponent);
             Livewire::component('saas.emails.send', \Athka\Saas\Livewire\Emails\Send::class);
             Livewire::component('saas.emails.scheduled', \Athka\Saas\Livewire\Emails\Scheduled::class);
         }
