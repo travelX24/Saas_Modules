@@ -12,7 +12,22 @@
         </a>
     </div>
 
-    <form wire:submit.prevent="save" class="space-y-4">
+</div>
+
+@if (session('success'))
+    <div class="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-green-800">
+        {{ session('success') }}
+    </div>
+@endif
+
+@if (session('error'))
+    <div class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-800">
+        {{ session('error') }}
+    </div>
+@endif
+
+<form wire:submit.prevent="save" class="space-y-4" id="create-template-form">
+
         <x-ui.card>
             <div class="space-y-4">
                 {{-- Name --}}
@@ -22,10 +37,13 @@
                     required
                     placeholder="{{ tr('Enter template name') }}"
                 />
+                @error('name')
+                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                @enderror
 
                 {{-- Type --}}
                 <x-ui.select
-                    wire:model="type"
+                    wire:model.live="type"
                     label="{{ tr('Template Type') }}"
                     required
                 >
@@ -39,6 +57,9 @@
                     <option value="holiday_greeting">{{ tr('Holiday Greeting') }}</option>
                     <option value="custom">{{ tr('Custom') }}</option>
                 </x-ui.select>
+                @error('type')
+                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                @enderror
 
                 {{-- Subject --}}
                 <x-ui.input
@@ -48,6 +69,9 @@
                     placeholder="{{ tr('Enter email subject') }}"
                     hint="{{ tr('You can use variables like {company_name}, {expiry_date}, etc.') }}"
                 />
+                @error('subject')
+                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                @enderror
 
                 {{-- Body --}}
                 <div>
@@ -60,6 +84,9 @@
                         hint="{{ tr('You can use HTML tags and variables like {company_name}, {expiry_date}, etc.') }}"
                     />
                 </div>
+                @error('body')
+                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                @enderror
 
                 {{-- Available Variables --}}
                 @if(count($variables) > 0)
@@ -94,14 +121,18 @@
             >
                 {{ tr('Cancel') }}
             </x-ui.secondary-button>
-            <x-ui.primary-button
-                type="submit"
+            <button
+                type="button"
+                wire:click="save"
                 wire:loading.attr="disabled"
+                onclick="console.log('Button clicked - Livewire should handle this');"
+                class="px-4 py-2 bg-[color:var(--brand-via)] text-white rounded-2xl hover:bg-[color:var(--brand-to)] flex items-center justify-center gap-2 text-sm sm:text-base font-semibold transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
                 <i class="fas fa-save"></i>
                 <span class="ms-2" wire:loading.remove wire:target="save">{{ tr('Save Template') }}</span>
                 <span class="ms-2" wire:loading wire:target="save">{{ tr('Saving...') }}</span>
-            </x-ui.primary-button>
+            </button>
         </div>
     </form>
 </div>
+

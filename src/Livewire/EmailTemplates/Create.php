@@ -14,7 +14,7 @@ class Create extends Component
 
     public string $body = '';
 
-    public string $type = 'custom';
+    public string $type = '';
 
     public bool $is_active = true;
 
@@ -28,10 +28,23 @@ class Create extends Component
         'is_active' => 'boolean',
     ];
 
+    protected $messages = [
+        'name.required' => 'Template name is required',
+        'name.max' => 'Template name must not exceed 190 characters',
+        'subject.required' => 'Email subject is required',
+        'subject.max' => 'Email subject must not exceed 255 characters',
+        'body.required' => 'Email body is required',
+        'type.required' => 'Template type is required',
+        'type.in' => 'Invalid template type selected',
+    ];
+
     public function mount(): void
     {
-        // Set default variables based on type
-        $this->updateVariablesByType();
+        // Don't set default type - let user choose
+        // Only set variables if type is already selected
+        if (!empty($this->type)) {
+            $this->updateVariablesByType();
+        }
     }
 
     public function updatedType(): void
@@ -65,11 +78,26 @@ class Create extends Component
         $this->variables = $defaultVariables[$this->type] ?? [];
     }
 
-    public function save(): void
+    public function save()
     {
-        $this->validate();
+        \Log::info('Create::save() method called', [
+            'name' => $this->name,
+            'type' => $this->type,
+            'type_empty' => empty($this->type),
+            'subject' => $this->subject,
+            'body_length' => strlen($this->body ?? ''),
+        ]);
 
         try {
+            // Ensure variables are set before validation
+            if (!empty($this->type) && empty($this->variables)) {
+                $this->updateVariablesByType();
+            }
+            
+            $this->validate();
+
+            \Log::info('Validation passed, creating template');
+
             EmailTemplate::create([
                 'name' => $this->name,
                 'subject' => $this->subject,
@@ -81,11 +109,21 @@ class Create extends Component
                 'updated_by' => Auth::id(),
             ]);
 
-            session()->flash('status', tr('Template created successfully'));
-            $this->redirect(route('saas.emails.index', ['tab' => 'templates']));
+            \Log::info('Template created successfully');
+            session()->flash('success', tr('Template created successfully'));
+            return redirect()->route('saas.emails.index', ['tab' => 'templates']);
+            
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Validation failed', ['errors' => $e->errors()]);
+            // Re-throw validation exceptions to show them in the form
+            throw $e;
         } catch (\Throwable $e) {
+            \Log::error('Error creating template', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
             report($e);
-            session()->flash('error', tr('Failed to create template. Please try again.'));
+            session()->flash('error', tr('Failed to create template: ') . $e->getMessage());
         }
     }
 
