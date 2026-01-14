@@ -67,7 +67,7 @@
                     label="{{ tr('Email Subject') }}"
                     required
                     placeholder="{{ tr('Enter email subject') }}"
-                    hint="{{ tr('You can use variables like {company_name}, {expiry_date}, etc.') }}"
+                    hint="{{ tr('You can use variables like {company_name} or {{company_name}}, {expiry_date} or {{expiry_date}}, etc.') }}"
                 />
                 @error('subject')
                     <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
@@ -81,25 +81,68 @@
                         required
                         rows="10"
                         placeholder="{{ tr('Enter email body (HTML supported)') }}"
-                        hint="{{ tr('You can use HTML tags and variables like {company_name}, {expiry_date}, etc.') }}"
+                        hint="{{ tr('You can use HTML tags and variables like {company_name} or {{company_name}}, {expiry_date} or {{expiry_date}}, etc.') }}"
                     />
                 </div>
                 @error('body')
                     <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
                 @enderror
 
-                {{-- Available Variables --}}
+                {{-- Variables Card --}}
                 @if(count($variables) > 0)
-                    <div class="bg-gray-50 rounded-xl p-4">
-                        <h3 class="text-sm font-semibold text-gray-700 mb-2">
-                            {{ tr('Available Variables') }}
-                        </h3>
-                        <div class="flex flex-wrap gap-2">
-                            @foreach($variables as $variable)
-                                <span class="px-2 py-1 bg-white border border-gray-200 rounded text-xs font-mono text-gray-700">
-                                    @{{ $variable }}
+                    <div class="border border-gray-200 rounded-xl overflow-hidden">
+                        {{-- Card Header (Clickable) --}}
+                        <button
+                            type="button"
+                            onclick="toggleVariablesCard()"
+                            class="w-full flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 transition-colors duration-200"
+                        >
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-code text-blue-600"></i>
+                                <h3 class="text-base font-semibold text-gray-800">
+                                    {{ tr('Available Variables') }}
+                                </h3>
+                                <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
+                                    {{ count($variables) }}
                                 </span>
-                            @endforeach
+                            </div>
+                            <i id="variablesCardIcon" class="fas fa-chevron-down text-gray-600 transition-transform duration-300"></i>
+                        </button>
+
+                        {{-- Card Content (Collapsible) --}}
+                        <div id="variablesCardContent" class="hidden border-t border-gray-200 bg-white">
+                            <div class="p-4 space-y-3 max-h-96 overflow-y-auto">
+                                @php
+                                    $descriptions = $this->getVariableDescriptions();
+                                @endphp
+                                @foreach($variables as $variable)
+                                    <div class="flex flex-col sm:flex-row sm:items-start gap-2 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                                        <div class="flex-1">
+                                            <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                                <code class="px-2 py-1 bg-white border border-gray-300 rounded text-sm font-mono text-blue-700">
+                                                    @{{ $variable }}
+                                                </code>
+                                                <span class="text-xs text-gray-500">{{ tr('or') }}</span>
+                                                <code class="px-2 py-1 bg-white border border-gray-300 rounded text-sm font-mono text-blue-700">
+                                                    {{{{ $variable }}}}
+                                                </code>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mt-1">
+                                                {{ $descriptions[$variable] ?? tr('Variable description not available') }}
+                                            </p>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onclick="copyVariable('{{ $variable }}', this)"
+                                            class="px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-xs font-semibold transition-colors flex items-center gap-1"
+                                            title="{{ tr('Copy variable') }}"
+                                        >
+                                            <i class="fas fa-copy"></i>
+                                            <span>{{ tr('Copy') }}</span>
+                                        </button>
+                                    </div>
+                                @endforeach
+                            </div>
                         </div>
                     </div>
                 @endif
@@ -135,4 +178,47 @@
         </div>
     </form>
 </div>
+
+@push('scripts')
+<script>
+    function toggleVariablesCard() {
+        const content = document.getElementById('variablesCardContent');
+        const icon = document.getElementById('variablesCardIcon');
+        
+        if (content.classList.contains('hidden')) {
+            content.classList.remove('hidden');
+            icon.classList.remove('fa-chevron-down');
+            icon.classList.add('fa-chevron-up');
+        } else {
+            content.classList.add('hidden');
+            icon.classList.remove('fa-chevron-up');
+            icon.classList.add('fa-chevron-down');
+        }
+    }
+
+    function copyVariable(variable, buttonElement) {
+        // Copy both formats
+        const textToCopy = `{{${variable}}}`;
+        
+        navigator.clipboard.writeText(textToCopy).then(function() {
+            // Show success message
+            if (buttonElement) {
+                const originalHTML = buttonElement.innerHTML;
+                buttonElement.innerHTML = '<i class="fas fa-check"></i> <span>{{ tr("Copied!") }}</span>';
+                buttonElement.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                buttonElement.classList.add('bg-green-600', 'hover:bg-green-700');
+                
+                setTimeout(function() {
+                    buttonElement.innerHTML = originalHTML;
+                    buttonElement.classList.remove('bg-green-600', 'hover:bg-green-700');
+                    buttonElement.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                }, 2000);
+            }
+        }).catch(function(err) {
+            console.error('Failed to copy: ', err);
+            alert('{{ tr("Failed to copy variable") }}');
+        });
+    }
+</script>
+@endpush
 

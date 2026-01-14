@@ -98,6 +98,39 @@ class Edit extends Component
         }
     }
 
+    public function getVariableDescriptions(): array
+    {
+        $descriptions = [
+            'company_name' => tr('The name of the company'),
+            'expiry_date' => tr('The subscription expiry date (format: Y-m-d)'),
+            'days_remaining' => tr('Number of days remaining until subscription expires'),
+            'admin_name' => tr('The name of the company administrator'),
+            'subscription_start_date' => tr('The date when the subscription started'),
+            'years_subscribed' => tr('Number of years the company has been subscribed'),
+            'renewal_date' => tr('The subscription renewal date'),
+            'update_title' => tr('Title of the system update'),
+            'update_description' => tr('Description of the system update'),
+            'update_version' => tr('Version number of the update'),
+            'update_date' => tr('Date when the update was released'),
+            'welcome_message' => tr('Welcome message for the company'),
+            'system_name' => tr('Name of the system/platform'),
+            'user_name' => tr('Name of the new user'),
+            'login_url' => tr('URL for user login page'),
+            'username' => tr('Username for the new user account'),
+            'reset_password_url' => tr('URL to reset password'),
+            'support_email' => tr('Support email address'),
+            'support_phone' => tr('Support phone number'),
+            'support_hours' => tr('Support working hours'),
+            'year' => tr('The new year number'),
+            'new_year_date' => tr('Date of the new year'),
+            'wishes_message' => tr('New year wishes message'),
+            'holiday_name' => tr('Name of the holiday'),
+            'holiday_date' => tr('Date of the holiday'),
+        ];
+
+        return $descriptions;
+    }
+
     public function render()
     {
         return view('saas::email-templates.edit', [

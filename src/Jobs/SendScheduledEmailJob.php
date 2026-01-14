@@ -232,9 +232,12 @@ class SendScheduledEmailJob implements ShouldQueue
             }
         }
 
-        // Replace all variables
+        // Replace all variables - support both {variable} and {{variable}} formats
         foreach ($replacements as $key => $value) {
+            // Replace single curly braces: {variable}
             $text = str_replace('{'.$key.'}', $value, $text);
+            // Replace double curly braces: {{variable}}
+            $text = str_replace('{{'.$key.'}}', $value, $text);
         }
 
         return $text;
