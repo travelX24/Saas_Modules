@@ -121,9 +121,14 @@ class Index extends Component
 
     private function clearFiltersCache(): void
     {
-        $locale = app()->getLocale();
-        Cache::forget("companies:filters:industries:{$locale}");
-        Cache::forget("companies:filters:locations:{$locale}");
+        // مسح Cache لجميع اللغات المحتملة
+        // ملاحظة: لا حاجة لمسح locations cache يدوياً لأن الـ key يعتمد على timestamp
+        // وعند إضافة/تحديث شركة، سيتم تحديث timestamp تلقائياً
+        foreach (['ar', 'en'] as $lang) {
+            Cache::forget("companies:filters:industries:{$lang}");
+            // مسح الـ Cache القديم (بدون timestamp) للتوافق مع الإصدارات السابقة
+            Cache::forget("companies:filters:locations:{$lang}");
+        }
     }
 
     public function render()
@@ -217,7 +222,11 @@ class Index extends Component
         });
 
         // Cache للمدن والدول (عرض كل البيانات بغض النظر عن اللغة)
-        $filtersData = Cache::remember("companies:filters:locations:{$locale}", now()->addMinutes(15), function () {
+        // استخدام timestamp آخر تحديث لضمان تحديث الـ Cache عند إضافة شركة جديدة
+        $lastUpdate = SaasCompany::max('updated_at')?->timestamp ?? 0;
+        $cacheKey = "companies:filters:locations:{$locale}:{$lastUpdate}";
+        
+        $filtersData = Cache::remember($cacheKey, now()->addMinutes(2), function () {
             $allCities = SaasCompany::whereNotNull('city')
                 ->distinct()
                 ->pluck('city')

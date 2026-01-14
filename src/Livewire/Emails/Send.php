@@ -36,10 +36,14 @@ class Send extends Component
     {
         if ($value) {
             $this->loadTemplateVariables();
-            // Auto-fill if company already selected
+            // Auto-fill only for single recipient
             if ($this->recipientType === 'single' && $this->recipientCompanyId) {
                 $this->autoFillVariablesFromCompany($this->recipientCompanyId);
+            } elseif ($this->recipientType === 'single') {
+                // For single recipient but no company selected yet, fill with default system values
+                $this->fillDefaultVariables();
             }
+            // For multiple companies, keep variables empty (each company will get its own data)
         } else {
             $this->variablesData = [];
         }
@@ -47,18 +51,40 @@ class Send extends Component
 
     public function updatedRecipientCompanyId($value): void
     {
-        if ($value && $this->recipientType === 'single') {
+        if ($value && $this->recipientType === 'single' && $this->templateId) {
             $this->autoFillVariablesFromCompany($value);
+        }
+    }
+
+    public function updatedSelectedCompanyIds($value): void
+    {
+        // For multiple companies, keep variables empty (each company will get its own data)
+        // No need to fill variables when selecting/deselecting companies in bulk mode
+        if ($this->recipientType === 'multiple' && $this->templateId) {
+            // Just ensure variables are loaded but empty
+            $this->loadTemplateVariables();
         }
     }
 
     public function updatedRecipientType($value): void
     {
-        if ($value === 'single' && $this->recipientCompanyId) {
-            $this->autoFillVariablesFromCompany($this->recipientCompanyId);
+        if ($value === 'single') {
+            // For single recipient, load and fill variables
+            if ($this->templateId) {
+                $this->loadTemplateVariables();
+                if ($this->recipientCompanyId) {
+                    $this->autoFillVariablesFromCompany($this->recipientCompanyId);
+                } else {
+                    // Fill with default system values
+                    $this->fillDefaultVariables();
+                }
+            }
         } elseif ($value === 'multiple') {
-            // Clear auto-filled data when switching to multiple
-            $this->loadTemplateVariables();
+            // For multiple companies, clear variables and keep them empty
+            // Each company will get its own data when sending
+            if ($this->templateId) {
+                $this->loadTemplateVariables(); // Load structure but keep values empty
+            }
         }
     }
 
@@ -75,12 +101,13 @@ class Send extends Component
             return;
         }
 
-        // Initialize variables with empty values
+        // Clear old variables first to ensure clean state
+        $this->variablesData = [];
+
+        // Initialize variables with empty values for the new template
         $variables = $template->variables ?? [];
         foreach ($variables as $variable) {
-            if (!isset($this->variablesData[$variable])) {
-                $this->variablesData[$variable] = '';
-            }
+            $this->variablesData[$variable] = '';
         }
     }
 
@@ -95,13 +122,30 @@ class Send extends Component
             return;
         }
 
-        // Load template variables first
-        $this->loadTemplateVariables();
+        // Ensure template variables are loaded (might already be loaded)
+        if (empty($this->variablesData) && $this->templateId) {
+            $this->loadTemplateVariables();
+        }
 
-        // Auto-fill from company data (only if not already filled)
+        // Get admin user once (used for multiple variables)
+        $admin = $company->users()->whereHas('roles', function ($q) {
+            $q->where('name', 'company-admin');
+        })->first();
+        // Fallback: if no admin with role, get first user of the company
+        if (!$admin) {
+            $admin = $company->users()->first();
+        }
+
+        // Get system/app configuration values
+        $appName = config('app.name', 'Athka HR');
+        $appUrl = config('app.url', url('/'));
+        $supportEmail = config('app.support_email', config('mail.from.address', 'support@athkahr.com'));
+        $supportPhone = config('app.support_phone', '+966 11 123 4567');
+        $supportHours = config('app.support_hours', tr('Sunday - Thursday: 9:00 AM - 5:00 PM'));
+
+        // Auto-fill from company data - always fill to ensure fresh data
         foreach ($this->variablesData as $variable => $value) {
-            if (empty($value)) {
-                switch ($variable) {
+            switch ($variable) {
                     case 'company_name':
                         $this->variablesData[$variable] = app()->getLocale() === 'ar' 
                             ? $company->legal_name_ar 
@@ -109,16 +153,59 @@ class Send extends Component
                         break;
                     
                     case 'admin_name':
-                        $admin = $company->users()->whereHas('roles', function ($q) {
-                            $q->where('name', 'company-admin');
-                        })->first();
-                        // Fallback: if no admin with role, get first user of the company
-                        if (!$admin) {
-                            $admin = $company->users()->first();
-                        }
                         if ($admin) {
                             $this->variablesData[$variable] = $admin->name;
                         }
+                        break;
+                    
+                    case 'user_name':
+                        // Same as admin_name for welcome emails
+                        if ($admin) {
+                            $this->variablesData[$variable] = $admin->name;
+                        }
+                        break;
+                    
+                    case 'username':
+                        // Use admin email as username
+                        if ($admin && $admin->email) {
+                            $this->variablesData[$variable] = $admin->email;
+                        }
+                        break;
+                    
+                    case 'system_name':
+                        $this->variablesData[$variable] = $appName;
+                        break;
+                    
+                    case 'login_url':
+                        // Build login URL for the company subdomain or main domain
+                        $loginUrl = $appUrl . '/login';
+                        // If company has subdomain, use it
+                        if ($company->subdomain) {
+                            $loginUrl = str_replace('://', '://' . $company->subdomain . '.', $appUrl) . '/login';
+                        }
+                        $this->variablesData[$variable] = $loginUrl;
+                        break;
+                    
+                    case 'reset_password_url':
+                        // Build reset password URL
+                        $resetUrl = $appUrl . '/password/reset';
+                        // If company has subdomain, use it
+                        if ($company->subdomain) {
+                            $resetUrl = str_replace('://', '://' . $company->subdomain . '.', $appUrl) . '/password/reset';
+                        }
+                        $this->variablesData[$variable] = $resetUrl;
+                        break;
+                    
+                    case 'support_email':
+                        $this->variablesData[$variable] = $supportEmail;
+                        break;
+                    
+                    case 'support_phone':
+                        $this->variablesData[$variable] = $supportPhone;
+                        break;
+                    
+                    case 'support_hours':
+                        $this->variablesData[$variable] = $supportHours;
                         break;
                     
                     case 'expiry_date':
@@ -129,8 +216,56 @@ class Send extends Component
                     
                     case 'days_remaining':
                         if ($company->settings && $company->settings->subscription_ends_at) {
-                            $this->variablesData[$variable] = max(0, now()->diffInDays($company->settings->subscription_ends_at, false));
+                            $daysRemaining = now()->diffInDays($company->settings->subscription_ends_at, false);
+                            $this->variablesData[$variable] = max(0, (int) floor($daysRemaining));
                         }
+                        break;
+                }
+        }
+    }
+
+    private function fillDefaultVariables(): void
+    {
+        if (!$this->templateId) {
+            return;
+        }
+
+        // Load template variables first
+        $this->loadTemplateVariables();
+
+        // Get system/app configuration values
+        $appName = config('app.name', 'Athka HR');
+        $appUrl = config('app.url', url('/'));
+        $supportEmail = config('app.support_email', config('mail.from.address', 'support@athkahr.com'));
+        $supportPhone = config('app.support_phone', '+966 11 123 4567');
+        $supportHours = config('app.support_hours', tr('Sunday - Thursday: 9:00 AM - 5:00 PM'));
+
+        // Fill default system values
+        foreach ($this->variablesData as $variable => $value) {
+            if (empty($value)) {
+                switch ($variable) {
+                    case 'system_name':
+                        $this->variablesData[$variable] = $appName;
+                        break;
+                    
+                    case 'login_url':
+                        $this->variablesData[$variable] = $appUrl . '/login';
+                        break;
+                    
+                    case 'reset_password_url':
+                        $this->variablesData[$variable] = $appUrl . '/password/reset';
+                        break;
+                    
+                    case 'support_email':
+                        $this->variablesData[$variable] = $supportEmail;
+                        break;
+                    
+                    case 'support_phone':
+                        $this->variablesData[$variable] = $supportPhone;
+                        break;
+                    
+                    case 'support_hours':
+                        $this->variablesData[$variable] = $supportHours;
                         break;
                 }
             }

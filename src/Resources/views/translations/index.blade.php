@@ -66,70 +66,107 @@
             @php
                 $locale = app()->getLocale();
                 $isRtl = in_array(substr($locale, 0, 2), ['ar', 'fa', 'ur', 'he']);
+                $textAlign = $isRtl ? 'text-right' : 'text-left';
+                $dir = $isRtl ? 'rtl' : 'ltr';
+                $stickyPosition = $isRtl ? 'left' : 'right';
             @endphp
-            <x-ui.table :headers="[tr('English'), tr('Arabic'), tr('Actions')]" :rtl="$isRtl">
-                @foreach($translations as $translation)
-                    <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                        <td class="py-3 px-4">
-                            @if(isset($editing[$translation->id]))
-                                <x-ui.textarea
-                                    wire:model="editing.{{ $translation->id }}.en"
-                                    rows="2"
-                                    class="text-sm"
-                                    :error="null"
-                                />
-                            @else
-                                <div class="text-sm text-gray-700" dir="ltr">
-                                    {{ $translation->en }}
-                                </div>
-                            @endif
-                        </td>
-                        <td class="py-3 px-4">
-                            @if(isset($editing[$translation->id]))
-                                <x-ui.textarea
-                                    wire:model="editing.{{ $translation->id }}.ar"
-                                    rows="2"
-                                    class="text-sm"
-                                    dir="rtl"
-                                    :error="null"
-                                />
-                            @else
-                                <div class="text-sm text-gray-700" dir="rtl">
-                                    {{ $translation->ar }}
-                                </div>
-                            @endif
-                        </td>
-                        <td class="py-3 px-4">
-                            @if(isset($editing[$translation->id]))
-                                <div class="flex items-center gap-2 {{ $isRtl ? 'flex-row-reverse' : '' }}">
-                                    <button
-                                        wire:click="saveTranslation({{ $translation->id }})"
-                                        class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-white bg-green-600 hover:bg-green-700 rounded-md transition-colors"
-                                    >
-                                        <i class="fas fa-check {{ $isRtl ? 'ms-1' : 'me-1' }}"></i>
-                                        {{ tr('Save') }}
-                                    </button>
-                                    <button
-                                        wire:click="cancelEdit({{ $translation->id }})"
-                                        class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
-                                    >
-                                        <i class="fas fa-times {{ $isRtl ? 'ms-1' : 'me-1' }}"></i>
-                                        {{ tr('Cancel') }}
-                                    </button>
-                                </div>
-                            @else
-                                <button
-                                    wire:click="startEdit({{ $translation->id }})"
-                                    class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors"
-                                >
-                                    <i class="fas fa-edit"></i>
-                                    {{ tr('Edit') }}
-                                </button>
-                            @endif
-                        </td>
-                    </tr>
-                @endforeach
-            </x-ui.table>
+            <style>
+                .translations-table-sticky-actions th:last-child,
+                .translations-table-sticky-actions td:last-child {
+                    position: sticky;
+                    {{ $stickyPosition }}: 0;
+                    background-color: white;
+                    z-index: 10;
+                    min-width: 120px;
+                }
+                .translations-table-sticky-actions thead th:last-child {
+                    z-index: 11;
+                    background-color: white;
+                }
+                .translations-table-sticky-actions tbody tr:hover td:last-child {
+                    background-color: #f9fafb;
+                }
+            </style>
+            <div class="overflow-x-auto overflow-y-visible translations-table-sticky-actions" dir="{{ $dir }}">
+                <table class="w-full" dir="{{ $dir }}">
+                    <thead>
+                        <tr>
+                            <th class="{{ $textAlign }} py-3 px-4 text-sm font-bold text-gray-700">
+                                {{ tr('English') }}
+                            </th>
+                            <th class="{{ $textAlign }} py-3 px-4 text-sm font-bold text-gray-700">
+                                {{ tr('Arabic') }}
+                            </th>
+                            <th class="{{ $textAlign }} py-3 px-4 text-sm font-bold text-gray-700">
+                                {{ tr('Actions') }}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($translations as $translation)
+                            <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                                <td class="py-3 px-4">
+                                    @if(isset($editing[$translation->id]))
+                                        <x-ui.textarea
+                                            wire:model="editing.{{ $translation->id }}.en"
+                                            rows="2"
+                                            class="text-sm"
+                                            :error="null"
+                                        />
+                                    @else
+                                        <div class="text-sm text-gray-700" dir="ltr">
+                                            {{ $translation->en }}
+                                        </div>
+                                    @endif
+                                </td>
+                                <td class="py-3 px-4">
+                                    @if(isset($editing[$translation->id]))
+                                        <x-ui.textarea
+                                            wire:model="editing.{{ $translation->id }}.ar"
+                                            rows="2"
+                                            class="text-sm"
+                                            dir="rtl"
+                                            :error="null"
+                                        />
+                                    @else
+                                        <div class="text-sm text-gray-700" dir="rtl">
+                                            {{ $translation->ar }}
+                                        </div>
+                                    @endif
+                                </td>
+                                <td class="py-3 px-4">
+                                    @if(isset($editing[$translation->id]))
+                                        <div class="flex items-center gap-2 {{ $isRtl ? 'flex-row-reverse' : '' }}">
+                                            <button
+                                                wire:click="saveTranslation({{ $translation->id }})"
+                                                class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-white bg-green-600 hover:bg-green-700 rounded-md transition-colors"
+                                            >
+                                                <i class="fas fa-check {{ $isRtl ? 'ms-1' : 'me-1' }}"></i>
+                                                {{ tr('Save') }}
+                                            </button>
+                                            <button
+                                                wire:click="cancelEdit({{ $translation->id }})"
+                                                class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+                                            >
+                                                <i class="fas fa-times {{ $isRtl ? 'ms-1' : 'me-1' }}"></i>
+                                                {{ tr('Cancel') }}
+                                            </button>
+                                        </div>
+                                    @else
+                                        <button
+                                            wire:click="startEdit({{ $translation->id }})"
+                                            class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors"
+                                        >
+                                            <i class="fas fa-edit"></i>
+                                            {{ tr('Edit') }}
+                                        </button>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
 
             {{-- Pagination --}}
             @if($translations->hasPages())

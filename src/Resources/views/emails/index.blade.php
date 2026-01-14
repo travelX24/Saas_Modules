@@ -212,15 +212,9 @@
                                 <h3 class="text-lg font-semibold text-gray-900 mb-2">
                                     {{ tr('No scheduled emails found') }}
                                 </h3>
-                                <p class="text-sm text-gray-500 mb-6">
+                                <p class="text-sm text-gray-500">
                                     {{ tr('Start by sending or scheduling an email') }}
                                 </p>
-                                <x-ui.primary-button
-                                    href="{{ route('saas.emails.send') }}"
-                                >
-                                    <i class="fas fa-paper-plane"></i>
-                                    <span class="ms-2">{{ tr('Send Email') }}</span>
-                                </x-ui.primary-button>
                             </div>
                         </x-ui.card>
                     @endif
@@ -231,10 +225,7 @@
             @if($activeTab === 'templates')
                 <div class="space-y-4 sm:space-y-6">
                     {{-- Search and Filters in same row --}}
-                    <div 
-                        x-data="{ open: @js(true) }"
-                        class="flex flex-col lg:flex-row gap-4 items-start lg:items-end"
-                    >
+                    <div class="flex flex-col lg:flex-row gap-4 items-start lg:items-end">
                         {{-- Search Bar --}}
                         <div class="flex-1 w-full lg:max-w-md">
                             <x-ui.search-box
@@ -246,27 +237,8 @@
 
                         {{-- Filters --}}
                         <div class="flex flex-col gap-3 lg:flex-shrink-0">
-                            <div class="flex items-center justify-between lg:justify-end">
-                                <button
-                                    type="button"
-                                    @click="open = !open"
-                                    class="flex items-center gap-2 text-sm font-semibold text-gray-700 hover:text-gray-900 transition-colors"
-                                >
-                                    <i class="fas fa-filter"></i>
-                                    <span>{{ tr('Filters') }}</span>
-                                    <i 
-                                        class="fas fa-chevron-down transition-transform ms-1"
-                                        :class="open ? 'rotate-180' : ''"
-                                    ></i>
-                                </button>
-                            </div>
-
                             {{-- Filters Content --}}
-                            <div 
-                                x-show="open"
-                                x-transition
-                                class="flex flex-col sm:flex-row gap-3 flex-wrap items-end"
-                            >
+                            <div class="flex flex-col sm:flex-row gap-3 flex-wrap items-end">
                                 <x-ui.filter-select
                                     model="typeFilter"
                                     :label="tr('Type')"
@@ -392,19 +364,13 @@
                                 <h3 class="text-lg font-semibold text-gray-900 mb-2">
                                     {{ tr('No templates found') }}
                                 </h3>
-                                <p class="text-sm text-gray-500 mb-6">
+                                <p class="text-sm text-gray-500">
                                     @if($search || $typeFilter !== 'all' || $statusFilterTemplates !== 'all')
                                         {{ tr('Try adjusting your search or filters') }}
                                     @else
                                         {{ tr('Get started by creating your first email template') }}
                                     @endif
                                 </p>
-                                <x-ui.primary-button
-                                    href="{{ route('saas.email-templates.create') }}"
-                                >
-                                    <i class="fas fa-plus"></i>
-                                    <span class="ms-2">{{ tr('Create Template') }}</span>
-                                </x-ui.primary-button>
                             </div>
                         </x-ui.card>
                     @endif

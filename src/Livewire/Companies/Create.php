@@ -577,6 +577,12 @@ class Create extends Component
                 session()->flash('warning', tr('Company created but invitation email could not be sent.'));
             }
 
+            // مسح Cache الفلاتر لإظهار المدينة الجديدة في قائمة المدن (لجميع اللغات)
+            foreach (['ar', 'en'] as $lang) {
+                Cache::forget("companies:filters:industries:{$lang}");
+                Cache::forget("companies:filters:locations:{$lang}");
+            }
+
             // ✅ استخدام 'status' بدلاً من 'success' لعرض الرسالة عبر flash-toast
             return redirect()->route('saas.companies.index')
                 ->with('status', tr('Company created successfully'))

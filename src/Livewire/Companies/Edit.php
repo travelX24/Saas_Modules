@@ -6,6 +6,7 @@ use Athka\Saas\Models\SaasCompany;
 use Athka\Saas\Models\SaasCompanyDocument;
 use Athka\Saas\Models\SaasCompanyOtherinfo;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
@@ -255,6 +256,12 @@ class Edit extends Component
                 $this->saveDoc($company->id, 'owner_id', $this->doc_owner_id);
                 $this->saveDoc($company->id, 'national_address', $this->doc_national_address);
             });
+
+            // مسح Cache الفلاتر لإظهار المدينة الجديدة في قائمة المدن (لجميع اللغات)
+            foreach (['ar', 'en'] as $lang) {
+                Cache::forget("companies:filters:industries:{$lang}");
+                Cache::forget("companies:filters:locations:{$lang}");
+            }
 
             session()->flash('status', tr('Company updated successfully'));
             $this->dispatch('company-updated');

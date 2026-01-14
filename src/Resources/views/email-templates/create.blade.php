@@ -1,32 +1,31 @@
-<div class="space-y-4 sm:space-y-6">
-    {{-- Header --}}
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <h1 class="text-xl sm:text-2xl font-bold text-[color:var(--brand-via)]">
-            {{ tr('Create Email Template') }}
-        </h1>
+<div>
+    <div class="space-y-4 sm:space-y-6">
+        {{-- Header --}}
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <h1 class="text-xl sm:text-2xl font-bold text-[color:var(--brand-via)]">
+                {{ tr('Create Email Template') }}
+            </h1>
 
-        <a href="{{ route('saas.emails.index', ['tab' => 'templates']) }}"
-           class="w-full sm:w-auto px-4 py-2 bg-white border border-gray-200 rounded-2xl hover:bg-gray-50 flex items-center justify-center gap-2 text-sm sm:text-base">
-            <i class="fas fa-arrow-left"></i>
-            <span>{{ tr('Back') }}</span>
-        </a>
-    </div>
+            <a href="{{ route('saas.emails.index', ['tab' => 'templates']) }}"
+               class="w-full sm:w-auto px-4 py-2 bg-white border border-gray-200 rounded-2xl hover:bg-gray-50 flex items-center justify-center gap-2 text-sm sm:text-base">
+                <i class="fas fa-arrow-left"></i>
+                <span>{{ tr('Back') }}</span>
+            </a>
+        </div>
 
-</div>
+        @if (session('success'))
+            <div class="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-green-800">
+                {{ session('success') }}
+            </div>
+        @endif
 
-@if (session('success'))
-    <div class="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-green-800">
-        {{ session('success') }}
-    </div>
-@endif
+        @if (session('error'))
+            <div class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-800">
+                {{ session('error') }}
+            </div>
+        @endif
 
-@if (session('error'))
-    <div class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-800">
-        {{ session('error') }}
-    </div>
-@endif
-
-<form wire:submit.prevent="save" class="space-y-4" id="create-template-form">
+        <form wire:submit.prevent="save" class="space-y-4" id="create-template-form">
 
         <x-ui.card>
             <div class="space-y-4">
@@ -67,7 +66,7 @@
                     label="{{ tr('Email Subject') }}"
                     required
                     placeholder="{{ tr('Enter email subject') }}"
-                    hint="{{ tr('You can use variables like {company_name} or {{company_name}}, {expiry_date} or {{expiry_date}}, etc.') }}"
+                    hint="{{ tr('You can use variables in {variable_name} or double curly braces format. See available variables below.') }}"
                 />
                 @error('subject')
                     <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
@@ -81,67 +80,40 @@
                         required
                         rows="10"
                         placeholder="{{ tr('Enter email body (HTML supported)') }}"
-                        hint="{{ tr('You can use HTML tags and variables like {company_name} or {{company_name}}, {expiry_date} or {{expiry_date}}, etc.') }}"
+                        hint="{{ tr('You can use HTML tags and variables in {variable_name} or double curly braces format. See available variables below.') }}"
                     />
                 </div>
                 @error('body')
                     <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
                 @enderror
 
-                {{-- Variables Card --}}
+                {{-- Variables Hint --}}
                 @if(count($variables) > 0)
-                    <div class="border border-gray-200 rounded-xl overflow-hidden">
-                        {{-- Card Header (Clickable) --}}
-                        <button
-                            type="button"
-                            onclick="toggleVariablesCard()"
-                            class="w-full flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 transition-colors duration-200"
-                        >
-                            <div class="flex items-center gap-3">
-                                <i class="fas fa-code text-blue-600"></i>
-                                <h3 class="text-base font-semibold text-gray-800">
-                                    {{ tr('Available Variables') }}
-                                </h3>
-                                <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
-                                    {{ count($variables) }}
-                                </span>
-                            </div>
-                            <i id="variablesCardIcon" class="fas fa-chevron-down text-gray-600 transition-transform duration-300"></i>
-                        </button>
-
-                        {{-- Card Content (Collapsible) --}}
-                        <div id="variablesCardContent" class="hidden border-t border-gray-200 bg-white">
-                            <div class="p-4 space-y-3 max-h-96 overflow-y-auto">
-                                @php
-                                    $descriptions = $this->getVariableDescriptions();
-                                @endphp
-                                @foreach($variables as $variable)
-                                    <div class="flex flex-col sm:flex-row sm:items-start gap-2 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                                        <div class="flex-1">
-                                            <div class="flex items-center gap-2 mb-1 flex-wrap">
-                                                <code class="px-2 py-1 bg-white border border-gray-300 rounded text-sm font-mono text-blue-700">
-                                                    @{{ $variable }}
-                                                </code>
-                                                <span class="text-xs text-gray-500">{{ tr('or') }}</span>
-                                                <code class="px-2 py-1 bg-white border border-gray-300 rounded text-sm font-mono text-blue-700">
-                                                    {{{{ $variable }}}}
-                                                </code>
-                                            </div>
-                                            <p class="text-sm text-gray-600 mt-1">
-                                                {{ $descriptions[$variable] ?? tr('Variable description not available') }}
-                                            </p>
-                                        </div>
-                                        <button
-                                            type="button"
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                        <div class="flex items-start gap-2">
+                            <i class="fas fa-info-circle text-blue-600 mt-0.5 text-sm"></i>
+                            <div class="flex-1">
+                                <p class="text-xs font-semibold text-blue-900 mb-2">
+                                    {{ tr('Available Variables') }}:
+                                </p>
+                                <div class="flex flex-wrap gap-1.5">
+                                    @php
+                                        $descriptions = $this->getVariableDescriptions();
+                                    @endphp
+                                    @foreach($variables as $variable)
+                                        <span 
+                                            class="group relative inline-flex items-center gap-1 px-2 py-1 bg-white border border-blue-300 rounded text-xs font-mono text-blue-700 hover:bg-blue-100 cursor-pointer transition-colors"
                                             onclick="copyVariable('{{ $variable }}', this)"
-                                            class="px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-xs font-semibold transition-colors flex items-center gap-1"
-                                            title="{{ tr('Copy variable') }}"
+                                            title="{{ $descriptions[$variable] ?? tr('Variable description not available') }}"
                                         >
-                                            <i class="fas fa-copy"></i>
-                                            <span>{{ tr('Copy') }}</span>
-                                        </button>
-                                    </div>
-                                @endforeach
+                                            {!! '{' . $variable . '}' !!}
+                                            <i class="fas fa-copy text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity text-[10px]"></i>
+                                        </span>
+                                    @endforeach
+                                </div>
+                                <p class="text-[10px] text-blue-700 mt-2">
+                                    {{ tr('Click any variable to copy. You can use {variable} or double curly braces format.') }}
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -176,49 +148,32 @@
                 <span class="ms-2" wire:loading wire:target="save">{{ tr('Saving...') }}</span>
             </button>
         </div>
-    </form>
-</div>
+        </form>
+    </div>
 
-@push('scripts')
-<script>
-    function toggleVariablesCard() {
-        const content = document.getElementById('variablesCardContent');
-        const icon = document.getElementById('variablesCardIcon');
-        
-        if (content.classList.contains('hidden')) {
-            content.classList.remove('hidden');
-            icon.classList.remove('fa-chevron-down');
-            icon.classList.add('fa-chevron-up');
-        } else {
-            content.classList.add('hidden');
-            icon.classList.remove('fa-chevron-up');
-            icon.classList.add('fa-chevron-down');
+    @push('scripts')
+    <script>
+        function copyVariable(variable, element) {
+            // Copy variable with single curly braces format
+            const textToCopy = '{' + variable + '}';
+            
+            navigator.clipboard.writeText(textToCopy).then(function() {
+                // Show brief success feedback
+                if (element) {
+                    const originalHTML = element.innerHTML;
+                    element.innerHTML = '<i class="fas fa-check text-green-600"></i> ' + originalHTML.replace(/<i[^>]*fa-copy[^>]*><\/i>/, '');
+                    element.classList.add('bg-green-100', 'border-green-400');
+                    
+                    setTimeout(function() {
+                        element.innerHTML = originalHTML;
+                        element.classList.remove('bg-green-100', 'border-green-400');
+                    }, 1000);
+                }
+            }).catch(function(err) {
+                console.error('Failed to copy: ', err);
+            });
         }
-    }
-
-    function copyVariable(variable, buttonElement) {
-        // Copy both formats
-        const textToCopy = `{{${variable}}}`;
-        
-        navigator.clipboard.writeText(textToCopy).then(function() {
-            // Show success message
-            if (buttonElement) {
-                const originalHTML = buttonElement.innerHTML;
-                buttonElement.innerHTML = '<i class="fas fa-check"></i> <span>{{ tr("Copied!") }}</span>';
-                buttonElement.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-                buttonElement.classList.add('bg-green-600', 'hover:bg-green-700');
-                
-                setTimeout(function() {
-                    buttonElement.innerHTML = originalHTML;
-                    buttonElement.classList.remove('bg-green-600', 'hover:bg-green-700');
-                    buttonElement.classList.add('bg-blue-600', 'hover:bg-blue-700');
-                }, 2000);
-            }
-        }).catch(function(err) {
-            console.error('Failed to copy: ', err);
-            alert('{{ tr("Failed to copy variable") }}');
-        });
-    }
-</script>
-@endpush
+    </script>
+    @endpush
+</div>
 

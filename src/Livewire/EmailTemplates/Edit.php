@@ -48,30 +48,29 @@ class Edit extends Component
 
     private function updateVariablesByType(): void
     {
+        // Base variables that should be available in all template types
+        $baseVariables = ['system_name', 'support_email', 'support_phone', 'support_hours'];
+        
         $defaultVariables = [
-            'subscription_expiry' => ['company_name', 'expiry_date', 'days_remaining', 'admin_name'],
-            'subscription_anniversary' => ['company_name', 'subscription_start_date', 'years_subscribed', 'admin_name', 'renewal_date'],
-            'update_notification' => ['company_name', 'update_title', 'update_description', 'update_version', 'admin_name', 'update_date'],
-            'greeting' => ['company_name', 'admin_name', 'welcome_message'],
-            'user_welcome' => [
-                'system_name', 
+            'subscription_expiry' => array_merge($baseVariables, ['company_name', 'expiry_date', 'days_remaining', 'admin_name']),
+            'subscription_anniversary' => array_merge($baseVariables, ['company_name', 'subscription_start_date', 'years_subscribed', 'admin_name', 'renewal_date']),
+            'update_notification' => array_merge($baseVariables, ['company_name', 'update_title', 'update_description', 'update_version', 'admin_name', 'update_date']),
+            'greeting' => array_merge($baseVariables, ['company_name', 'admin_name', 'welcome_message']),
+            'user_welcome' => array_merge($baseVariables, [
                 'user_name', 
                 'login_url', 
                 'username', 
-                'reset_password_url', 
-                'support_email', 
-                'support_phone', 
-                'support_hours',
+                'reset_password_url',
                 'company_name'
-            ],
-            'new_year_greeting' => ['company_name', 'admin_name', 'year', 'new_year_date', 'wishes_message'],
-            'holiday_greeting' => ['company_name', 'admin_name', 'holiday_name', 'holiday_date', 'wishes_message'],
-            'custom' => ['company_name', 'admin_name'],
+            ]),
+            'new_year_greeting' => array_merge($baseVariables, ['company_name', 'admin_name', 'year', 'new_year_date', 'wishes_message']),
+            'holiday_greeting' => array_merge($baseVariables, ['company_name', 'admin_name', 'holiday_name', 'holiday_date', 'wishes_message']),
+            'custom' => array_merge($baseVariables, ['company_name', 'admin_name']),
         ];
 
         // Only update if variables are empty or if type changed
         if (empty($this->variables) || $this->template->type !== $this->type) {
-            $this->variables = $defaultVariables[$this->type] ?? [];
+            $this->variables = $defaultVariables[$this->type] ?? $baseVariables;
         }
     }
 

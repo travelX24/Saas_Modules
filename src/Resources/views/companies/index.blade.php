@@ -195,183 +195,170 @@
                 $dir = $isRtl ? 'rtl' : 'ltr';
             @endphp
             <x-ui.card>
-                <div dir="{{ $dir }}" class="overflow-x-visible">
-                    <table class="w-full" style="table-layout: fixed; width: 100%;">
-                        <colgroup>
-                            <col style="width: 25%;">
-                            <col style="width: 12%;">
-                            <col style="width: 10%;">
-                            <col style="width: 12%;">
-                            <col style="width: 10%;">
-                            <col style="width: 15%;">
-                            <col style="width: 11%;">
-                            <col style="width: 5%;">
-                        </colgroup>
-                        <thead>
-                            <tr class="border-b border-gray-200">
-                                <th class="{{ $textAlign }} py-3 px-3 text-sm font-bold text-gray-700">{{ tr('Company') }}</th>
-                                <th class="{{ $textAlign }} py-3 px-3 text-sm font-bold text-gray-700">{{ tr('Industry') }}</th>
-                                <th class="{{ $textAlign }} py-3 px-3 text-sm font-bold text-gray-700">{{ tr('Status') }}</th>
-                                <th class="{{ $textAlign }} py-3 px-3 text-sm font-bold text-gray-700">{{ tr('Subscription') }}</th>
-                                <th class="{{ $textAlign }} py-3 px-3 text-sm font-bold text-gray-700">{{ tr('Users') }}</th>
-                                <th class="{{ $textAlign }} py-3 px-3 text-sm font-bold text-gray-700">{{ tr('Location') }}</th>
-                                <th class="{{ $textAlign }} py-3 px-3 text-sm font-bold text-gray-700">{{ tr('Created') }}</th>
-                                <th class="{{ $textAlign }} py-3 px-3 text-sm font-bold text-gray-700">{{ tr('Actions') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($companies as $company)
-                                <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                                    {{-- Company Name & Logo --}}
-                                    <td class="py-3 px-3">
-                                        <div class="flex items-center gap-2">
-                                            @if($company->logo_path)
-                                                @php
-                                                    $cleanPath = str_replace('\\', '/', $company->logo_path);
-                                                    $cleanPath = ltrim($cleanPath, '/');
-                                                    $logoUrl = asset('storage/' . $cleanPath) . '?v=' . $company->updated_at->timestamp;
-                                                @endphp
-                                                <img 
-                                                    src="{{ $logoUrl }}" 
-                                                    alt="{{ app()->getLocale() === 'ar' ? $company->legal_name_ar : ($company->legal_name_en ?? $company->legal_name_ar) }}"
-                                                    class="w-9 h-9 rounded-lg object-cover border border-gray-200 flex-shrink-0"
-                                                    loading="lazy"
-                                                    onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';"
-                                                />
-                                                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-[color:var(--brand-from)] via-[color:var(--brand-via)] to-[color:var(--brand-to)] flex items-center justify-center flex-shrink-0" style="display: none;">
-                                                    <i class="fas fa-building text-white text-xs"></i>
-                                                </div>
-                                            @else
-                                                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-[color:var(--brand-from)] via-[color:var(--brand-via)] to-[color:var(--brand-to)] flex items-center justify-center flex-shrink-0">
-                                                    <i class="fas fa-building text-white text-xs"></i>
-                                                </div>
-                                            @endif
-                                            <div class="min-w-0 flex-1">
-                                                <div class="font-semibold text-gray-900 text-sm truncate" title="@if(app()->getLocale() === 'ar'){{ $company->legal_name_ar }}@else{{ $company->legal_name_en ?: $company->legal_name_ar }}@endif">
-                                                    @if(app()->getLocale() === 'ar')
-                                                        {{ $company->legal_name_ar }}
-                                                    @else
-                                                        {{ $company->legal_name_en ?: $company->legal_name_ar }}
-                                                    @endif
-                                                </div>
-                                                @if($company->primary_domain)
-                                                    <div class="text-xs text-gray-500 truncate mt-0.5" title="{{ $company->primary_domain }}">
-                                                        {{ $company->primary_domain }}
-                                                    </div>
-                                                @endif
-                                            </div>
+                <x-ui.table 
+                    :headers="[
+                        tr('Company'),
+                        tr('Industry'),
+                        tr('Status'),
+                        tr('Subscription'),
+                        tr('Users'),
+                        tr('Location'),
+                        tr('Created'),
+                        tr('Actions'),
+                    ]"
+                    :rtl="$isRtl"
+                    :perPage="10"
+                >
+                    @foreach($companies as $company)
+                        <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                            {{-- Company Name & Logo --}}
+                            <td class="py-3 px-3">
+                                <div class="flex items-center gap-2">
+                                    @if($company->logo_path)
+                                        @php
+                                            $cleanPath = str_replace('\\', '/', $company->logo_path);
+                                            $cleanPath = ltrim($cleanPath, '/');
+                                            $logoUrl = asset('storage/' . $cleanPath) . '?v=' . $company->updated_at->timestamp;
+                                        @endphp
+                                        <img 
+                                            src="{{ $logoUrl }}" 
+                                            alt="{{ app()->getLocale() === 'ar' ? $company->legal_name_ar : ($company->legal_name_en ?? $company->legal_name_ar) }}"
+                                            class="w-9 h-9 rounded-lg object-cover border border-gray-200 flex-shrink-0"
+                                            loading="lazy"
+                                            onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                                        />
+                                        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-[color:var(--brand-from)] via-[color:var(--brand-via)] to-[color:var(--brand-to)] flex items-center justify-center flex-shrink-0" style="display: none;">
+                                            <i class="fas fa-building text-white text-xs"></i>
                                         </div>
-                                    </td>
-
-                                    {{-- Industry --}}
-                                    <td class="py-3 px-3">
-                                        @if($company->main_industry)
-                                            @php
-                                                $configIndustries = config('industries.main_industries', []);
-                                                $industryLabel = $company->main_industry;
-                                                if (isset($configIndustries[$company->main_industry])) {
-                                                    $industryLabel = $locale === 'en' ? $configIndustries[$company->main_industry] : $company->main_industry;
-                                                }
-                                            @endphp
-                                            <div class="text-sm text-gray-700 truncate" title="{{ $industryLabel }}">
-                                                <i class="fas fa-industry me-1 text-gray-400"></i>
-                                                <span>{{ \Illuminate\Support\Str::limit($industryLabel, 25) }}</span>
+                                    @else
+                                        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-[color:var(--brand-from)] via-[color:var(--brand-via)] to-[color:var(--brand-to)] flex items-center justify-center flex-shrink-0">
+                                            <i class="fas fa-building text-white text-xs"></i>
+                                        </div>
+                                    @endif
+                                    <div class="min-w-0 flex-1">
+                                        <div class="font-semibold text-gray-900 text-sm truncate" title="@if(app()->getLocale() === 'ar'){{ $company->legal_name_ar }}@else{{ $company->legal_name_en ?: $company->legal_name_ar }}@endif">
+                                            @if(app()->getLocale() === 'ar')
+                                                {{ $company->legal_name_ar }}
+                                            @else
+                                                {{ $company->legal_name_en ?: $company->legal_name_ar }}
+                                            @endif
+                                        </div>
+                                        @if($company->primary_domain)
+                                            <div class="text-xs text-gray-500 truncate mt-0.5" title="{{ $company->primary_domain }}">
+                                                {{ $company->primary_domain }}
                                             </div>
-                                        @else
-                                            <span class="text-sm text-gray-400">—</span>
                                         @endif
-                                    </td>
+                                    </div>
+                                </div>
+                            </td>
 
-                                    {{-- Status --}}
-                                    <td class="py-3 px-3">
-                                        @if($company->settings)
-                                            @php
-                                                $isActive = $company->settings->subscription_ends_at && $company->settings->subscription_ends_at->isFuture();
-                                                $statusType = $isActive ? 'success' : 'danger';
-                                                $statusText = $isActive ? tr('Active') : tr('Expired');
-                                            @endphp
-                                            <x-ui.badge :type="$statusType" size="sm">
-                                                {{ $statusText }}
-                                            </x-ui.badge>
+                            {{-- Industry --}}
+                            <td class="py-3 px-3">
+                                @if($company->main_industry)
+                                    @php
+                                        $configIndustries = config('industries.main_industries', []);
+                                        $industryLabel = $company->main_industry;
+                                        if (isset($configIndustries[$company->main_industry])) {
+                                            $industryLabel = $locale === 'en' ? $configIndustries[$company->main_industry] : $company->main_industry;
+                                        }
+                                    @endphp
+                                    <div class="text-sm text-gray-700 truncate" title="{{ $industryLabel }}">
+                                        <i class="fas fa-industry me-1 text-gray-400"></i>
+                                        <span>{{ \Illuminate\Support\Str::limit($industryLabel, 25) }}</span>
+                                    </div>
+                                @else
+                                    <span class="text-sm text-gray-400">—</span>
+                                @endif
+                            </td>
+
+                            {{-- Status --}}
+                            <td class="py-3 px-3">
+                                @if($company->settings)
+                                    @php
+                                        $isActive = $company->settings->subscription_ends_at && $company->settings->subscription_ends_at->isFuture();
+                                        $statusType = $isActive ? 'success' : 'danger';
+                                        $statusText = $isActive ? tr('Active') : tr('Expired');
+                                    @endphp
+                                    <x-ui.badge :type="$statusType" size="sm">
+                                        {{ $statusText }}
+                                    </x-ui.badge>
+                                @else
+                                    <x-ui.badge type="danger" size="sm">
+                                        {{ tr('Expired') }}
+                                    </x-ui.badge>
+                                @endif
+                            </td>
+
+                            {{-- Subscription --}}
+                            <td class="py-3 px-3">
+                                @if($company->settings && $company->settings->subscription_ends_at)
+                                    <span class="text-sm text-gray-700">
+                                        {{ $company->settings->subscription_ends_at->format('Y-m-d') }}
+                                    </span>
+                                @else
+                                    <span class="text-sm text-gray-400">—</span>
+                                @endif
+                            </td>
+
+                            {{-- Users --}}
+                            <td class="py-3 px-3">
+                                @if($company->settings)
+                                    <span class="text-sm text-gray-700">
+                                        {{ $company->users->count() }} / {{ $company->settings->allowed_users }}
+                                    </span>
+                                @else
+                                    <span class="text-sm text-gray-400">—</span>
+                                @endif
+                            </td>
+
+                            {{-- Location --}}
+                            <td class="py-3 px-3">
+                                @if($company->city)
+                                    <div class="text-sm text-gray-700 truncate" title="{{ $company->city }}, {{ $company->country }}">
+                                        <i class="fas fa-map-marker-alt me-1 text-gray-400"></i>
+                                        <span>{{ \Illuminate\Support\Str::limit($company->city . ', ' . $company->country, 20) }}</span>
+                                    </div>
+                                @else
+                                    <span class="text-sm text-gray-400">—</span>
+                                @endif
+                            </td>
+
+                            {{-- Created Date --}}
+                            <td class="py-3 px-3">
+                                <span class="text-sm text-gray-700">
+                                    {{ $company->created_at->format('Y-m-d') }}
+                                </span>
+                            </td>
+
+                            {{-- Actions --}}
+                            <td class="py-3 px-3">
+                                <x-ui.dropdown-menu>
+                                    <x-ui.dropdown-item 
+                                        href="#"
+                                        x-on:click="$dispatch('open-view-company-{{ $company->id }}')"
+                                    >
+                                        <i class="fas fa-eye w-4 me-2"></i>
+                                        {{ tr('View & Edit') }}
+                                    </x-ui.dropdown-item>
+                                    <div class="border-t border-gray-100 my-1"></div>
+                                    <x-ui.dropdown-item 
+                                        :class="$company->is_active ? 'text-orange-600 hover:bg-orange-50' : 'text-green-600 hover:bg-green-50'"
+                                        href="#"
+                                        wire:click="toggleCompanyStatus({{ $company->id }})"
+                                    >
+                                        @if($company->is_active)
+                                            <i class="fas fa-pause w-4 me-2"></i>
+                                            {{ tr('Deactivate') }}
                                         @else
-                                            <x-ui.badge type="danger" size="sm">
-                                                {{ tr('Expired') }}
-                                            </x-ui.badge>
+                                            <i class="fas fa-play w-4 me-2"></i>
+                                            {{ tr('Activate') }}
                                         @endif
-                                    </td>
-
-                                    {{-- Subscription --}}
-                                    <td class="py-3 px-3">
-                                        @if($company->settings && $company->settings->subscription_ends_at)
-                                            <span class="text-sm text-gray-700">
-                                                {{ $company->settings->subscription_ends_at->format('Y-m-d') }}
-                                            </span>
-                                        @else
-                                            <span class="text-sm text-gray-400">—</span>
-                                        @endif
-                                    </td>
-
-                                    {{-- Users --}}
-                                    <td class="py-3 px-3">
-                                        @if($company->settings)
-                                            <span class="text-sm text-gray-700">
-                                                {{ $company->users->count() }} / {{ $company->settings->allowed_users }}
-                                            </span>
-                                        @else
-                                            <span class="text-sm text-gray-400">—</span>
-                                        @endif
-                                    </td>
-
-                                    {{-- Location --}}
-                                    <td class="py-3 px-3">
-                                        @if($company->city)
-                                            <div class="text-sm text-gray-700 truncate" title="{{ $company->city }}, {{ $company->country }}">
-                                                <i class="fas fa-map-marker-alt me-1 text-gray-400"></i>
-                                                <span>{{ \Illuminate\Support\Str::limit($company->city . ', ' . $company->country, 20) }}</span>
-                                            </div>
-                                        @else
-                                            <span class="text-sm text-gray-400">—</span>
-                                        @endif
-                                    </td>
-
-                                    {{-- Created Date --}}
-                                    <td class="py-3 px-3">
-                                        <span class="text-sm text-gray-700">
-                                            {{ $company->created_at->format('Y-m-d') }}
-                                        </span>
-                                    </td>
-
-                                    {{-- Actions --}}
-                                    <td class="py-3 px-3">
-                                        <x-ui.dropdown-menu>
-                                            <x-ui.dropdown-item 
-                                                href="#"
-                                                x-on:click="$dispatch('open-view-company-{{ $company->id }}')"
-                                            >
-                                                <i class="fas fa-eye w-4 me-2"></i>
-                                                {{ tr('View & Edit') }}
-                                            </x-ui.dropdown-item>
-                                            <div class="border-t border-gray-100 my-1"></div>
-                                            <x-ui.dropdown-item 
-                                                :class="$company->is_active ? 'text-orange-600 hover:bg-orange-50' : 'text-green-600 hover:bg-green-50'"
-                                                href="#"
-                                                wire:click="toggleCompanyStatus({{ $company->id }})"
-                                            >
-                                                @if($company->is_active)
-                                                    <i class="fas fa-pause w-4 me-2"></i>
-                                                    {{ tr('Deactivate') }}
-                                                @else
-                                                    <i class="fas fa-play w-4 me-2"></i>
-                                                    {{ tr('Activate') }}
-                                                @endif
-                                            </x-ui.dropdown-item>
-                                        </x-ui.dropdown-menu>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
+                                    </x-ui.dropdown-item>
+                                </x-ui.dropdown-menu>
+                            </td>
+                        </tr>
+                    @endforeach
+                </x-ui.table>
             </x-ui.card>
         @else
             {{-- Cards View --}}
@@ -512,11 +499,6 @@
                 @endforeach
             </div>
         @endif
-
-        {{-- Pagination --}}
-        <div class="mt-6">
-            {{ $companies->links() }}
-        </div>
 
         {{-- Modals and Dialogs --}}
         @foreach($companies as $company)

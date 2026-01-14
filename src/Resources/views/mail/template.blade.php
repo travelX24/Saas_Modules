@@ -53,7 +53,7 @@
                                             {{ config('app.name', 'Athka HR') }}
                                         </h1>
                                         <p style="margin: 8px 0 0 0; color: rgba(255, 255, 255, 0.9); font-size: 14px; font-weight: 400;">
-                                            {{ tr('Human Resources Management System') }}
+                                            Human Resources Management System
                                         </p>
                                     </td>
                                 </tr>
@@ -64,69 +64,19 @@
                     <!-- Content Body -->
                     <tr>
                         <td style="padding: 50px 40px; background-color: #ffffff;">
-                            <!-- Welcome Greeting -->
-                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-                                <tr>
-                                    <td style="padding-bottom: 15px;">
-                                        @php
-                                            // Welcome message
-                                            $welcomeText = app()->getLocale() === 'ar' ? 'أهلاً وسهلاً' : 'Welcome';
-                                            $arabicPattern = '/[\x{0600}-\x{06FF}\x{0750}-\x{077F}\x{08A0}-\x{08FF}\x{FB50}-\x{FDFF}\x{FE70}-\x{FEFF}]/u';
-                                            $hasArabic = preg_match($arabicPattern, $welcomeText);
-                                            $welcomeDir = $hasArabic ? 'rtl' : 'ltr';
-                                            $welcomeAlign = $hasArabic ? 'right' : 'left';
-                                        @endphp
-                                        <p style="margin: 0; color: #667eea; font-size: 20px; font-weight: 700; line-height: 1.5; text-align: {{ $welcomeAlign }}; direction: {{ $welcomeDir }};">
-                                            {{ $welcomeText }}
-                                        </p>
-                                    </td>
-                                </tr>
-                            </table>
-                            
-                            <!-- Company Name -->
-                            @if(isset($companyName) && $companyName)
-                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-                                <tr>
-                                    <td style="padding-bottom: 20px;">
-                                        @php
-                                            // Detect language in company name
-                                            $arabicPattern = '/[\x{0600}-\x{06FF}\x{0750}-\x{077F}\x{08A0}-\x{08FF}\x{FB50}-\x{FDFF}\x{FE70}-\x{FEFF}]/u';
-                                            $hasArabic = preg_match($arabicPattern, $companyName);
-                                            $companyDir = $hasArabic ? 'rtl' : 'ltr';
-                                            $companyAlign = $hasArabic ? 'right' : 'left';
-                                        @endphp
-                                        <p style="margin: 0; color: #1f2937; font-size: 18px; font-weight: 600; line-height: 1.5; text-align: {{ $companyAlign }}; direction: {{ $companyDir }};">
-                                            {{ $companyName }}
-                                        </p>
-                                    </td>
-                                </tr>
-                            </table>
-                            @endif
-                            
-                            <!-- Greeting -->
-                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-                                <tr>
-                                    <td style="padding-bottom: 20px;">
-                                        @php
-                                            // Detect language in greeting
-                                            $greetingText = tr('Dear') . ' ' . ($recipientName ?? tr('Valued Customer'));
-                                            $arabicPattern = '/[\x{0600}-\x{06FF}\x{0750}-\x{077F}\x{08A0}-\x{08FF}\x{FB50}-\x{FDFF}\x{FE70}-\x{FEFF}]/u';
-                                            $hasArabic = preg_match($arabicPattern, $greetingText);
-                                            $greetingDir = $hasArabic ? 'rtl' : 'ltr';
-                                            $greetingAlign = $hasArabic ? 'right' : 'left';
-                                        @endphp
-                                        <p style="margin: 0; color: #1f2937; font-size: 16px; font-weight: 500; line-height: 1.5; text-align: {{ $greetingAlign }}; direction: {{ $greetingDir }};">
-                                            {{ tr('Dear') }} {{ $recipientName ?? tr('Valued Customer') }},
-                                        </p>
-                                    </td>
-                                </tr>
-                            </table>
-                            
                             <!-- Main Content -->
                             <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                                 <tr>
                                     <td style="padding-bottom: 30px;">
                                         @php
+                                            // Convert line breaks to <br> tags if body doesn't contain HTML tags
+                                            // This preserves line breaks in plain text emails
+                                            $hasHtmlTags = strip_tags($body) !== $body;
+                                            if (!$hasHtmlTags) {
+                                                // Escape HTML first, then convert line breaks to <br>
+                                                $body = nl2br(htmlspecialchars($body, ENT_QUOTES, 'UTF-8'));
+                                            }
+                                            
                                             // Detect language in body content
                                             $bodyText = strip_tags($body);
                                             $arabicPattern = '/[\x{0600}-\x{06FF}\x{0750}-\x{077F}\x{08A0}-\x{08FF}\x{FB50}-\x{FDFF}\x{FE70}-\x{FEFF}]/u';
@@ -152,59 +102,54 @@
                                             $textDir = $isRtl ? 'rtl' : 'ltr';
                                             $textAlign = $isRtl ? 'right' : 'left';
                                             
-                                            // Process body to wrap English words/phrases in LTR spans when in RTL context
-                                            // This prevents English text (like "Athka HR") from being reversed in Arabic content
+                                            // For RTL content with mixed Arabic/English, wrap English words/phrases in LTR spans
+                                            // This ensures proper text ordering (e.g., "مرحباً Qassem Ali" instead of "Qassem Ali مرحباً")
                                             if ($isRtl) {
-                                                // First, protect HTML tags and entities
-                                                $placeholders = [];
-                                                $placeholderIndex = 0;
+                                                // Split by HTML tags to process only text content
+                                                $parts = preg_split('/(<[^>]+>)/', $body, -1, PREG_SPLIT_DELIM_CAPTURE);
+                                                $processedBody = '';
                                                 
-                                                // Replace HTML tags with placeholders
-                                                $bodyWithoutTags = preg_replace_callback(
-                                                    '/<[^>]+>/',
-                                                    function($matches) use (&$placeholders, &$placeholderIndex) {
-                                                        $key = '___HTML_TAG_' . $placeholderIndex . '___';
-                                                        $placeholders[$key] = $matches[0];
-                                                        $placeholderIndex++;
-                                                        return $key;
-                                                    },
-                                                    $body
-                                                );
-                                                
-                                                // Replace HTML entities with placeholders
-                                                $bodyWithoutEntities = preg_replace_callback(
-                                                    '/&[a-zA-Z0-9#]+;/',
-                                                    function($matches) use (&$placeholders, &$placeholderIndex) {
-                                                        $key = '___HTML_ENTITY_' . $placeholderIndex . '___';
-                                                        $placeholders[$key] = $matches[0];
-                                                        $placeholderIndex++;
-                                                        return $key;
-                                                    },
-                                                    $bodyWithoutTags
-                                                );
-                                                
-                                                // Now wrap English words/phrases in LTR spans
-                                                $processedBody = preg_replace_callback(
-                                                    '/([a-zA-Z0-9]+(?:\s+[a-zA-Z0-9]+)*)/u',
-                                                    function($matches) {
-                                                        $text = trim($matches[0]);
-                                                        if (strlen($text) > 0) {
-                                                            return '<span dir="ltr" style="unicode-bidi: embed; direction: ltr; display: inline;">' . $text . '</span>';
-                                                        }
-                                                        return $matches[0];
-                                                    },
-                                                    $bodyWithoutEntities
-                                                );
-                                                
-                                                // Restore HTML tags and entities
-                                                foreach ($placeholders as $key => $value) {
-                                                    $processedBody = str_replace($key, $value, $processedBody);
+                                                foreach ($parts as $part) {
+                                                    // If it's an HTML tag, keep it as is
+                                                    if (preg_match('/^<[^>]+>$/', $part)) {
+                                                        $processedBody .= $part;
+                                                    } else {
+                                                        // Process text content: wrap English sequences in LTR spans
+                                                        // Use a single pattern that matches English content (words, URLs, emails, etc.)
+                                                        // but avoids matching Arabic characters
+                                                        
+                                                        // Pattern matches:
+                                                        // - English words/phrases (letters, numbers, spaces)
+                                                        // - URLs (http://... or https://...)
+                                                        // - Emails (user@domain.com)
+                                                        // - Variables that might still be in curly braces
+                                                        
+                                                        // Match sequences that contain at least one English letter or number
+                                                        // and don't contain Arabic characters
+                                                        $englishPattern = '/([a-zA-Z0-9@._\/:]+(?:\s+[a-zA-Z0-9@._\/:]+)*(?::\/\/[^\s<>]*)?)/u';
+                                                        
+                                                        $processedBody .= preg_replace_callback($englishPattern, function($matches) {
+                                                            $text = $matches[0];
+                                                            // Skip if it's very short (likely part of Arabic text)
+                                                            if (mb_strlen(trim($text)) < 2) {
+                                                                return $text;
+                                                            }
+                                                            // Check if it contains mostly English characters
+                                                            $englishChars = preg_match_all('/[a-zA-Z0-9]/', $text);
+                                                            $totalChars = mb_strlen($text);
+                                                            if ($englishChars / max($totalChars, 1) > 0.5) {
+                                                                return '<span dir="ltr" style="direction: ltr; unicode-bidi: embed; display: inline;">' . htmlspecialchars($text, ENT_QUOTES, 'UTF-8') . '</span>';
+                                                            }
+                                                            return $text;
+                                                        }, $part);
+                                                    }
                                                 }
                                             } else {
+                                                // For plain text emails, just use the body as is
                                                 $processedBody = $body;
                                             }
                                         @endphp
-                                        <div style="color: #374151; font-size: 16px; line-height: 1.8; text-align: {{ $textAlign }}; direction: {{ $textDir }};">
+                                        <div style="color: #374151; font-size: 16px; line-height: 1.8; text-align: {{ $textAlign }}; direction: {{ $textDir }}; white-space: pre-wrap;">
                                             {!! $processedBody ?? $body !!}
                                         </div>
                                     </td>

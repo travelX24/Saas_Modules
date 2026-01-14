@@ -16,34 +16,62 @@
         <x-ui.card>
             <div class="space-y-4">
                 {{-- Template Selection - Full Width --}}
-                <x-ui.select
-                    wire:model="templateId"
-                    label="{{ tr('Email Template') }}"
-                    required
-                >
-                    <option value="">{{ tr('Select template') }}</option>
-                    @foreach($templates as $template)
-                        <option value="{{ $template->id }}">{{ $template->name }}</option>
-                    @endforeach
-                </x-ui.select>
-                @error('templateId')
-                    <div class="text-xs text-red-600 mt-1">{{ $message }}</div>
-                @enderror
-
-                @if($templateId)
-                    @php
-                        $selectedTemplate = $templates->firstWhere('id', $templateId);
-                    @endphp
-                    @if($selectedTemplate)
-                        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                            <div class="text-sm">
-                                <div class="font-semibold text-blue-900 mb-1">{{ tr('Template Preview') }}</div>
-                                <div class="text-blue-700 mb-2"><strong>{{ tr('Subject') }}:</strong> {{ $selectedTemplate->subject }}</div>
-                                <div class="text-blue-700 text-xs line-clamp-3">{{ strip_tags($selectedTemplate->body) }}</div>
+                <div class="flex items-end gap-2">
+                    <div class="flex-1">
+                        <x-ui.select
+                            wire:model.live="templateId"
+                            label="{{ tr('Email Template') }}"
+                            required
+                        >
+                            <option value="">{{ tr('Select template') }}</option>
+                            @foreach($templates as $template)
+                                <option value="{{ $template->id }}">{{ $template->name }}</option>
+                            @endforeach
+                        </x-ui.select>
+                        @error('templateId')
+                            <div class="text-xs text-red-600 mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    
+                    @if($templateId)
+                        @php
+                            $selectedTemplate = $templates->firstWhere('id', $templateId);
+                        @endphp
+                        @if($selectedTemplate)
+                            <div class="relative group mb-6">
+                                <button 
+                                    type="button"
+                                    class="p-2.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                    aria-label="{{ tr('Template Preview') }}"
+                                    title="{{ tr('Hover to preview template') }}"
+                                >
+                                    <i class="fas fa-eye text-lg"></i>
+                                </button>
+                                
+                                {{-- Tooltip/Popover on Hover --}}
+                                {{-- LTR: أسفل يمين | RTL: أسفل يسار --}}
+                                <div class="absolute right-0 top-full mt-2 rtl:right-auto rtl:left-0 w-80 sm:w-96 bg-white border border-gray-200 rounded-xl shadow-2xl p-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 transform group-hover:translate-y-0 -translate-y-2 pointer-events-none group-hover:pointer-events-auto">
+                                    <div class="absolute -top-1 right-6 rtl:right-auto rtl:left-6 transform rotate-45 w-3 h-3 bg-white border-r border-b border-gray-200"></div>
+                                    <div class="relative bg-white rounded-xl">
+                                        <div class="text-sm">
+                                            <div class="font-semibold text-blue-900 mb-2 flex items-center gap-2">
+                                                <i class="fas fa-file-alt text-blue-600"></i>
+                                                <span>{{ tr('Template Preview') }}</span>
+                                            </div>
+                                            <div class="text-gray-700 mb-3 pb-3 border-b border-gray-100">
+                                                <strong class="text-gray-900 text-xs">{{ tr('Subject') }}:</strong> 
+                                                <div class="text-sm mt-1 text-gray-800">{{ $selectedTemplate->subject }}</div>
+                                            </div>
+                                            <div class="text-gray-600 text-xs max-h-48 overflow-y-auto pt-2 leading-relaxed">
+                                                {!! nl2br(e(strip_tags($selectedTemplate->body))) !!}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        @endif
                     @endif
-                @endif
+                </div>
 
                 {{-- Two Columns Layout --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -59,7 +87,7 @@
 
                     {{-- Recipient Type --}}
                     <x-ui.select
-                        wire:model="recipientType"
+                        wire:model.live="recipientType"
                         label="{{ tr('Recipient Type') }}"
                         required
                     >
@@ -81,7 +109,7 @@
                 {{-- Single Recipient Company (Full Width) --}}
                 @if($recipientType === 'single')
                     <x-ui.select
-                        wire:model="recipientCompanyId"
+                        wire:model.live="recipientCompanyId"
                         label="{{ tr('Recipient Company') }}"
                         required
                     >
@@ -126,7 +154,7 @@
                                 <label class="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
                                     <input 
                                         type="checkbox" 
-                                        wire:model="selectedCompanyIds" 
+                                        wire:model.live="selectedCompanyIds" 
                                         value="{{ $company->id }}"
                                         class="rounded border-gray-300"
                                     >
