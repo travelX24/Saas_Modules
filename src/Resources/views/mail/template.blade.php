@@ -8,12 +8,12 @@
     @if(in_array(substr(app()->getLocale(), 0, 2), ['ar','fa','ur','he']))
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     @endif
     <style>
         @if(in_array(substr(app()->getLocale(), 0, 2), ['ar','fa','ur','he']))
         body, table, td, p, div {
-            font-family: 'Tajawal', 'Cairo', 'Segoe UI', Tahoma, Arial, sans-serif !important;
+            font-family: 'Cairo', 'Tajawal', 'Segoe UI', Tahoma, Arial, sans-serif !important;
             direction: rtl !important;
         }
         .rtl-content {

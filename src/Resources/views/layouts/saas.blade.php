@@ -21,7 +21,7 @@
     @if($isRtl)
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     @endif
     
     {{-- Leaflet CSS --}}
@@ -35,7 +35,7 @@
         @if($isRtl)
         /* ✅ تحسين الخطوط العربية */
         body, html {
-            font-family: 'Tajawal', 'Cairo', 'Segoe UI', Tahoma, Arial, sans-serif;
+            font-family: 'Cairo', 'Tajawal', 'Segoe UI', Tahoma, Arial, sans-serif;
             font-weight: 400;
             line-height: 1.7;
             -webkit-font-smoothing: antialiased;
@@ -44,14 +44,14 @@
         
         /* تحسين العناوين */
         h1, h2, h3, h4, h5, h6 {
-            font-family: 'Cairo', 'Tajawal', sans-serif;
+            font-family: 'Cairo', sans-serif;
             font-weight: 700;
             line-height: 1.4;
         }
         
         /* تحسين الأزرار */
         button, .btn {
-            font-family: 'Tajawal', 'Cairo', sans-serif;
+            font-family: 'Cairo', 'Tajawal', sans-serif;
             font-weight: 500;
             letter-spacing: 0;
         }
@@ -63,7 +63,7 @@
         
         /* تحسين المدخلات */
         input, textarea, select {
-            font-family: 'Tajawal', 'Cairo', sans-serif;
+            font-family: 'Cairo', 'Tajawal', sans-serif;
             font-weight: 400;
         }
         

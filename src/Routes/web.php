@@ -101,4 +101,8 @@ Route::prefix('company-admin')
 
             return view('company-admin.hello');
         })->name('hello');
+
+        Route::get('/dashboard', function () {
+            return view('company-admin.dashboard');
+        })->name('dashboard');
     });
