@@ -1,37 +1,33 @@
 <div class="space-y-4 sm:space-y-6" wire:poll.10s>
     {{-- Header --}}
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <div>
-            <h1 class="text-xl sm:text-2xl font-bold text-[color:var(--brand-via)]">
-                {{ tr('Email Messages') }}
-            </h1>
-            <p class="text-sm text-gray-500 mt-1">
-                {{ tr('Manage email messages and templates') }}
-            </p>
-        </div>
-
-        <div class="flex gap-2">
-            @if($activeTab === 'emails')
-                <x-ui.primary-button
-                    href="{{ route('saas.emails.send') }}"
-                    :arrow="false"
-                    :fullWidth="false"
-                >
-                    <i class="fas fa-plus"></i>
-                    <span class="ms-2">{{ tr('Send Email') }}</span>
-                </x-ui.primary-button>
-            @else
-                <x-ui.primary-button
-                    href="{{ route('saas.email-templates.create') }}"
-                    :arrow="false"
-                    :fullWidth="false"
-                >
-                    <i class="fas fa-plus"></i>
-                    <span class="ms-2">{{ tr('Add Template') }}</span>
-                </x-ui.primary-button>
-            @endif
-        </div>
-    </div>
+    <x-ui.page-header
+        :title="tr('Email Messages')"
+        :subtitle="tr('Manage email messages and templates')"
+    >
+        <x-slot:action>
+            <div class="flex gap-2">
+                @if($activeTab === 'emails')
+                    <x-ui.primary-button
+                        href="{{ route('saas.emails.send') }}"
+                        :arrow="false"
+                        :fullWidth="false"
+                    >
+                        <i class="fas fa-plus"></i>
+                        <span class="ms-2">{{ tr('Send Email') }}</span>
+                    </x-ui.primary-button>
+                @else
+                    <x-ui.primary-button
+                        href="{{ route('saas.email-templates.create') }}"
+                        :arrow="false"
+                        :fullWidth="false"
+                    >
+                        <i class="fas fa-plus"></i>
+                        <span class="ms-2">{{ tr('Add Template') }}</span>
+                    </x-ui.primary-button>
+                @endif
+            </div>
+        </x-slot:action>
+    </x-ui.page-header>
 
     {{-- Tabs --}}
     <x-ui.card class="p-0">

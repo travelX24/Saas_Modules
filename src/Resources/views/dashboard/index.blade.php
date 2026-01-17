@@ -1,31 +1,29 @@
 <div class="space-y-4">
     {{-- Header --}}
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">
-                {{ tr('Dashboard') }}
-            </h1>
-            <p class="text-sm text-gray-500 mt-1">
-                {{ tr('Welcome back! Here\'s what\'s happening with your system.') }}
-            </p>
-        </div>
-        <div class="text-xs sm:text-sm text-gray-500 bg-white px-4 py-2 rounded-xl border border-gray-200">
-            <i class="fas fa-calendar-alt me-2"></i>
-            @php
-                // استخدام timezone من config أو env variable
-                // يمكن إضافة APP_TIMEZONE في .env file
-                $timezone = env('APP_TIMEZONE', config('app.timezone', 'Asia/Riyadh'));
-                
-                // إذا كان UTC، استخدم timezone محلي افتراضي للمنطقة العربية
-                if ($timezone === 'UTC') {
-                    $timezone = 'Asia/Riyadh'; // يمكن تغييره حسب المنطقة
-                }
-                
-                $currentTime = now()->setTimezone($timezone);
-            @endphp
-            {{ $currentTime->toDayDateTimeString() }}
-        </div>
-    </div>
+    <x-ui.page-header
+        :title="tr('Dashboard')"
+        :subtitle="tr('Welcome back! Here\'s what\'s happening with your system.')"
+        titleSize="2xl"
+    >
+        <x-slot:action>
+            <div class="text-xs sm:text-sm text-gray-500 bg-white px-4 py-2 rounded-xl border border-gray-200">
+                <i class="fas fa-calendar-alt me-2"></i>
+                @php
+                    // استخدام timezone من config أو env variable
+                    // يمكن إضافة APP_TIMEZONE في .env file
+                    $timezone = env('APP_TIMEZONE', config('app.timezone', 'Asia/Riyadh'));
+                    
+                    // إذا كان UTC، استخدم timezone محلي افتراضي للمنطقة العربية
+                    if ($timezone === 'UTC') {
+                        $timezone = 'Asia/Riyadh'; // يمكن تغييره حسب المنطقة
+                    }
+                    
+                    $currentTime = now()->setTimezone($timezone);
+                @endphp
+                {{ $currentTime->toDayDateTimeString() }}
+            </div>
+        </x-slot:action>
+    </x-ui.page-header>
 
     {{-- Stats Cards --}}
     <div class="flex flex-row gap-3">

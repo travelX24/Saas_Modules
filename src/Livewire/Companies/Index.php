@@ -119,6 +119,51 @@ class Index extends Component
         }
     }
 
+    // ✅ دالة لإعادة إرسال رسالة تعيين كلمة المرور
+    public function resendPasswordReset(int $companyId): void
+    {
+        try {
+            $company = SaasCompany::with('users')->findOrFail($companyId);
+            
+            // ✅ البحث عن أول مستخدم مرتبط بالشركة (admin)
+            $admin = $company->users()->first();
+            
+            if (!$admin) {
+                session()->flash('error', tr('No admin user found for this company.'));
+                return;
+            }
+
+            // ✅ إنشاء token جديد
+            $token = \Illuminate\Support\Facades\Password::broker()->createToken($admin);
+
+            // ✅ إنشاء رابط مؤقت (24 ساعة)
+            $relative = \Illuminate\Support\Facades\URL::temporarySignedRoute(
+                'saas.company-admin.password.create',
+                now()->addHours(24),
+                ['email' => $admin->email, 'token' => $token],
+                false
+            );
+
+            $url = request()->getSchemeAndHttpHost().$relative;
+
+            $locale = app()->getLocale();
+
+            // ✅ إرسال الإيميل
+            \Illuminate\Support\Facades\Notification::sendNow(
+                $admin,
+                (new \App\Notifications\CompanyAdminSetPasswordNotification(
+                    $url,
+                    $company->legal_name_ar
+                ))->locale($locale)
+            );
+
+            session()->flash('status', tr('Password reset email has been sent successfully.'));
+        } catch (\Throwable $e) {
+            report($e);
+            session()->flash('error', tr('Failed to send password reset email. Please try again.'));
+        }
+    }
+
     private function clearFiltersCache(): void
     {
         // مسح Cache لجميع اللغات المحتملة

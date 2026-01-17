@@ -45,10 +45,22 @@
 
         {{-- Stepper --}}
         <div class="px-3 sm:px-4 md:px-6 py-4 sm:py-5 bg-gray-50/40">
+            <style>
+                /* إخفاء السكرول في منطقة التبويبات */
+                .stepper-container {
+                    overflow-x: hidden !important;
+                    overflow-y: hidden !important;
+                    scrollbar-width: none; /* Firefox */
+                    -ms-overflow-style: none; /* IE and Edge */
+                }
+                .stepper-container::-webkit-scrollbar {
+                    display: none; /* Chrome, Safari, Opera */
+                }
+            </style>
             {{-- Desktop / Tablet --}}
-            <div class="hidden sm:block">
-                <div class="flex justify-center overflow-x-auto">
-                    <div class="inline-flex items-start justify-center min-w-fit">
+            <div class="hidden sm:block stepper-container">
+                <div class="flex justify-center">
+                    <div class="flex items-center justify-center flex-wrap gap-2">
                         @foreach($steps as $stepNum => $stepLabel)
                             @php
                                 $isActive = ($tab == $stepNum);
@@ -82,7 +94,7 @@
                             </button>
 
                             @if(! $isLast)
-                                <div class="h-[3px] w-12 sm:w-16 md:w-24 mx-2 sm:mx-4 mt-6 rounded-full
+                                <div class="h-[3px] w-8 sm:w-12 md:w-16 lg:w-20 mt-6 rounded-full
                                     {{ $tab > $stepNum ? 'bg-[color:var(--brand-via)]' : 'bg-gray-200' }}">
                                 </div>
                             @endif

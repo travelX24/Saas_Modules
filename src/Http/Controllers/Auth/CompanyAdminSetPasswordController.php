@@ -81,6 +81,18 @@ class CompanyAdminSetPasswordController extends Controller
             return redirect()->route('saas.company-admin.password.done');
         }
 
+        // ✅ فحص إذا كان الـ token منتهي أو غير صالح
+        if ($status === Password::INVALID_TOKEN || $status === Password::INVALID_USER) {
+            // ✅ عرض toast message بدلاً من رسالة تحت الحقل
+            $errorMessage = function_exists('tr') 
+                ? tr('This password reset link has expired. Please contact the administration to resend the password setup email.') 
+                : 'This password reset link has expired. Please contact the administration to resend the password setup email.';
+            
+            return back()
+                ->with('error', $errorMessage)
+                ->withInput();
+        }
+
         return back()
             ->withErrors(['email' => __($status)])
             ->withInput();

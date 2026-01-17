@@ -4,38 +4,35 @@
         $locale = app()->getLocale();
         $isRtl = in_array(substr($locale, 0, 2), ['ar', 'fa', 'ur', 'he']);
     @endphp
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <div>
-            <h1 class="text-xl sm:text-2xl font-bold text-[color:var(--brand-via)]">
-                {{ tr('Translations') }}
-            </h1>
-            <p class="text-sm text-gray-500 mt-1">
-                {{ tr('Manage and edit translations for English and Arabic') }}
-            </p>
-        </div>
-        <div class="flex items-center gap-2 {{ $isRtl ? 'flex-row-reverse' : '' }}">
-            <button
-                wire:click="exportTranslations"
-                class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 shadow-lg hover:shadow-xl rounded-lg transition-all duration-300"
-            >
-                <i class="fas fa-download"></i>
-                {{ tr('Export') }}
-            </button>
-            <label class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-all duration-300 cursor-pointer relative {{ $isRtl ? 'flex-row-reverse' : '' }}"
-                   wire:loading.class="opacity-70 cursor-wait"
-                   wire:target="importFile,importTranslations">
-                <input type="file" wire:model="importFile" accept=".json" class="hidden" wire:loading.attr="disabled">
-                <span wire:loading.remove wire:target="importFile,importTranslations" class="inline-flex items-center gap-2">
-                    <i class="fas fa-upload"></i>
-                    {{ tr('Import') }}
-                </span>
-                <span wire:loading wire:target="importFile,importTranslations" class="flex items-center gap-2 text-white">
-                    <i class="fas fa-spinner fa-spin text-amber-300 {{ $isRtl ? 'ms-2' : 'me-2' }}"></i>
-                    <span>{{ tr('Importing...') }}</span>
-                </span>
-            </label>
-        </div>
-    </div>
+    <x-ui.page-header
+        :title="tr('Translations')"
+        :subtitle="tr('Manage and edit translations for English and Arabic')"
+    >
+        <x-slot:action>
+            <div class="flex items-center gap-2 {{ $isRtl ? 'flex-row-reverse' : '' }}">
+                <button
+                    wire:click="exportTranslations"
+                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 shadow-lg hover:shadow-xl rounded-lg transition-all duration-300"
+                >
+                    <i class="fas fa-download"></i>
+                    {{ tr('Export') }}
+                </button>
+                <label class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-all duration-300 cursor-pointer relative {{ $isRtl ? 'flex-row-reverse' : '' }}"
+                       wire:loading.class="opacity-70 cursor-wait"
+                       wire:target="importFile,importTranslations">
+                    <input type="file" wire:model="importFile" accept=".json" class="hidden" wire:loading.attr="disabled">
+                    <span wire:loading.remove wire:target="importFile,importTranslations" class="inline-flex items-center gap-2">
+                        <i class="fas fa-upload"></i>
+                        {{ tr('Import') }}
+                    </span>
+                    <span wire:loading wire:target="importFile,importTranslations" class="flex items-center gap-2 text-white">
+                        <i class="fas fa-spinner fa-spin text-amber-300 {{ $isRtl ? 'ms-2' : 'me-2' }}"></i>
+                        <span>{{ tr('Importing...') }}</span>
+                    </span>
+                </label>
+            </div>
+        </x-slot:action>
+    </x-ui.page-header>
 
     {{-- Search --}}
     <x-ui.card>

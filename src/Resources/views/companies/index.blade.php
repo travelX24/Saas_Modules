@@ -341,6 +341,16 @@
                                         {{ tr('View & Edit') }}
                                     </x-ui.dropdown-item>
                                     <div class="border-t border-gray-100 my-1"></div>
+                                    {{-- ✅ زر إعادة تعيين كلمة المرور --}}
+                                    <x-ui.dropdown-item 
+                                        class="text-blue-600 hover:bg-blue-50"
+                                        href="#"
+                                        wire:click="resendPasswordReset({{ $company->id }})"
+                                    >
+                                        <i class="fas fa-key w-4 me-2"></i>
+                                        {{ tr('Resend Password Reset') }}
+                                    </x-ui.dropdown-item>
+                                    <div class="border-t border-gray-100 my-1"></div>
                                     <x-ui.dropdown-item 
                                         :class="$company->is_active ? 'text-orange-600 hover:bg-orange-50' : 'text-green-600 hover:bg-green-50'"
                                         href="#"
@@ -430,6 +440,16 @@
                             >
                                 <i class="fas fa-eye w-4 me-2"></i>
                                 {{ tr('View & Edit') }}
+                            </x-ui.dropdown-item>
+                            <div class="border-t border-gray-100 my-1"></div>
+                            {{-- ✅ زر إعادة تعيين كلمة المرور --}}
+                            <x-ui.dropdown-item 
+                                class="text-blue-600 hover:bg-blue-50"
+                                href="#"
+                                wire:click="resendPasswordReset({{ $company->id }})"
+                            >
+                                <i class="fas fa-key w-4 me-2"></i>
+                                {{ tr('Resend Password Reset') }}
                             </x-ui.dropdown-item>
                             <div class="border-t border-gray-100 my-1"></div>
                             <x-ui.dropdown-item 
