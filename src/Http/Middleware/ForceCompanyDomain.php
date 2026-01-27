@@ -37,7 +37,10 @@ class ForceCompanyDomain
             }
         }
 
-        $company = SaasCompany::find($user->saas_company_id);
+        $company = \Illuminate\Support\Facades\Cache::remember("company:id:{$user->saas_company_id}", now()->addMinutes(10), function () use ($user) {
+            return SaasCompany::with('settings')->find($user->saas_company_id);
+        });
+
         if (! $company || empty($company->primary_domain)) {
             return $next($request);
         }
