@@ -6,9 +6,9 @@
 <div class="space-y-4 sm:space-y-5">
     {{-- السطر 1: Legal Name AR, Legal Name EN, Company Type --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-        <x-ui.input :label="tr('Legal Name (AR)')" wire:model.defer="legal_name_ar" error="legal_name_ar" :required="true"/>
+        <x-ui.input :label="tr('Legal Name (AR)')" wire:model.lazy="legal_name_ar" error="legal_name_ar" :required="true"/>
 
-        <x-ui.input :label="tr('Legal Name (EN)')" wire:model.defer="legal_name_en" error="legal_name_en"/>
+        <x-ui.input :label="tr('Legal Name (EN)')" wire:model.lazy="legal_name_en" error="legal_name_en"/>
 
         {{-- ✅ IMPORTANT: use model= instead of wire:model --}}
         <x-ui.select :label="tr('Company Type')" model="company_type" error="company_type" :required="true">
@@ -32,6 +32,7 @@
                 accept="image/*"
                 :hint="tr('PNG/JPG — max 2MB')"
                 :previewSize="110"
+                mode="click"
             />
         </div>
 
@@ -104,6 +105,7 @@
                 wire:model.lazy="primary_domain"
                 error="primary_domain"
                 :required="true"
+                readonly
             />
         </div>
 
@@ -117,6 +119,7 @@
                 wire:model.lazy="primary_domain"
                 error="primary_domain"
                 :required="true"
+                readonly
             />
         </div>
     @endif

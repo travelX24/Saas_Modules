@@ -174,9 +174,96 @@ class Edit extends Component
         $this->tab = $target;
     }
 
+    public function updatedSubscriptionStartsAt(): void
+    {
+        $this->validateOnly('subscription_starts_at', $this->rulesTab3(), $this->validationMessages(), $this->validationAttributes());
+        if ($this->subscription_ends_at) {
+            $this->validateOnly('subscription_ends_at', $this->rulesTab3(), $this->validationMessages(), $this->validationAttributes());
+        }
+    }
+
+    public function updatedSubscriptionEndsAt(): void
+    {
+        $this->validateOnly('subscription_ends_at', $this->rulesTab3(), $this->validationMessages(), $this->validationAttributes());
+    }
+
+    private function isAr(): bool
+    {
+        return substr((string) app()->getLocale(), 0, 2) === 'ar';
+    }
+
+    private function txt(string $ar, string $en): string
+    {
+        return $this->isAr() ? $ar : $en;
+    }
+
+    private function validationMessages(): array
+    {
+        return [
+            'required' => $this->txt('حقل :attribute مطلوب.', 'The :attribute field is required.'),
+            'email' => $this->txt('يرجى إدخال بريد إلكتروني صحيح.', 'Please enter a valid email address.'),
+            'unique' => $this->txt('قيمة :attribute مستخدمة مسبقاً.', 'The :attribute has already been taken.'),
+            'in' => $this->txt('القيمة المختارة في :attribute غير صحيحة.', 'The selected :attribute is invalid.'),
+            'date' => $this->txt('يرجى إدخال تاريخ صحيح في :attribute.', 'The :attribute is not a valid date.'),
+            'after_or_equal' => $this->txt('يجب أن يكون :attribute بعد أو يساوي :date.', 'The :attribute must be a date after or equal to :date.'),
+            'integer' => $this->txt('يرجى إدخال رقم صحيح في :attribute.', 'The :attribute must be an integer.'),
+            'numeric' => $this->txt('يرجى إدخال رقم صحيح في :attribute.', 'The :attribute must be a number.'),
+            'min' => $this->txt('قيمة :attribute يجب ألا تقل عن :min.', 'The :attribute must be at least :min.'),
+            'max' => $this->txt('قيمة :attribute يجب ألا تزيد عن :max.', 'The :attribute may not be greater than :max.'),
+            'image' => $this->txt('يرجى رفع صورة صالحة في :attribute.', 'The :attribute must be an image.'),
+            'file' => $this->txt('يرجى رفع ملف صالح في :attribute.', 'Please upload a valid file for :attribute.'),
+            'mimes' => $this->txt('يجب أن يكون الملف في :attribute من نوع: :values.', 'The :attribute must be a file of type: :values.'),
+            'subscription_ends_at.after_or_equal' => $this->txt('تاريخ نهاية الاشتراك لا يمكن أن يكون قبل تاريخ بداية الاشتراك.', 'The subscription end date cannot be before the start date.'),
+        ];
+    }
+
+    private function validationAttributes(): array
+    {
+        return [
+            'legal_name_ar' => tr('Legal Name (AR)'),
+            'legal_name_en' => tr('Legal Name (EN)'),
+            'company_type' => tr('Company Type'),
+            'logo' => tr('Logo'),
+            'main_industry' => tr('Main Industry'),
+            'main_industry_other' => tr('Other Industry'),
+            'sub_industries_text' => tr('Sub Industries'),
+            'bio' => tr('Bio'),
+            'primary_domain' => tr('Company Subdomain'),
+            'official_email' => tr('Official Email'),
+            'phone_1' => tr('Phone 1'),
+            'phone_2' => tr('Phone 2'),
+            'country' => tr('Country'),
+            'city' => tr('City'),
+            'region' => tr('Region'),
+            'address_line' => tr('Address'),
+            'postal_code' => tr('Postal Code'),
+            'lat' => tr('Lat'),
+            'lng' => tr('Lng'),
+            'license_number' => tr('License Number'),
+            'tax_number' => tr('Tax Number'),
+            'cr_number' => tr('CR Number'),
+            'subscription_starts_at' => tr('Subscription Start'),
+            'subscription_ends_at' => tr('Subscription End'),
+            'allowed_users' => tr('Allowed Users'),
+            'timezone' => tr('Timezone'),
+            'default_locale' => tr('Default Locale'),
+            'datetime_format' => tr('DateTime Format'),
+            'doc_cr' => tr('CR Document'),
+            'doc_vat' => tr('VAT Certificate'),
+            'doc_activity_license' => tr('Activity License'),
+            'doc_incorporation' => tr('Incorporation Contract'),
+            'doc_owner_id' => tr('Owner ID / Passport'),
+            'doc_national_address' => tr('National Address Document'),
+        ];
+    }
+
     public function update(): void
     {
-        $this->validate($this->rulesForTab($this->tab));
+        $this->validate(
+            $this->rulesForTab($this->tab),
+            $this->validationMessages(),
+            $this->validationAttributes()
+        );
 
         try {
             DB::transaction(function () {
@@ -311,8 +398,8 @@ class Edit extends Component
             'license_number' => ['nullable', 'string', 'max:190'],
             'tax_number' => ['nullable', 'string', 'max:190'],
             'cr_number' => ['nullable', 'string', 'max:190'],
-            'subscription_starts_at' => ['nullable', 'date'],
-            'subscription_ends_at' => ['nullable', 'date', 'after_or_equal:subscription_starts_at'],
+            'subscription_starts_at' => ['required', 'date'],
+            'subscription_ends_at' => ['required', 'date', 'after_or_equal:subscription_starts_at'],
             'allowed_users' => ['required', 'integer', 'min:1', 'max:100000'],
             'timezone' => ['nullable', 'string', 'max:100'],
             'default_locale' => ['nullable', 'in:ar,en'],

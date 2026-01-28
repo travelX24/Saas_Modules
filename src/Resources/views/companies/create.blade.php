@@ -152,15 +152,21 @@
 
         {{-- Content (✅ بدون scroll داخلي) --}}
         <div class="p-3 sm:p-4 md:p-6">
-            @if($tab === 1)
+            <div wire:key="tab-basic" class="{{ $tab === 1 ? '' : 'hidden' }}">
                 @include('saas::companies.partials.tab-basic')
-            @elseif($tab === 2)
+            </div>
+
+            <div wire:key="tab-address" class="{{ $tab === 2 ? '' : 'hidden' }}">
                 @include('saas::companies.partials.tab-address')
-            @elseif($tab === 3)
+            </div>
+
+            <div wire:key="tab-additional" class="{{ $tab === 3 ? '' : 'hidden' }}">
                 @include('saas::companies.partials.tab-additional')
-            @elseif($tab === 4)
+            </div>
+
+            <div wire:key="tab-documents" class="{{ $tab === 4 ? '' : 'hidden' }}">
                 @include('saas::companies.partials.tab-documents')
-            @endif
+            </div>
         </div>
 
         {{-- Actions --}}

@@ -128,38 +128,12 @@ class Create extends Component
 
     public function updatedLegalNameAr(): void
     {
-        // إذا المستخدم كتب subdomain لا تلمس slug
-        if (trim($this->primary_domain) !== '') {
-            return;
-        }
-
-        $base = $this->legal_name_en ?: $this->legal_name_ar;
-        $slug = Str::slug($base) ?: 'company';
-        
-        if (trim($this->slug) === '') {
-            $this->slug = $slug;
-        }
-        
-        if (trim($this->primary_domain) === '') {
-            $this->primary_domain = $slug;
-        }
+        $this->regeneratePrimaryDomain();
     }
 
     public function updatedLegalNameEn(): void
     {
-        if (trim($this->primary_domain) !== '') {
-            return;
-        }
-
-        $slug = Str::slug($this->legal_name_en ?: $this->legal_name_ar) ?: 'company';
-        
-        if (trim($this->slug) === '') {
-            $this->slug = $slug;
-        }
-        
-        if (trim($this->primary_domain) === '') {
-            $this->primary_domain = $slug;
-        }
+        $this->regeneratePrimaryDomain();
     }
 
     // ✅ تطبيع الدومين (يشيل https:// و أي /path)
@@ -184,11 +158,40 @@ class Create extends Component
 
     public function updatedPrimaryDomain($value): void
     {
-        $sub = $this->normalizeSubdomain($value);
-        $this->primary_domain = $sub;
+        // ✅ primary_domain is generated automatically; ignore any client-provided updates
+        $this->regeneratePrimaryDomain();
+    }
 
-        // ✅ أهم نقطة: خلّي slug يساوي subdomain
-        $this->slug = $sub;
+    private function regeneratePrimaryDomain(): void
+    {
+        $base = Str::slug($this->legal_name_en ?: $this->legal_name_ar) ?: 'company';
+        $base = $this->ensureNotReservedSubdomain($base);
+        $unique = $this->makeUniqueSlug($base);
+
+        // Avoid unnecessary Livewire update loops
+        if ($this->primary_domain !== $unique) {
+            $this->primary_domain = $unique;
+        }
+
+        if ($this->slug !== $unique) {
+            $this->slug = $unique;
+        }
+    }
+
+    private function ensureNotReservedSubdomain(string $sub): string
+    {
+        $reserved = ['www', 'admin', 'api', 'saas', 'app'];
+        return in_array($sub, $reserved, true) ? ('company-'.$sub) : $sub;
+    }
+
+    public function updatedSubscriptionStartsAt(): void
+    {
+        return;
+    }
+
+    public function updatedSubscriptionEndsAt(): void
+    {
+        return;
     }
 
     // ✅ رسائل Validation مفهومة (بدون اعتماد على ملفات lang)
@@ -208,6 +211,7 @@ class Create extends Component
             'image' => $this->txt('يرجى رفع صورة صالحة في :attribute.', 'The :attribute must be an image.'),
             'file' => $this->txt('يرجى رفع ملف صالح في :attribute.', 'Please upload a valid file for :attribute.'),
             'mimes' => $this->txt('يجب أن يكون الملف في :attribute من نوع: :values.', 'The :attribute must be a file of type: :values.'),
+            'subscription_ends_at.after_or_equal' => $this->txt('تاريخ نهاية الاشتراك لا يمكن أن يكون قبل تاريخ بداية الاشتراك.', 'The subscription end date cannot be before the start date.'),
         ];
     }
 
@@ -444,12 +448,12 @@ class Create extends Component
                 ->values()
                 ->all();
 
-            $requestedSub = $this->normalizeSubdomain($this->primary_domain);
-
-            // بما أن validation يضمن التفرد، نستخدمه مباشرة
-            $slug = $requestedSub !== '' ? $requestedSub : $this->makeUniqueSlug(
-                Str::slug($this->legal_name_en ?: $this->legal_name_ar) ?: 'company'
-            );
+            // ✅ Always generate domain automatically (do not trust client input)
+            $base = Str::slug($this->legal_name_en ?: $this->legal_name_ar) ?: 'company';
+            $base = $this->ensureNotReservedSubdomain($base);
+            $slug = $this->makeUniqueSlug($base);
+            $this->primary_domain = $slug;
+            $this->slug = $slug;
 
             [$companyId, $adminId] = DB::transaction(function () use ($sub, $slug) {
                 $company = SaasCompany::create([
@@ -605,11 +609,21 @@ class Create extends Component
     private function makeUniqueSlug(string $base): string
     {
         $base = Str::slug($base) ?: 'company';
+        $base = $this->ensureNotReservedSubdomain($base);
+
+        // limit to subdomain max length (DNS label = 63)
+        $base = Str::substr($base, 0, 63);
+
         $slug = $base;
         $i = 1;
 
-        while (SaasCompany::where('slug', $slug)->exists()) {
-            $slug = $base.'-'.$i;
+        while (
+            SaasCompany::where('slug', $slug)->exists()
+            || SaasCompany::where('primary_domain', $slug)->exists()
+        ) {
+            $suffix = '-'.$i;
+            $maxBaseLen = 63 - strlen($suffix);
+            $slug = Str::substr($base, 0, max(1, $maxBaseLen)).$suffix;
             $i++;
         }
 

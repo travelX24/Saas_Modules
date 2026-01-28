@@ -39,21 +39,61 @@
         <div class="text-sm font-bold text-gray-900 mb-2">{{ tr('Subscription') }}</div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            <x-ui.input
-                type="date"
-                :label="tr('Subscription Start')"
-                wire:model.defer="subscription_starts_at"
-                error="subscription_starts_at"
-                :required="true"
-            />
+            <div>
+                <label for="subscription_starts_at" class="block text-sm font-semibold text-gray-700 mb-2">
+                    <span>{{ tr('Subscription Start') }}</span>
+                    <span class="text-red-500 ms-1">*</span>
+                </label>
 
-            <x-ui.input
-                type="date"
-                :label="tr('Subscription End')"
-                wire:model.defer="subscription_ends_at"
-                error="subscription_ends_at"
-                :required="true"
-            />
+                <div wire:ignore>
+                    <input
+                        id="subscription_starts_at"
+                        type="date"
+                        value="{{ $subscription_starts_at }}"
+                        class="w-full rounded-xl border bg-white px-4 py-2.5 text-sm shadow-sm border-gray-200 placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[color:var(--brand-via)]/20 focus:border-[color:var(--brand-via)] transition"
+                        x-on:change="$wire.set('subscription_starts_at', $event.target.value)"
+                        x-on:blur="$wire.set('subscription_starts_at', $event.target.value)"
+                    >
+                </div>
+
+                @if(!$errors->has('subscription_starts_at'))
+                    <div class="text-[11px] text-gray-500 mt-1">
+                        {{ tr('Required') }}
+                    </div>
+                @endif
+
+                @error('subscription_starts_at')
+                    <div class="text-xs text-red-600 mt-1">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div>
+                <label for="subscription_ends_at" class="block text-sm font-semibold text-gray-700 mb-2">
+                    <span>{{ tr('Subscription End') }}</span>
+                    <span class="text-red-500 ms-1">*</span>
+                </label>
+
+                <div wire:ignore>
+                    <input
+                        id="subscription_ends_at"
+                        type="date"
+                        value="{{ $subscription_ends_at }}"
+                        class="w-full rounded-xl border bg-white px-4 py-2.5 text-sm shadow-sm border-gray-200 placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[color:var(--brand-via)]/20 focus:border-[color:var(--brand-via)] transition"
+                        x-on:change="$wire.set('subscription_ends_at', $event.target.value)"
+                        x-on:blur="$wire.set('subscription_ends_at', $event.target.value)"
+                    >
+                </div>
+
+                @if(!$errors->has('subscription_ends_at'))
+                    <div class="text-[11px] text-gray-500 mt-1">
+                        {{ tr('Required') }}
+                    </div>
+                @endif
+
+                @error('subscription_ends_at')
+                    <div class="text-xs text-red-600 mt-1">{{ $message }}</div>
+                @enderror
+            </div>
 
             <x-ui.input
                 type="number"
@@ -78,6 +118,7 @@
                 :label="tr('Timezone')"
                 wire:model="timezone"
                 error="timezone"
+                :openUpward="true"
             >
                 @foreach($allTimezones as $tz)
                     <option value="{{ $tz['value'] }}">{{ $tz['label'] }}</option>
@@ -89,6 +130,7 @@
                 :label="tr('Default Locale')"
                 wire:model="default_locale"
                 error="default_locale"
+                :openUpward="true"
             >
                 <option value="ar">{{ tr('Arabic') }} (ar)</option>
                 <option value="en">{{ tr('English') }} (en)</option>
@@ -99,6 +141,7 @@
                 :label="tr('DateTime Format')"
                 wire:model="datetime_format"
                 error="datetime_format"
+                :openUpward="true"
             >
                 <option value="Y-m-d H:i:s">{{ tr('ISO Format') }} (Y-m-d H:i:s) - 2025-12-31 15:30:45</option>
                 <option value="Y-m-d H:i">{{ tr('ISO Short') }} (Y-m-d H:i) - 2025-12-31 15:30</option>

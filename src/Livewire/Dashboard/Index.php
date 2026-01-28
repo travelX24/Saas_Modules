@@ -24,7 +24,7 @@ class Index extends Component
     {
         // إحصائيات الشركات (Cache لمدة 5 دقائق)
         $cacheKey = 'dashboard:stats:'.now()->format('Y-m-d-H');
-        $stats = Cache::remember($cacheKey, now()->addMinutes(5), function () {
+        $stats = Cache::remember($cacheKey, now()->addMinutes(1), function () {
             return [
                 'totalCompanies' => SaasCompany::count(),
                 'activeCompanies' => $this->getActiveCompaniesCount(),
@@ -97,8 +97,9 @@ $charts = Cache::remember($chartCacheKey, now()->addMinutes(5), function () {
 
     private function getActiveCompaniesCount(): int
     {
-        // استخدام join بدلاً من whereHas لتحسين الأداء
-        return SaasCompany::join('saas_company_otherinfo', 'saas_companies.id', '=', 'saas_company_otherinfo.company_id')
+        // الشركة النشطة هي: (is_active = 1) و (اشتراكها ساري)
+        return SaasCompany::where('is_active', true)
+            ->join('saas_company_otherinfo', 'saas_companies.id', '=', 'saas_company_otherinfo.company_id')
             ->where('saas_company_otherinfo.subscription_ends_at', '>=', now())
             ->distinct('saas_companies.id')
             ->count('saas_companies.id');
@@ -106,8 +107,9 @@ $charts = Cache::remember($chartCacheKey, now()->addMinutes(5), function () {
 
     private function getExpiredCompaniesCount(): int
     {
-        // استخدام join بدلاً من whereHas لتحسين الأداء
-        return SaasCompany::leftJoin('saas_company_otherinfo', 'saas_companies.id', '=', 'saas_company_otherinfo.company_id')
+        // الشركات منتهية الصلاحية: (is_active = 1) و (اشتراكها منتهي أو غير موجود)
+        return SaasCompany::where('is_active', true)
+            ->leftJoin('saas_company_otherinfo', 'saas_companies.id', '=', 'saas_company_otherinfo.company_id')
             ->where(function ($query) {
                 $query->whereNull('saas_company_otherinfo.subscription_ends_at')
                     ->orWhere('saas_company_otherinfo.subscription_ends_at', '<', now());

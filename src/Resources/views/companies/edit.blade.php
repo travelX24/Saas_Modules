@@ -134,13 +134,21 @@
     <form wire:submit.prevent="update" class="w-full">
         <div class="p-3 sm:p-4 md:p-6">
             @if($tab === 1)
-                @include('saas::companies.partials.tab-basic', ['isEditMode' => true])
+                <div wire:key="tab-basic-edit">
+                    @include('saas::companies.partials.tab-basic', ['isEditMode' => true])
+                </div>
             @elseif($tab === 2)
-                @include('saas::companies.partials.tab-address')
+                <div wire:key="tab-address-edit">
+                    @include('saas::companies.partials.tab-address')
+                </div>
             @elseif($tab === 3)
-                @include('saas::companies.partials.tab-additional')
+                <div wire:key="tab-additional-edit">
+                    @include('saas::companies.partials.tab-additional')
+                </div>
             @elseif($tab === 4)
-                @include('saas::companies.partials.tab-documents')
+                <div wire:key="tab-documents-edit">
+                    @include('saas::companies.partials.tab-documents')
+                </div>
             @endif
         </div>
 
