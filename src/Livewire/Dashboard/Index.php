@@ -120,8 +120,24 @@ $charts = Cache::remember($chartCacheKey, now()->addMinutes(5), function () {
 
     private function getInactiveCompaniesCount(): int
     {
-        // الشركات غير المنشطة: is_active = false
-        return SaasCompany::where('is_active', false)->count();
+        // الشركات غير النشطة تشمل:
+        // 1. الشركات المعطلة يدوياً (is_active = false)
+        // 2. الشركات المنتهية الصلاحية (is_active = true ولكن subscription_ends_at منتهي)
+        
+        // عدد الشركات المعطلة يدوياً
+        $manuallyDeactivated = SaasCompany::where('is_active', false)->count();
+        
+        // عدد الشركات المنتهية الصلاحية (نشطة ولكن اشتراكها منتهي)
+        $expired = SaasCompany::where('is_active', true)
+            ->leftJoin('saas_company_otherinfo', 'saas_companies.id', '=', 'saas_company_otherinfo.company_id')
+            ->where(function ($query) {
+                $query->whereNull('saas_company_otherinfo.subscription_ends_at')
+                    ->orWhere('saas_company_otherinfo.subscription_ends_at', '<', now());
+            })
+            ->distinct('saas_companies.id')
+            ->count('saas_companies.id');
+        
+        return $manuallyDeactivated + $expired;
     }
 
     private function getSubscriptionsExpiringSoonCount(): int

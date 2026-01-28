@@ -273,7 +273,11 @@
 
                             {{-- Status --}}
                             <td class="py-3 px-3">
-                                @if($company->settings)
+                                @if(!$company->is_active)
+                                    <x-ui.badge type="warning" size="sm">
+                                        {{ tr('Deactivated') }}
+                                    </x-ui.badge>
+                                @elseif($company->settings)
                                     @php
                                         $isActive = $company->settings->subscription_ends_at && $company->settings->subscription_ends_at->isFuture();
                                         $statusType = $isActive ? 'success' : 'danger';
@@ -470,7 +474,14 @@
 
                     {{-- Company Info --}}
                     <div class="space-y-2 mb-4">
-                        @if($company->settings)
+                        @if(!$company->is_active)
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-gray-500">{{ tr('Status') }}</span>
+                                <x-ui.badge type="warning" size="sm">
+                                    {{ tr('Deactivated') }}
+                                </x-ui.badge>
+                            </div>
+                        @elseif($company->settings)
                             @php
                                 $isActive = $company->settings->subscription_ends_at && $company->settings->subscription_ends_at->isFuture();
                                 $statusType = $isActive ? 'success' : 'danger';

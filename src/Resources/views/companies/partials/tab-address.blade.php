@@ -76,16 +76,29 @@
             <label class="block text-sm font-semibold text-gray-700">
                 {{ tr('Location Coordinates') }}
             </label>
-            <button
-                type="button"
-                @click="openModal()"
-                class="w-full sm:w-auto px-4 py-2 rounded-xl border border-[color:var(--brand-via)] bg-white text-[color:var(--brand-via)] font-semibold
-                       hover:bg-[color:var(--brand-via)] hover:text-white transition-all duration-200
-                       flex items-center justify-center gap-2 shadow-sm text-sm sm:text-base"
-            >
-                <i class="fas fa-map-marker-alt"></i>
-                <span>{{ tr('Choose from Map') }}</span>
-            </button>
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+                <button
+                    type="button"
+                    @click="openModal()"
+                    class="flex-1 sm:flex-none px-4 py-2 rounded-xl border border-[color:var(--brand-via)] bg-white text-[color:var(--brand-via)] font-semibold
+                           hover:bg-[color:var(--brand-via)] hover:text-white transition-all duration-200
+                           flex items-center justify-center gap-2 shadow-sm text-sm sm:text-base"
+                >
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>{{ tr('Choose from Map') }}</span>
+                </button>
+                <button
+                    type="button"
+                    @click="clearLocation()"
+                    class="px-4 py-2 rounded-xl border border-gray-300 bg-white text-gray-600 font-semibold
+                           hover:bg-gray-50 hover:border-gray-400 transition-all duration-200
+                           flex items-center justify-center gap-2 shadow-sm text-sm sm:text-base"
+                    title="{{ tr('Clear Location') }}"
+                >
+                    <i class="fas fa-times"></i>
+                    <span class="hidden sm:inline">{{ tr('Clear') }}</span>
+                </button>
+            </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
@@ -94,7 +107,8 @@
                 wire:model.defer="lat"
                 error="lat"
                 placeholder="15.3694"
-                readonly
+                type="number"
+                step="any"
             />
 
             <x-ui.input
@@ -102,7 +116,8 @@
                 wire:model.defer="lng"
                 error="lng"
                 placeholder="44.1910"
-                readonly
+                type="number"
+                step="any"
             />
         </div>
 

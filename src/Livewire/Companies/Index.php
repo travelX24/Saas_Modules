@@ -110,12 +110,28 @@ class Index extends Component
             // مسح Cache الفلاتر عند التغيير
             $this->clearFiltersCache();
 
-            // إظهار رسالة نجاح
-            $status = $company->is_active ? tr('Company activated successfully') : tr('Company deactivated successfully');
-            session()->flash('status', $status);
+            // إظهار إشعار نجاح
+            $companyName = app()->getLocale() === 'ar' ? $company->legal_name_ar : ($company->legal_name_en ?: $company->legal_name_ar);
+            
+            if ($company->is_active) {
+                $message = tr('Company') . ' "' . $companyName . '" ' . tr('has been activated successfully');
+                $this->dispatch('toast', [
+                    'type' => 'success',
+                    'message' => $message,
+                ]);
+            } else {
+                $message = tr('Company') . ' "' . $companyName . '" ' . tr('has been deactivated successfully');
+                $this->dispatch('toast', [
+                    'type' => 'success',
+                    'message' => $message,
+                ]);
+            }
         } catch (\Throwable $e) {
             report($e);
-            session()->flash('error', tr('Failed to update company status. Please try again.'));
+            $this->dispatch('toast', [
+                'type' => 'error',
+                'message' => tr('Failed to update company status. Please try again.'),
+            ]);
         }
     }
 

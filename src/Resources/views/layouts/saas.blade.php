@@ -410,6 +410,50 @@
                     return null;
                 },
                 
+                clearLocation() {
+                    // Clear selected coordinates
+                    this.selectedLat = null;
+                    this.selectedLng = null;
+                    
+                    // Clear Livewire model
+                    let wireComponent = null;
+                    
+                    if (this.$wire) {
+                        wireComponent = this.$wire;
+                    } else {
+                        // Fallback: find Livewire component
+                        const latInput = document.querySelector('input[wire\\:model\\.defer="lat"]');
+                        if (latInput) {
+                            const wireId = latInput.closest('[wire\\:id]')?.getAttribute('wire:id');
+                            if (wireId && window.Livewire) {
+                                wireComponent = window.Livewire.find(wireId);
+                            }
+                        }
+                    }
+                    
+                    if (wireComponent) {
+                        wireComponent.set('lat', '');
+                        wireComponent.set('lng', '');
+                    }
+                    
+                    // Clear marker from map if modal is open
+                    if (this.map && this.marker) {
+                        this.map.removeLayer(this.marker);
+                        this.marker = null;
+                    }
+                    
+                    // Clear accuracy circle if any
+                    if (this.accuracyCircle) {
+                        this.map.removeLayer(this.accuracyCircle);
+                        this.accuracyCircle = null;
+                    }
+                    
+                    // Close modal if open
+                    if (this.mapModalOpen) {
+                        this.closeModal();
+                    }
+                },
+                
                 async confirmSelection() {
                     if (this.selectedLat && this.selectedLng) {
                         // Show loading state
