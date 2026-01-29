@@ -350,8 +350,22 @@ class Edit extends Component
                 Cache::forget("companies:filters:locations:{$lang}");
             }
 
-            session()->flash('status', tr('Company updated successfully'));
-            $this->dispatch('company-updated');
+// ✅ أرسل تفاصيل التحديث (عشان viewLocationModal يحدّث lat/lng بدون Refresh)
+$lat = filled($this->lat) ? (float) $this->lat : null;
+$lng = filled($this->lng) ? (float) $this->lng : null;
+
+$this->dispatch('company-updated', companyId: $this->companyId, lat: $lat, lng: $lng);
+
+// ✅ أغلق نافذة التأكيد (Confirm Update Company)
+$this->dispatch('close-confirm-update-company');
+
+// ✅ أغلق مودال عرض/تعديل الشركة
+$this->dispatch("close-view-company-{$this->companyId}");
+
+// ✅ Toast
+$this->dispatch('toast', type: 'success', message: tr('Company updated successfully.'));
+
+
         } catch (\Illuminate\Validation\ValidationException $e) {
             throw $e;
         } catch (\Throwable $e) {

@@ -43,19 +43,17 @@
             // إعادة تحميل البيانات
             window.dispatchEvent(new CustomEvent('company-edit-cancelled'));
         },
-        refreshAndReopen() {
-            // إغلاق modal مؤقتاً
-            this.hide();
-            // إعادة فتح modal بعد فترة قصيرة لعرض البيانات المحدثة
-            // (بعد أن يعيد Index component render ويجلب البيانات الجديدة)
-            setTimeout(() => {
-                window.dispatchEvent(new CustomEvent('open-view-company-{{ $company->id }}'));
-            }, 500);
-        }
     }"
-    x-on:company-updated.window="editMode = false; refreshAndReopen()"
+x-on:company-updated.window="
+    if ($event.detail && Number($event.detail.companyId) === companyId) {
+        editMode = false;
+        hide();
+    }
+"
     x-on:open-view-company-{{ $company->id }}.window="show()"
+    x-on:close-view-company-{{ $company->id }}.window="hide()"
     x-on:keydown.escape.window="hide()"
+
     x-show="open"
     x-transition:enter="transition ease-out duration-300"
     x-transition:enter-start="opacity-0"
@@ -114,7 +112,7 @@
                 <button
                     type="button"
                     @click="hide()"
-                    class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-xl text-gray-400 hover:text-gray-700 hover:bg-white/60 active:scale-95 transition-all duration-200 backdrop-blur-sm"
+                    class="cursor-pointer flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-xl text-gray-400 hover:text-gray-700 hover:bg-white/60 active:scale-95 transition-all duration-200 backdrop-blur-sm"
                 >
                     <i class="fas fa-times text-lg"></i>
                 </button>
@@ -134,7 +132,7 @@
                             <button 
                                 type="button"
                                 @click="activeTab = {{ $stepNum }}"
-                                class="group flex flex-col items-center gap-2 px-1 transition-all duration-200"
+                                class="cursor-pointer group flex flex-col items-center gap-2 px-1 transition-all duration-200"
                                 :class="activeTab === {{ $stepNum }} ? 'scale-105' : 'hover:scale-105'"
                             >
                                 <div class="relative w-12 h-12 transition-all duration-200">
@@ -192,7 +190,7 @@
                             <button 
                                 type="button"
                                 @click="activeTab = {{ $stepNum }}"
-                                class="group transition-all duration-200"
+                                class="cursor-pointer group transition-all duration-200"
                                 :class="activeTab === {{ $stepNum }} ? 'scale-110' : ''"
                             >
                                 <div class="relative w-10 h-10">
@@ -271,7 +269,7 @@
                 x-show="!editMode"
                 x-transition
                 @click="enableEdit()"
-                class="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-[color:var(--brand-from)] via-[color:var(--brand-via)] to-[color:var(--brand-to)] rounded-2xl hover:shadow-lg active:scale-[0.97] transition-all duration-200 shadow-sm"
+                class="cursor-pointer px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-[color:var(--brand-from)] via-[color:var(--brand-via)] to-[color:var(--brand-to)] rounded-2xl hover:shadow-lg active:scale-[0.97] transition-all duration-200 shadow-sm"
             >
                 <i class="fas fa-edit me-2"></i>
                 {{ tr('Edit') }}
@@ -283,7 +281,7 @@
                 x-show="editMode"
                 x-transition
                 @click="cancelEdit()"
-                class="px-6 py-3 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-2xl hover:bg-gray-50 hover:border-gray-400 hover:shadow-md active:scale-[0.97] transition-all duration-200 shadow-sm"
+                class="cursor-pointer px-6 py-3 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-2xl hover:bg-gray-50 hover:border-gray-400 hover:shadow-md active:scale-[0.97] transition-all duration-200 shadow-sm"
             >
                 {{ tr('Cancel') }}
             </button>
@@ -292,7 +290,7 @@
                 <button
                     type="button"
                     @click="hide()"
-                    class="px-6 py-3 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-2xl hover:bg-gray-50 hover:border-gray-400 hover:shadow-md active:scale-[0.97] transition-all duration-200 shadow-sm"
+                    class="cursor-pointer px-6 py-3 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-2xl hover:bg-gray-50 hover:border-gray-400 hover:shadow-md active:scale-[0.97] transition-all duration-200 shadow-sm"
                 >
                     {{ tr('Close') }}
                 </button>

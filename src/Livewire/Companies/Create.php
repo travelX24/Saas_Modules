@@ -566,15 +566,20 @@ class Create extends Component
 
                 $url = request()->getSchemeAndHttpHost().$relative; // ✅ نخلي الرابط مطلق للإيميل
 
-                $locale = app()->getLocale(); // ✅ لغة الواجهة الحالية (en/ar)
+                $locale = $this->default_locale ?: app()->getLocale(); // ✅ لغة الشركة (أو الواجهة كاحتياط)
+
+                $companyName = str_starts_with($locale, 'ar')
+                    ? ($this->legal_name_ar ?: $this->legal_name_en)
+                    : ($this->legal_name_en ?: $this->legal_name_ar);
 
                 \Illuminate\Support\Facades\Notification::sendNow(
                     $admin,
                     (new \App\Notifications\CompanyAdminSetPasswordNotification(
                         $url,
-                        $this->legal_name_ar
+                        $companyName
                     ))->locale($locale)
                 );
+
 
             } catch (\Throwable $e) {
                 report($e);

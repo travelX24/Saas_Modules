@@ -113,6 +113,7 @@
             <x-ui.primary-button
                 type="submit"
                 wire:loading.attr="disabled"
+                class="cursor-pointer"
             >
                 <i class="fas fa-save"></i>
                 <span class="ms-2" wire:loading.remove wire:target="save">{{ tr('Update Template') }}</span>

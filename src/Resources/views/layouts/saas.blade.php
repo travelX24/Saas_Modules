@@ -602,77 +602,92 @@
 
         // ✅ View Location Modal (للعرض فقط)
         function registerViewLocationModal() {
-            if (typeof Alpine === 'undefined' || !window.Alpine) {
-                return;
-            }
-            
-            Alpine.data('viewLocationModal', (lat, lng) => ({
-                mapModalOpen: false,
-                map: null,
-                marker: null,
-                
-                openModal() {
-                    this.mapModalOpen = true;
-                    document.body.style.overflow = 'hidden';
-                    
-                    // Initialize map after modal opens
-                    this.$nextTick(() => {
-                        this.initMap(lat, lng);
-                    });
-                },
-                
-                closeModal() {
-                    this.mapModalOpen = false;
-                    document.body.style.overflow = '';
-                    
-                    // Clean up map
-                    if (this.map) {
-                        this.map.remove();
-                        this.map = null;
-                        this.marker = null;
-                    }
-                },
-                
-                initMap(defaultLat, defaultLng) {
-                    if (!window.L || !this.$refs.mapContainer) {
-                        return;
-                    }
-                    
-                    // Initialize map
-                    this.map = L.map(this.$refs.mapContainer, {
-                        center: [defaultLat, defaultLng],
-                        zoom: 15,
-                        zoomControl: true
-                    });
-                    
-                    // Add tile layer
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        attribution: '© OpenStreetMap contributors',
-                        maxZoom: 19
-                    }).addTo(this.map);
-                    
-                    // Add marker at location
-                    this.marker = L.marker([defaultLat, defaultLng], {
-                        draggable: false
-                    }).addTo(this.map);
-                    
-                    // Add popup with coordinates
-                    const locationText = @json(tr('Location'));
-                    this.marker.bindPopup(`
-                        <div class="text-center">
-                            <strong>${locationText}</strong><br>
-                            <small>Lat: ${defaultLat}<br>Lng: ${defaultLng}</small>
-                        </div>
-                    `).openPopup();
-                    
-                    // Invalidate size to ensure map renders correctly
-                    setTimeout(() => {
-                        if (this.map) {
-                            this.map.invalidateSize();
-                        }
-                    }, 100);
+    if (typeof Alpine === 'undefined' || !window.Alpine) return;
+
+    // ✅ منع تكرار التسجيل
+    if (Alpine.data('viewLocationModal')) return;
+
+    Alpine.data('viewLocationModal', (companyId, initialLat, initialLng) => ({
+        companyId: Number(companyId),
+        lat: Number(initialLat),
+        lng: Number(initialLng),
+
+        mapModalOpen: false,
+        map: null,
+        marker: null,
+
+        onCompanyUpdated(e) {
+            const d = e?.detail || {};
+            if (!d || Number(d.companyId) !== this.companyId) return;
+
+            if (d.lat !== undefined && d.lng !== undefined) {
+                this.lat = Number(d.lat);
+                this.lng = Number(d.lng);
+
+                // (اختياري) لو الخريطة مفتوحة حدث الماركر مباشرة
+                if (this.map && this.marker) {
+                    this.marker.setLatLng([this.lat, this.lng]);
+                    this.map.setView([this.lat, this.lng], this.map.getZoom() || 15);
                 }
-            }));
+            }
+        },
+
+    openModal() {
+        this.mapModalOpen = true;
+        document.body.style.overflow = 'hidden';
+
+        this.$nextTick(() => {
+            // ✅ امنع تكرار الخرائط
+            if (this.map) {
+                this.map.remove();
+                this.map = null;
+                this.marker = null;
+            }
+            this.initMap(this.lat, this.lng);
+        });
+    },
+
+    closeModal() {
+        this.mapModalOpen = false;
+        document.body.style.overflow = '';
+
+        if (this.map) {
+            this.map.remove();
+            this.map = null;
+            this.marker = null;
+        }
+    },
+
+    initMap(defaultLat, defaultLng) {
+        if (!window.L || !this.$refs.mapContainer) return;
+
+        this.map = L.map(this.$refs.mapContainer, {
+            center: [defaultLat, defaultLng],
+            zoom: 15,
+            zoomControl: true
+        });
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(this.map);
+
+        this.marker = L.marker([defaultLat, defaultLng], { draggable: false }).addTo(this.map);
+
+        const locationText = @json(tr('Location'));
+        this.marker.bindPopup(`
+            <div class="text-center">
+                <strong>${locationText}</strong><br>
+                <small>Lat: ${defaultLat}<br>Lng: ${defaultLng}</small>
+            </div>
+        `).openPopup();
+
+        setTimeout(() => {
+            if (this.map) this.map.invalidateSize();
+        }, 100);
+    }
+}));
+
         }
 
         // Register viewLocationModal

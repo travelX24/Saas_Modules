@@ -37,7 +37,7 @@
                 x-data="{ open: @js(true) }"
                 class="space-y-3"
             >
-                <div class="flex items-center justify-between">
+                <div class="cursor-pointer flex items-center justify-between">
                     <button
                         type="button"
                         @click="open = !open"
@@ -58,7 +58,7 @@
                         <button
                             type="button"
                             wire:click="setViewMode('list')"
-                            class="px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200
+                            class="cursor-pointer px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200
                                 {{ $viewMode === 'list' 
                                     ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-white shadow-lg hover:shadow-xl hover:from-amber-600 hover:to-yellow-600' 
                                     : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 shadow-sm' }}"
@@ -69,7 +69,7 @@
                         <button
                             type="button"
                             wire:click="setViewMode('cards')"
-                            class="px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200
+                            class="cursor-pointer px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200
                                 {{ $viewMode === 'cards' 
                                     ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-white shadow-lg hover:shadow-xl hover:from-amber-600 hover:to-yellow-600' 
                                     : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 shadow-sm' }}"
@@ -172,7 +172,7 @@
                         @click="clearAll()"
                         wire:loading.attr="disabled"
                         wire:target="clearAllFilters"
-                        class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-gray-600 hover:text-gray-900 transition-colors disabled:opacity-50"
+                        class="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-gray-600 hover:text-gray-900 transition-colors disabled:opacity-50"
                     >
                         <i class="fas fa-times" wire:loading.remove wire:target="clearAllFilters"></i>
                         <i class="fas fa-spinner fa-spin" wire:loading wire:target="clearAllFilters"></i>
@@ -450,11 +450,13 @@
                             <x-ui.dropdown-item 
                                 class="text-blue-600 hover:bg-blue-50"
                                 href="#"
-                                wire:click="resendPasswordReset({{ $company->id }})"
+                                x-on:click.prevent="$dispatch('open-confirm-resend-password-reset', { id: {{ $company->id }} })"
                             >
                                 <i class="fas fa-key w-4 me-2"></i>
                                 {{ tr('Resend Password Reset') }}
                             </x-ui.dropdown-item>
+
+
                             <div class="border-t border-gray-100 my-1"></div>
                             <x-ui.dropdown-item 
                                 :class="$company->is_active ? 'text-orange-600 hover:bg-orange-50' : 'text-green-600 hover:bg-green-50'"
@@ -556,4 +558,16 @@
     </div>
         </x-ui.card>
     @endif
+    {{-- Confirm Resend Password Reset Dialog --}}
+<x-ui.confirm-dialog
+    id="resend-password-reset"
+    :title="tr('Resend Password Reset')"
+    :message="tr('Are you sure you want to resend the password setup email?')"
+    :confirmText="tr('Resend')"
+    :cancelText="tr('Cancel')"
+    type="info"
+    icon="fa-key"
+    confirmAction="wire:resendPasswordReset(__ID__)"
+/>
+
 </div>

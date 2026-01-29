@@ -37,7 +37,7 @@
                             wire:click="goToTab({{ $stepNum }})"
                             wire:loading.attr="disabled"
                             wire:target="goToTab"
-                            class="group flex flex-col items-center gap-2 px-1 transition-all duration-200 disabled:opacity-50 disabled:cursor-wait {{ $tab === $stepNum ? 'scale-105' : 'hover:scale-105' }}"
+                            class="cursor-pointer group flex flex-col items-center gap-2 px-1 transition-all duration-200 disabled:opacity-50 disabled:cursor-wait {{ $tab === $stepNum ? 'scale-105' : 'hover:scale-105' }}"
                         >
                             <div class="relative w-12 h-12 transition-all duration-200">
                                 <svg viewBox="0 0 56 56" class="absolute inset-0 drop-shadow-sm">
@@ -94,7 +94,7 @@
                             wire:click="goToTab({{ $stepNum }})"
                             wire:loading.attr="disabled"
                             wire:target="goToTab"
-                            class="group transition-all duration-200 disabled:opacity-50 disabled:cursor-wait {{ $tab === $stepNum ? 'scale-110' : '' }}"
+                            class="cursor-pointer group transition-all duration-200 disabled:opacity-50 disabled:cursor-wait {{ $tab === $stepNum ? 'scale-110' : '' }}"
                         >
                             <div class="relative w-10 h-10">
                                 <svg viewBox="0 0 56 56" class="absolute inset-0">
@@ -162,7 +162,7 @@
                     :fullWidth="true"
                     :arrow="true"
                     arrowDirection="left"
-                    class="{{ $tab === 1 ? 'opacity-40 cursor-not-allowed' : '' }}"
+                    class="cursor-pointer {{ $tab === 1 ? 'opacity-40 cursor-not-allowed' : '' }}"
                 >
                     {{ tr('Previous') }}
                 </x-ui.secondary-button>
@@ -176,6 +176,7 @@
                         :fullWidth="true"
                         wire:loading.attr="disabled"
                         wire:target="goToTab"
+                        class="cursor-pointer"
                     >
                         <span wire:loading.remove wire:target="goToTab">
                             {{ tr('Next') }}
@@ -194,7 +195,7 @@
                             wire:loading.attr="disabled"
                             wire:target="update"
                             x-on:click="$dispatch('open-confirm-update-company')"
-                            class="disabled:opacity-50 disabled:cursor-wait"
+                            class="cursor-pointer disabled:opacity-50 disabled:cursor-wait"
                         >
                             <span wire:loading.remove wire:target="update" class="flex items-center gap-2">
                                 <i class="fas fa-save"></i>

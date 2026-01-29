@@ -36,7 +36,7 @@
                 <button
                     wire:click="setActiveTab('emails')"
                     type="button"
-                    class="flex-1 sm:flex-none px-4 sm:px-6 py-4 text-sm font-semibold border-b-2 transition-colors duration-200 {{ $activeTab === 'emails' ? 'border-[color:var(--brand-via)] text-[color:var(--brand-via)]' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}"
+                    class="cursor-pointer flex-1 sm:flex-none px-4 sm:px-6 py-4 text-sm font-semibold border-b-2 transition-colors duration-200 {{ $activeTab === 'emails' ? 'border-[color:var(--brand-via)] text-[color:var(--brand-via)]' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}"
                 >
                     <i class="fas fa-envelope me-2"></i>
                     {{ tr('Email Messages') }}
@@ -44,7 +44,7 @@
                 <button
                     wire:click="setActiveTab('templates')"
                     type="button"
-                    class="flex-1 sm:flex-none px-4 sm:px-6 py-4 text-sm font-semibold border-b-2 transition-colors duration-200 {{ $activeTab === 'templates' ? 'border-[color:var(--brand-via)] text-[color:var(--brand-via)]' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}"
+                    class="cursor-pointer flex-1 sm:flex-none px-4 sm:px-6 py-4 text-sm font-semibold border-b-2 transition-colors duration-200 {{ $activeTab === 'templates' ? 'border-[color:var(--brand-via)] text-[color:var(--brand-via)]' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}"
                 >
                     <i class="fas fa-file-alt me-2"></i>
                     {{ tr('Templates') }}
@@ -262,6 +262,17 @@
                             </div>
                         </div>
                     </div>
+{{-- ✅ Confirm Delete Email Template --}}
+<x-ui.confirm-dialog
+    id="delete-email-template"
+    :title="tr('Delete Template')"
+    :message="tr('Are you sure you want to delete this template? This action cannot be undone.')"
+    :confirmText="tr('Yes, Delete')"
+    :cancelText="tr('Cancel')"
+    confirmAction="wire:deleteTemplate(__ID__)"
+    type="danger"
+    icon="fa-trash"
+/>
 
                     {{-- Templates List --}}
                     @if($templates && $templates->count() > 0)
@@ -331,14 +342,14 @@
                                                 </x-ui.dropdown-item>
                                                 <div class="border-t border-gray-100 my-1"></div>
                                                 <x-ui.dropdown-item 
-                                                    class="text-red-600 hover:bg-red-50"
+                                                    class="text-red-600 hover:bg-red-50 cursor-pointer"
                                                     href="#"
-                                                    wire:click="deleteTemplate({{ $template->id }})"
-                                                    wire:confirm="{{ tr('Are you sure you want to delete this template?') }}"
+                                                    x-on:click.prevent="$dispatch('open-confirm-delete-email-template', { id: {{ (int) $template->id }} })"
                                                 >
                                                     <i class="fas fa-trash w-4 me-2"></i>
                                                     {{ tr('Delete') }}
                                                 </x-ui.dropdown-item>
+
                                             </x-ui.dropdown-menu>
                                         </td>
                                     </tr>

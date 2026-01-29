@@ -221,6 +221,7 @@
                 wire:loading.attr="disabled"
                 wire:target="send"
                 onclick="console.log('Send button clicked');"
+                class="cursor-pointer"
             >
                 <span wire:loading.remove wire:target="send">
                     <i class="fas fa-paper-plane"></i>

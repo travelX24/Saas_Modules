@@ -141,7 +141,7 @@
                 wire:click="save"
                 wire:loading.attr="disabled"
                 onclick="console.log('Button clicked - Livewire should handle this');"
-                class="px-4 py-2 bg-[color:var(--brand-via)] text-white rounded-2xl hover:bg-[color:var(--brand-to)] flex items-center justify-center gap-2 text-sm sm:text-base font-semibold transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                class="cursor-pointer px-4 py-2 bg-[color:var(--brand-via)] text-white rounded-2xl hover:bg-[color:var(--brand-to)] flex items-center justify-center gap-2 text-sm sm:text-base font-semibold transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
                 <i class="fas fa-save"></i>
                 <span class="ms-2" wire:loading.remove wire:target="save">{{ tr('Save Template') }}</span>

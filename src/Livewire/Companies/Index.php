@@ -136,49 +136,72 @@ class Index extends Component
     }
 
     // ✅ دالة لإعادة إرسال رسالة تعيين كلمة المرور
-    public function resendPasswordReset(int $companyId): void
-    {
-        try {
-            $company = SaasCompany::with('users')->findOrFail($companyId);
-            
-            // ✅ البحث عن أول مستخدم مرتبط بالشركة (admin)
-            $admin = $company->users()->first();
-            
-            if (!$admin) {
-                session()->flash('error', tr('No admin user found for this company.'));
-                return;
-            }
+    // ✅ دالة لإعادة إرسال رسالة تعيين كلمة المرور
+public function resendPasswordReset(int $companyId): void
+{
+    try {
+        $company = SaasCompany::with(['users', 'settings'])->findOrFail($companyId);
 
-            // ✅ إنشاء token جديد
-            $token = \Illuminate\Support\Facades\Password::broker()->createToken($admin);
+        // ✅ البحث عن أول مستخدم مرتبط بالشركة (admin)
+        $admin = $company->users()->first();
 
-            // ✅ إنشاء رابط مؤقت (24 ساعة)
-            $relative = \Illuminate\Support\Facades\URL::temporarySignedRoute(
-                'saas.company-admin.password.create',
-                now()->addHours(24),
-                ['email' => $admin->email, 'token' => $token],
-                false
-            );
-
-            $url = request()->getSchemeAndHttpHost().$relative;
-
-            $locale = app()->getLocale();
-
-            // ✅ إرسال الإيميل
-            \Illuminate\Support\Facades\Notification::sendNow(
-                $admin,
-                (new \App\Notifications\CompanyAdminSetPasswordNotification(
-                    $url,
-                    $company->legal_name_ar
-                ))->locale($locale)
-            );
-
-            session()->flash('status', tr('Password reset email has been sent successfully.'));
-        } catch (\Throwable $e) {
-            report($e);
-            session()->flash('error', tr('Failed to send password reset email. Please try again.'));
+        if (! $admin) {
+            $this->dispatch('toast', [
+                'type' => 'error',
+                'message' => tr('No admin user found for this company.'),
+            ]);
+            return;
         }
+
+        // ✅ إنشاء token جديد
+        $token = \Illuminate\Support\Facades\Password::broker()->createToken($admin);
+
+        // ✅ إنشاء رابط مؤقت (24 ساعة)
+        $relative = \Illuminate\Support\Facades\URL::temporarySignedRoute(
+            'saas.company-admin.password.create',
+            now()->addHours(24),
+            ['email' => $admin->email, 'token' => $token],
+            false
+        );
+
+        $url = request()->getSchemeAndHttpHost() . $relative;
+
+        // ✅ لغة الإرسال: نفضل لغة الشركة إن كانت موجودة
+        $mailLocale = $company->settings?->default_locale ?: app()->getLocale();
+
+        // ✅ اسم الشركة بحسب لغة الإيميل
+        $companyNameForMail = $mailLocale === 'en'
+            ? ($company->legal_name_en ?: $company->legal_name_ar)
+            : $company->legal_name_ar;
+
+        // ✅ إرسال الإيميل
+        \Illuminate\Support\Facades\Notification::sendNow(
+            $admin,
+            (new \App\Notifications\CompanyAdminSetPasswordNotification(
+                $url,
+                $companyNameForMail
+            ))->locale($mailLocale)
+        );
+
+        // ✅ اسم الشركة الذي يظهر داخل لوحة التحكم (حسب لغة الواجهة الحالية)
+        $companyNameForUi = app()->getLocale() === 'en'
+            ? ($company->legal_name_en ?: $company->legal_name_ar)
+            : $company->legal_name_ar;
+
+        $this->dispatch('toast', [
+            'type' => 'success',
+            'message' => tr('Password setup email has been sent to') . ' "' . $companyNameForUi . '"',
+        ]);
+    } catch (\Throwable $e) {
+        report($e);
+
+        $this->dispatch('toast', [
+            'type' => 'error',
+            'message' => tr('Failed to send password reset email. Please try again.'),
+        ]);
     }
+}
+
 
     private function clearFiltersCache(): void
     {

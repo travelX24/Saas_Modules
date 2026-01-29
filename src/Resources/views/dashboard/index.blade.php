@@ -147,7 +147,7 @@
                     <button
                         wire:click="setActiveTab('companies')"
                         type="button"
-                        class="px-3 py-2 text-sm font-medium transition-all duration-200 border-b-2 rounded-t-lg text-center
+                        class="cursor-pointer px-3 py-2 text-sm font-medium transition-all duration-200 border-b-2 rounded-t-lg text-center
                             {{ $activeTab === 'companies' 
                                 ? 'border-[color:var(--brand-via)] text-[color:var(--brand-via)] bg-[color:var(--brand-via)]/5' 
                                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}"
@@ -158,7 +158,7 @@
                     <button
                         wire:click="setActiveTab('users')"
                         type="button"
-                        class="px-3 py-2 text-sm font-medium transition-all duration-200 border-b-2 rounded-t-lg text-center
+                        class="cursor-pointer px-3 py-2 text-sm font-medium transition-all duration-200 border-b-2 rounded-t-lg text-center
                             {{ $activeTab === 'users' 
                                 ? 'border-[color:var(--brand-via)] text-[color:var(--brand-via)] bg-[color:var(--brand-via)]/5' 
                                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}"
@@ -169,7 +169,7 @@
                     <button
                         wire:click="setActiveTab('subscriptions')"
                         type="button"
-                        class="px-3 py-2 text-sm font-medium transition-all duration-200 border-b-2 rounded-t-lg text-center
+                        class="cursor-pointer px-3 py-2 text-sm font-medium transition-all duration-200 border-b-2 rounded-t-lg text-center
                             {{ $activeTab === 'subscriptions' 
                                 ? 'border-[color:var(--brand-via)] text-[color:var(--brand-via)] bg-[color:var(--brand-via)]/5' 
                                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}"
@@ -180,7 +180,7 @@
                     <button
                         wire:click="setActiveTab('industries')"
                         type="button"
-                        class="px-3 py-2 text-sm font-medium transition-all duration-200 border-b-2 rounded-t-lg text-center
+                        class="cursor-pointer px-3 py-2 text-sm font-medium transition-all duration-200 border-b-2 rounded-t-lg text-center
                             {{ $activeTab === 'industries' 
                                 ? 'border-[color:var(--brand-via)] text-[color:var(--brand-via)] bg-[color:var(--brand-via)]/5' 
                                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}"
