@@ -1,25 +1,3 @@
-@php
-    // Prepare timezones for the searchable select
-    $allTimezones = [];
-    foreach (timezone_identifiers_list() as $tz) {
-        try {
-            $dtz = new DateTimeZone($tz);
-            $dt = new DateTime('now', $dtz);
-            $offset = $dtz->getOffset($dt);
-            $hours = intval($offset / 3600);
-            $minutes = abs(($offset % 3600) / 60);
-            $sign = $hours >= 0 ? '+' : '-';
-            $offsetStr = sprintf('%s%02d:%02d', $sign, abs($hours), $minutes);
-            $allTimezones[] = [
-                'value' => $tz,
-                'label' => str_replace('_', ' ', $tz) . ' (UTC' . $offsetStr . ')',
-            ];
-        } catch (\Exception $e) {
-            // Skip invalid timezones
-        }
-    }
-@endphp
-
 <div class="space-y-4 sm:space-y-6">
 
     {{-- Numbers --}}
@@ -80,7 +58,7 @@
                 error="timezone"
                 align="up"
             >
-                @foreach($allTimezones as $tz)
+                @foreach($timezones as $tz)
                     <option value="{{ $tz['value'] }}">{{ $tz['label'] }}</option>
                 @endforeach
             </x-ui.select>

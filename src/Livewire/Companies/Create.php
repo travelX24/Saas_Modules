@@ -108,12 +108,41 @@ class Create extends Component
     // Store existing documents info for display (empty for create, populated for edit)
     public array $existingDocuments = [];
 
+    public array $timezones = [];
+
     public function mount(): void
     {
         // ✅ تعيين تاريخ اليوم تلقائياً لحقل Subscription Start
         if (empty($this->subscription_starts_at)) {
             $this->subscription_starts_at = now()->format('Y-m-d');
         }
+
+        $this->loadTimezones();
+    }
+
+    private function loadTimezones(): void
+    {
+        $this->timezones = Cache::remember('all_timezones_list', 86400, function () {
+            $list = [];
+            foreach (timezone_identifiers_list() as $tz) {
+                try {
+                    $dtz = new \DateTimeZone($tz);
+                    $dt = new \DateTime('now', $dtz);
+                    $offset = $dtz->getOffset($dt);
+                    $hours = intval($offset / 3600);
+                    $minutes = abs(($offset % 3600) / 60);
+                    $sign = $hours >= 0 ? '+' : '-';
+                    $offsetStr = sprintf('%s%02d:%02d', $sign, abs($hours), $minutes);
+                    $list[] = [
+                        'value' => $tz,
+                        'label' => str_replace('_', ' ', $tz) . ' (UTC' . $offsetStr . ')',
+                    ];
+                } catch (\Exception $e) {
+                    continue;
+                }
+            }
+            return $list;
+        });
     }
 
     private function isAr(): bool
