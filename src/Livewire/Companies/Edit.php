@@ -170,6 +170,15 @@ class Edit extends Component
 
     public function goToTab(int $target): void
     {
+        // If trying to move forward (Next), validate current tab first
+        if ($target > $this->tab) {
+            $this->validate(
+                $this->rulesForTab($this->tab),
+                $this->validationMessages(),
+                $this->validationAttributes()
+            );
+        }
+
         $target = max(1, min(4, $target));
         $this->tab = $target;
     }
@@ -490,8 +499,13 @@ $this->dispatch('toast', type: 'success', message: tr('Company updated successfu
     {
         $company = SaasCompany::with(['settings', 'documents'])->findOrFail($this->companyId);
 
+        $timezones = collect(\DateTimeZone::listIdentifiers())->map(function($tz) {
+            return ['value' => $tz, 'label' => $tz];
+        })->toArray();
+
         return view('saas::companies.edit', [
             'company' => $company,
+            'timezones' => $timezones,
         ]);
     }
 }

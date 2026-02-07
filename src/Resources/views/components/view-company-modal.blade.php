@@ -286,15 +286,6 @@ x-on:company-updated.window="
                 {{ tr('Cancel') }}
             </button>
             
-            <div class="flex gap-3">
-                <button
-                    type="button"
-                    @click="hide()"
-                    class="cursor-pointer px-6 py-3 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-2xl hover:bg-gray-50 hover:border-gray-400 hover:shadow-md active:scale-[0.97] transition-all duration-200 shadow-sm"
-                >
-                    {{ tr('Close') }}
-                </button>
-            </div>
         </div>
     </div>
 </div>
