@@ -13,6 +13,7 @@ class SaasCompanyOtherinfo extends Model
         'license_number', 'tax_number', 'cr_number',
         'subscription_starts_at', 'subscription_ends_at',
         'allowed_users', 'timezone', 'default_locale', 'datetime_format',
+        'default_annual_leave_days',
     ];
 
     protected $casts = [
