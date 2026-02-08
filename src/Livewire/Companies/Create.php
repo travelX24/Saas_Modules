@@ -29,7 +29,7 @@ class Create extends Component
 
     public ?string $legal_name_en = null;
 
-    public string $company_type = '';
+    public string $company_type = 'individual';
 
     public $logo = null;
 
