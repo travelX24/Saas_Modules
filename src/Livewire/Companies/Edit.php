@@ -376,6 +376,17 @@ $this->dispatch('toast', type: 'success', message: tr('Company updated successfu
 
 
         } catch (\Illuminate\Validation\ValidationException $e) {
+            // ✅ البحث عن أول حقل به خطأ وتحديد التبويب المناسب له
+            $errors = $e->validator->errors()->keys();
+            if (!empty($errors)) {
+                $firstErrorField = $errors[0];
+                
+                // تحديد التبويب بناءً على الحقل
+                if (array_key_exists($firstErrorField, $this->rulesTab1())) $this->tab = 1;
+                elseif (array_key_exists($firstErrorField, $this->rulesTab2())) $this->tab = 2;
+                elseif (array_key_exists($firstErrorField, $this->rulesTab3())) $this->tab = 3;
+                elseif (array_key_exists($firstErrorField, $this->rulesTab4())) $this->tab = 4;
+            }
             throw $e;
         } catch (\Throwable $e) {
             report($e);

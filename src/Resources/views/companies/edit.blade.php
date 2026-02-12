@@ -15,7 +15,7 @@
         :message="tr('Are you sure you want to update this company? Please review all information before proceeding.')"
         :confirmText="tr('Yes, Update Company')"
         :cancelText="tr('Cancel')"
-        confirmAction="wire:update"
+        confirmAction="wire:update()"
         type="info"
         icon="fa-building"
     />

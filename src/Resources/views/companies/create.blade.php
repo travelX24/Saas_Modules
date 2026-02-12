@@ -38,7 +38,7 @@
             :message="tr('Are you sure you want to save this company? Please review all information before proceeding.')"
             :confirmText="tr('Yes, Save Company')"
             :cancelText="tr('Cancel')"
-            confirmAction="wire:store"
+            confirmAction="wire:store()"
             type="info"
             icon="fa-building"
         />
