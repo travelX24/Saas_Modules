@@ -196,16 +196,18 @@
             @endphp
             <x-ui.card>
                 <x-ui.table 
-                    :headers="[
+                :headers="[
                         tr('Company'),
                         tr('Industry'),
                         tr('Status'),
                         tr('Subscription'),
                         tr('Users'),
+                        tr('Branches'),  
                         tr('Location'),
                         tr('Created'),
                         tr('Actions'),
                     ]"
+
                     :rtl="$isRtl"
                     :perPage="10"
                 >
@@ -304,19 +306,60 @@
                                 @endif
                             </td>
 
-                            {{-- Users --}}
-                            <td class="py-3 px-3">
-                                @if($company->settings)
-                                    <span class="text-sm text-gray-700">
-                                        {{ $company->users->count() }} / {{ $company->settings->allowed_users }}
-                                    </span>
-                                @else
-                                    <span class="text-sm text-gray-400">—</span>
-                                @endif
-                            </td>
+                    {{-- Users --}}
+                    <td class="py-3 px-3">
+                        @if($company->settings)
+                            <span class="text-sm text-gray-700">
+                                {{ $company->users->count() }} / {{ $company->settings->allowed_users }}
+                            </span>
+                        @else
+                            <span class="text-sm text-gray-400">—</span>
+                        @endif
+                    </td>
 
-                            {{-- Location --}}
-                            <td class="py-3 px-3">
+                    {{-- ✅ Branches --}}
+                    <td class="py-3 px-3">
+                        @php
+                            $branchesCount = (int) ($company->branches_count ?? 0);
+                            $activeBranchesCount = $company->active_branches_count ?? null;
+
+                            $firstNames = $company->relationLoaded('branches')
+                                ? $company->branches->pluck('name')->take(2)->toArray()
+                                : [];
+
+                            $allNames = $company->relationLoaded('branches')
+                                ? $company->branches->pluck('name')->toArray()
+                                : [];
+                        @endphp
+
+                        @if($branchesCount > 0)
+                            <div class="text-sm text-gray-700 truncate">
+                                <i class="fas fa-code-branch me-1 text-gray-400"></i>
+                                <span class="font-semibold">{{ $branchesCount }}</span>
+                                @if(!is_null($activeBranchesCount))
+                                    <span class="text-xs text-gray-500">
+                                        ({{ $activeBranchesCount }} {{ tr('active') }})
+                                    </span>
+                                @endif
+                            </div>
+
+                            @if(!empty($firstNames))
+                                <div class="text-xs text-gray-500 truncate mt-0.5"
+                                    title="{{ implode(', ', $allNames) }}">
+                                    {{ \Illuminate\Support\Str::limit(implode(', ', $firstNames), 28) }}
+                                    @if($branchesCount > count($firstNames))
+                                        <span class="text-gray-400">+{{ $branchesCount - count($firstNames) }}</span>
+                                    @endif
+                                </div>
+                            @endif
+                        @else
+                            <span class="text-sm text-gray-400">—</span>
+                        @endif
+                    </td>
+
+                    {{-- Location --}}
+                    <td class="py-3 px-3">
+
                                 @if($company->city)
                                     <div class="text-sm text-gray-700 truncate" title="{{ $company->city }}, {{ $company->country }}">
                                         <i class="fas fa-map-marker-alt me-1 text-gray-400"></i>
@@ -512,7 +555,23 @@
                                 </span>
                             </div>
                         @endif
-
+                        {{-- ✅ Branches --}}
+                            @if(($company->branches_count ?? 0) > 0)
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs text-gray-500">{{ tr('Branches') }}</span>
+                                    <span class="text-xs font-medium text-gray-700">
+                                        {{ $company->branches_count }}
+                                        @if(!is_null($company->active_branches_count ?? null))
+                                            <span class="text-gray-500">({{ $company->active_branches_count }} {{ tr('active') }})</span>
+                                        @endif
+                                    </span>
+                                </div>
+                            @else
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs text-gray-500">{{ tr('Branches') }}</span>
+                                    <span class="text-xs text-gray-400">—</span>
+                                </div>
+                            @endif
                         @if($company->city)
                             <div class="flex items-center gap-2 text-xs text-gray-500">
                                 <i class="fas fa-map-marker-alt"></i>

@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Athka\Saas\Models\Branch;
+use Athka\Employees\Models\Employee;
+use Illuminate\Validation\ValidationException;
 
 class Edit extends Component
 {
@@ -82,6 +85,8 @@ class Edit extends Component
     public string $default_locale = 'ar';
 
     public string $datetime_format = 'Y-m-d H:i';
+
+    public array $branches = [];
 
     // TAB 4: Documents
     public $doc_cr = null;
@@ -166,6 +171,8 @@ class Edit extends Component
                 ];
             }
         }
+        $this->loadBranches();
+
     }
 
     public function goToTab(int $target): void
@@ -257,7 +264,12 @@ class Edit extends Component
             'timezone' => tr('Timezone'),
             'default_locale' => tr('Default Locale'),
             'datetime_format' => tr('DateTime Format'),
+            'branches' => tr('Branches'),
+            'branches.*.name' => tr('Branch Name'),
+            'branches.*.code' => tr('Branch Code'),
+            'branches.*.is_active' => tr('Active'),
             'doc_cr' => tr('CR Document'),
+
             'doc_vat' => tr('VAT Certificate'),
             'doc_activity_license' => tr('Activity License'),
             'doc_incorporation' => tr('Incorporation Contract'),
@@ -345,7 +357,10 @@ class Edit extends Component
                 }
 
                 // Update documents
+                $this->syncCompanyBranches($company->id);
+
                 $this->saveDoc($company->id, 'cr', $this->doc_cr);
+
                 $this->saveDoc($company->id, 'vat', $this->doc_vat);
                 $this->saveDoc($company->id, 'activity_license', $this->doc_activity_license);
                 $this->saveDoc($company->id, 'incorporation', $this->doc_incorporation);
@@ -376,18 +391,12 @@ $this->dispatch('toast', type: 'success', message: tr('Company updated successfu
 
 
         } catch (\Illuminate\Validation\ValidationException $e) {
-            // ✅ البحث عن أول حقل به خطأ وتحديد التبويب المناسب له
-            $errors = $e->validator->errors()->keys();
-            if (!empty($errors)) {
-                $firstErrorField = $errors[0];
-                
-                // تحديد التبويب بناءً على الحقل
-                if (array_key_exists($firstErrorField, $this->rulesTab1())) $this->tab = 1;
-                elseif (array_key_exists($firstErrorField, $this->rulesTab2())) $this->tab = 2;
-                elseif (array_key_exists($firstErrorField, $this->rulesTab3())) $this->tab = 3;
-                elseif (array_key_exists($firstErrorField, $this->rulesTab4())) $this->tab = 4;
-            }
-            throw $e;
+          $errors = $e->validator->errors()->keys();
+        if (!empty($errors)) {
+            $this->tab = $this->detectTabForField($errors[0]);
+        }
+        throw $e;
+
         } catch (\Throwable $e) {
             report($e);
             session()->flash('error', tr('Failed to update company. Please try again.'));
@@ -438,8 +447,15 @@ $this->dispatch('toast', type: 'success', message: tr('Company updated successfu
             'timezone' => ['nullable', 'string', 'max:100'],
             'default_locale' => ['nullable', 'in:ar,en'],
             'datetime_format' => ['nullable', 'string', 'max:50'],
+
+            'branches' => ['required', 'array', 'min:1', 'max:30'],
+            'branches.*.id' => ['nullable', 'integer'],
+            'branches.*.name' => ['required', 'string', 'max:190', 'distinct'],
+            'branches.*.code' => ['nullable', 'string', 'max:50', 'distinct'],
+            'branches.*.is_active' => ['nullable', 'boolean'],
         ];
     }
+
 
     private function rulesTab4(): array
     {
@@ -519,4 +535,250 @@ $this->dispatch('toast', type: 'success', message: tr('Company updated successfu
             'timezones' => $timezones,
         ]);
     }
+
+
+    public function addBranchRow(): void
+    {
+        $this->branches[] = [
+            'id' => null,
+            'name' => '',
+            'code' => null,
+            'is_active' => true,
+        ];
+    }
+
+    public function removeBranchRow(int $index): void
+    {
+        if (count($this->branches) <= 1) {
+            return; // keep at least 1 row
+        }
+
+        if (! isset($this->branches[$index])) {
+            return;
+        }
+
+        unset($this->branches[$index]);
+        $this->branches = array_values($this->branches);
+    }
+
+    private function loadBranches(): void
+    {
+        $rows = Branch::query()
+            ->where('saas_company_id', (int) $this->companyId)
+            ->orderBy('name')
+            ->get(['id', 'name', 'code', 'is_active'])
+            ->map(fn ($b) => [
+                'id' => (int) $b->id,
+                'name' => (string) $b->name,
+                'code' => $b->code,
+                'is_active' => (bool) $b->is_active,
+            ])
+            ->toArray();
+
+        if (empty($rows)) {
+            $rows = [[
+                'id' => null,
+                'name' => $this->txt('الفرع الرئيسي', 'Main Branch'),
+                'code' => null,
+                'is_active' => true,
+            ]];
+        }
+
+        $this->branches = $rows;
+    }
+
+    /**
+     * Create/Update/Delete branches to match $this->branches
+     * - prevents deleting branch if it has employees
+     * - enforces unique name/code per company (friendly ValidationException)
+     */
+    private function syncCompanyBranches(int $companyId): void
+    {
+        $input = is_array($this->branches) ? $this->branches : [];
+
+        if (count($input) < 1) {
+            $input = [[
+                'id' => null,
+                'name' => $this->txt('الفرع الرئيسي', 'Main Branch'),
+                'code' => null,
+                'is_active' => true,
+            ]];
+        }
+
+        // Normalize + validate required name
+        $normalized = [];
+        $seenNames = [];
+        $seenCodes = [];
+
+        foreach ($input as $i => $row) {
+            $id = isset($row['id']) && (int) $row['id'] > 0 ? (int) $row['id'] : null;
+            $name = trim((string) ($row['name'] ?? ''));
+            $code = isset($row['code']) ? trim((string) $row['code']) : null;
+            $code = ($code === '') ? null : $code;
+            $isActive = array_key_exists('is_active', (array) $row) ? (bool) $row['is_active'] : true;
+
+            if ($name === '') {
+                throw ValidationException::withMessages([
+                    "branches.$i.name" => tr('Branch Name is required.'),
+                ]);
+            }
+
+            // Local duplicates (case-insensitive)
+            $kName = mb_strtolower($name);
+            if (isset($seenNames[$kName])) {
+                throw ValidationException::withMessages([
+                    "branches.$i.name" => tr('Branch Name must be unique.'),
+                ]);
+            }
+            $seenNames[$kName] = true;
+
+            if ($code !== null) {
+                $kCode = mb_strtolower($code);
+                if (isset($seenCodes[$kCode])) {
+                    throw ValidationException::withMessages([
+                        "branches.$i.code" => tr('Branch Code must be unique.'),
+                    ]);
+                }
+                $seenCodes[$kCode] = true;
+            }
+
+            // DB uniqueness check (per company) - ignore same id
+            $qName = Branch::query()
+                ->where('saas_company_id', $companyId)
+                ->where('name', $name);
+
+            if ($id) {
+                $qName->where('id', '!=', $id);
+            }
+
+            if ($qName->exists()) {
+                throw ValidationException::withMessages([
+                    "branches.$i.name" => tr('This branch name already exists for this company.'),
+                ]);
+            }
+
+            if ($code !== null) {
+                $qCode = Branch::query()
+                    ->where('saas_company_id', $companyId)
+                    ->where('code', $code);
+
+                if ($id) {
+                    $qCode->where('id', '!=', $id);
+                }
+
+                if ($qCode->exists()) {
+                    throw ValidationException::withMessages([
+                        "branches.$i.code" => tr('This branch code already exists for this company.'),
+                    ]);
+                }
+            }
+
+            // If id provided, ensure it belongs to the company
+            if ($id) {
+                $exists = Branch::query()
+                    ->where('saas_company_id', $companyId)
+                    ->where('id', $id)
+                    ->exists();
+
+                if (! $exists) {
+                    throw ValidationException::withMessages([
+                        "branches.$i.name" => tr('Invalid branch row.'),
+                    ]);
+                }
+            }
+
+            $normalized[] = [
+                'id' => $id,
+                'name' => $name,
+                'code' => $code,
+                'is_active' => $isActive,
+            ];
+        }
+
+        // Deletions (rows removed from UI)
+        $existingIds = Branch::query()
+            ->where('saas_company_id', $companyId)
+            ->pluck('id')
+            ->map(fn ($v) => (int) $v)
+            ->all();
+
+        $inputIds = array_values(array_filter(array_map(fn ($r) => $r['id'] ?? null, $normalized)));
+
+        $toDelete = array_values(array_diff($existingIds, $inputIds));
+
+        if (! empty($toDelete)) {
+            foreach ($toDelete as $delId) {
+                $hasEmployees = Employee::query()
+                    ->where('saas_company_id', $companyId)
+                    ->where('branch_id', (int) $delId)
+                    ->exists();
+
+                if ($hasEmployees) {
+                    throw ValidationException::withMessages([
+                        'branches' => tr('Cannot delete branch because it has employees.'),
+                    ]);
+                }
+            }
+
+            Branch::query()
+                ->where('saas_company_id', $companyId)
+                ->whereIn('id', $toDelete)
+                ->delete();
+        }
+
+        // Upserts
+        foreach ($normalized as $idx => $row) {
+            if (! empty($row['id'])) {
+                Branch::query()
+                    ->where('saas_company_id', $companyId)
+                    ->where('id', (int) $row['id'])
+                    ->update([
+                        'name' => $row['name'],
+                        'code' => $row['code'],
+                        'is_active' => (bool) $row['is_active'],
+                    ]);
+            } else {
+                $created = Branch::query()->create([
+                    'saas_company_id' => $companyId,
+                    'name' => $row['name'],
+                    'code' => $row['code'],
+                    'is_active' => (bool) $row['is_active'],
+                ]);
+
+                $normalized[$idx]['id'] = (int) $created->id;
+            }
+        }
+
+        // Keep UI in sync with DB ids
+        $this->branches = $normalized;
+    }
+
+    private function detectTabForField(string $field): int
+    {
+        $tabs = [
+            1 => array_keys($this->rulesTab1()),
+            2 => array_keys($this->rulesTab2()),
+            3 => array_keys($this->rulesTab3()),
+            4 => array_keys($this->rulesTab4()),
+        ];
+
+        foreach ($tabs as $tab => $keys) {
+            foreach ($keys as $key) {
+                if ($key === $field) {
+                    return $tab;
+                }
+
+                // wildcard support: branches.*.name matches branches.0.name
+                if (str_contains($key, '*')) {
+                    $pattern = '/^' . str_replace(['\*', '\.'], ['[^.]+', '\.'], preg_quote($key, '/')) . '$/';
+                    if (preg_match($pattern, $field)) {
+                        return $tab;
+                    }
+                }
+            }
+        }
+
+        return 1;
+    }
+
 }

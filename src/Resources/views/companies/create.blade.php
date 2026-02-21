@@ -30,7 +30,7 @@
 
     {{-- ✅ Single Card --}}
     <form wire:submit.prevent="store" class="bg-white rounded-2xl shadow border border-gray-100 overflow-hidden">
-        
+
         {{-- Confirmation Dialog --}}
         <x-ui.confirm-dialog
             id="save-company"
@@ -46,17 +46,17 @@
         {{-- Stepper --}}
         <div class="px-3 sm:px-4 md:px-6 py-4 sm:py-5 bg-gray-50/40">
             <style>
-                /* إخفاء السكرول في منطقة التبويبات */
                 .stepper-container {
                     overflow-x: hidden !important;
                     overflow-y: hidden !important;
-                    scrollbar-width: none; /* Firefox */
-                    -ms-overflow-style: none; /* IE and Edge */
+                    scrollbar-width: none;
+                    -ms-overflow-style: none;
                 }
                 .stepper-container::-webkit-scrollbar {
-                    display: none; /* Chrome, Safari, Opera */
+                    display: none;
                 }
             </style>
+
             {{-- Desktop / Tablet --}}
             <div class="hidden sm:block stepper-container">
                 <div class="flex justify-center">
@@ -162,6 +162,97 @@
 
             <div wire:key="tab-additional" class="{{ $tab === 3 ? '' : 'hidden' }}">
                 @include('saas::companies.partials.tab-additional')
+
+                {{-- ✅ Branches (created by SaaS admin during company creation) --}}
+                <div class="mt-6 bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                    <div class="px-4 py-3 bg-gray-50/60 border-b border-gray-100 flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-3">
+                            <div class="h-10 w-10 rounded-2xl bg-[color:var(--brand-via)]/10 text-[color:var(--brand-via)] flex items-center justify-center">
+                                <i class="fas fa-code-branch"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm font-bold text-gray-900">
+                                    {{ tr('Company Branches') }}
+                                </div>
+                                <div class="text-xs text-gray-500">
+                                    {{ tr('Add branches now so the company starts with ready locations for employees and attendance.') }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <button
+                            type="button"
+                            wire:click="addBranchRow"
+                            class="px-3 py-2 rounded-xl text-xs font-semibold text-white shadow bg-[color:var(--brand-via)] hover:opacity-95 active:scale-[0.98] transition"
+                        >
+                            <i class="fas fa-plus mr-1"></i>
+                            {{ tr('Add Branch') }}
+                        </button>
+                    </div>
+
+                    <div class="p-4 space-y-3">
+                        @error('branches')
+                            <div class="text-xs text-red-600">{{ $message }}</div>
+                        @enderror
+
+                        <div class="space-y-3">
+                            @foreach($branches as $i => $row)
+                                <div wire:key="branch-row-{{ $i }}"
+                                     class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end p-3 rounded-2xl border border-gray-100">
+                                    <div class="md:col-span-5">
+                                            <x-ui.input
+                                                :label="tr('Branch Name')"
+                                                :error="'branches.'.$i.'.name'"
+                                                wire:model.defer="branches.{{ $i }}.name"
+                                                :placeholder="tr('e.g. Head Office')"
+                                                required
+                                            />
+                                        </div>
+
+
+                                  <div class="md:col-span-4">
+                                        <x-ui.input
+                                            :label="tr('Branch Code')"
+                                            :error="'branches.'.$i.'.code'"
+                                            wire:model.defer="branches.{{ $i }}.code"
+                                            :placeholder="tr('Optional (e.g. HO, RYD)')"
+                                            :hint="tr('Optional short code for the branch (e.g. RYD, JED).')"
+                                        />
+                                    </div>
+
+
+                                    <div class="md:col-span-2 flex items-center gap-2">
+                                        <input
+                                            id="branch_active_{{ $i }}"
+                                            type="checkbox"
+                                            wire:model.defer="branches.{{ $i }}.is_active"
+                                            class="rounded border-gray-300 text-[color:var(--brand-via)] shadow-sm focus:ring-[color:var(--brand-via)]"
+                                        >
+                                        <label for="branch_active_{{ $i }}" class="text-xs font-semibold text-gray-700">
+                                            {{ tr('Active') }}
+                                        </label>
+                                    </div>
+
+                                    <div class="md:col-span-1 flex justify-end">
+                                        <button
+                                            type="button"
+                                            wire:click="removeBranchRow({{ $i }})"
+                                            @disabled(count($branches) <= 1)
+                                            class="px-3 py-2 rounded-xl text-xs font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                                            title="{{ tr('Remove') }}"
+                                        >
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <div class="text-xs text-gray-400">
+                            {{ tr('Tip: You can still manage branches later from Company Admin settings, but creating them here speeds up onboarding.') }}
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div wire:key="tab-documents" class="{{ $tab === 4 ? '' : 'hidden' }}">
@@ -228,5 +319,5 @@
                 </div>
             </div>
         </div>
-    </div>
+    </form>
 </div>

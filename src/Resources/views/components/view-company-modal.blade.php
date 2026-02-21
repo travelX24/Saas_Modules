@@ -244,10 +244,14 @@ x-on:company-updated.window="
                     @include('saas::companies.partials.view-tab-address', ['company' => $company])
                 </div>
 
-                {{-- Tab 3: Additional Info --}}
+              {{-- Tab 3: Additional Info --}}
                 <div x-show="activeTab === 3" x-transition>
                     @include('saas::companies.partials.view-tab-additional', ['company' => $company])
+
+                    {{-- ✅ Branches Info --}}
+                    @include('saas::companies.partials.view-tab-branches', ['company' => $company])
                 </div>
+
 
                 {{-- Tab 4: Documents --}}
                 <div x-show="activeTab === 4" x-transition>

@@ -141,10 +141,99 @@
                 <div wire:key="tab-address-edit">
                     @include('saas::companies.partials.tab-address')
                 </div>
-            @elseif($tab === 3)
-                <div wire:key="tab-additional-edit">
-                    @include('saas::companies.partials.tab-additional')
+          @elseif($tab === 3)
+            <div wire:key="tab-additional-edit">
+                @include('saas::companies.partials.tab-additional')
+
+                <div class="mt-6 bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                    <div class="px-4 py-3 bg-gray-50/60 border-b border-gray-100 flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-3">
+                            <div class="h-10 w-10 rounded-2xl bg-[color:var(--brand-via)]/10 text-[color:var(--brand-via)] flex items-center justify-center">
+                                <i class="fas fa-code-branch"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm font-bold text-gray-900">
+                                    {{ tr('Company Branches') }}
+                                </div>
+                                <div class="text-xs text-gray-500">
+                                    {{ tr('Manage branches for this company.') }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <button
+                            type="button"
+                            wire:click="addBranchRow"
+                            class="px-3 py-2 rounded-xl text-xs font-semibold text-white shadow bg-[color:var(--brand-via)] hover:opacity-95 active:scale-[0.98] transition"
+                        >
+                            <i class="fas fa-plus mr-1"></i>
+                            {{ tr('Add Branch') }}
+                        </button>
+                    </div>
+
+                    <div class="p-4 space-y-3">
+                        @error('branches')
+                            <div class="text-xs text-red-600">{{ $message }}</div>
+                        @enderror
+
+                        <div class="space-y-3">
+                            @foreach($branches as $i => $row)
+                                <div wire:key="branch-row-edit-{{ $i }}"
+                                    class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end p-3 rounded-2xl border border-gray-100">
+                                    <div class="md:col-span-5">
+                                        <x-ui.input
+                                            :label="tr('Branch Name')"
+                                            :error="'branches.'.$i.'.name'"
+                                            wire:model.defer="branches.{{ $i }}.name"
+                                            required
+                                        />
+                                    </div>
+
+
+                                   <div class="md:col-span-4">
+                                        <x-ui.input
+                                            :label="tr('Branch Code')"
+                                            :error="'branches.'.$i.'.code'"
+                                            wire:model.defer="branches.{{ $i }}.code"
+                                            :hint="tr('Optional short code for the branch (e.g. RYD, JED).')"
+                                        />
+                                    </div>
+
+
+                                    <div class="md:col-span-2 flex items-center gap-2">
+                                        <input
+                                            id="branch_active_edit_{{ $i }}"
+                                            type="checkbox"
+                                            wire:model.defer="branches.{{ $i }}.is_active"
+                                            class="rounded border-gray-300 text-[color:var(--brand-via)] shadow-sm focus:ring-[color:var(--brand-via)]"
+                                        >
+                                        <label for="branch_active_edit_{{ $i }}" class="text-xs font-semibold text-gray-700">
+                                            {{ tr('Active') }}
+                                        </label>
+                                    </div>
+
+                                    <div class="md:col-span-1 flex justify-end">
+                                        <button
+                                            type="button"
+                                            wire:click="removeBranchRow({{ $i }})"
+                                            @disabled(count($branches) <= 1)
+                                            class="px-3 py-2 rounded-xl text-xs font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                                            title="{{ tr('Remove') }}"
+                                        >
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <div class="text-xs text-gray-400">
+                            {{ tr('Note: Deleting a branch that has employees is not allowed.') }}
+                        </div>
+                    </div>
                 </div>
+            </div>
+
             @elseif($tab === 4)
                 <div wire:key="tab-documents-edit">
                     @include('saas::companies.partials.tab-documents')

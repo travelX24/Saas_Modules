@@ -217,7 +217,16 @@ public function resendPasswordReset(int $companyId): void
 
     public function render()
     {
-        $query = SaasCompany::with(['settings', 'users', 'documents'])
+        $query = SaasCompany::with([
+                'settings',
+                'users',
+                'documents',
+                'branches' => fn ($q) => $q->select('id', 'saas_company_id', 'name', 'is_active')->orderBy('name'),
+            ])
+            ->withCount([
+                'branches',
+                'branches as active_branches_count' => fn ($q) => $q->where('is_active', true),
+            ])
             ->when($this->search, function ($q) {
                 $q->where(function ($query) {
                     $query->where('legal_name_ar', 'like', '%'.$this->search.'%')

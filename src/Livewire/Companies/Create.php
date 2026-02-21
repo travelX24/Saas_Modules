@@ -2,6 +2,7 @@
 
 namespace Athka\Saas\Livewire\Companies;
 
+use Athka\Saas\Models\Branch;
 use App\Models\User;
 use Athka\Saas\Models\SaasCompany;
 use Athka\Saas\Models\SaasCompanyDocument;
@@ -10,9 +11,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Livewire\Component;
@@ -26,19 +28,13 @@ class Create extends Component
 
     // TAB 1: Basic Information
     public string $legal_name_ar = '';
-
     public ?string $legal_name_en = null;
-
     public string $company_type = 'individual';
-
     public $logo = null;
 
     public ?string $main_industry = null;
-
     public ?string $main_industry_other = null;
-
     public string $sub_industries_text = '';
-
     public ?string $bio = null;
 
     // ✅ الدومين الرئيسي للشركة
@@ -46,7 +42,6 @@ class Create extends Component
 
     // Company Admin (will be created and linked)
     public string $company_admin_name = '';
-
     public string $company_admin_email = '';
 
     // internal (not shown)
@@ -54,55 +49,40 @@ class Create extends Component
 
     // TAB 2: Address & Contact
     public ?string $official_email = null;
-
     public ?string $phone_1 = null;
-
     public ?string $phone_2 = null;
 
     public ?string $country = null;
-
     public ?string $city = null;
-
     public ?string $region = null;
-
     public ?string $address_line = null;
-
     public ?string $postal_code = null;
-
     public ?string $lat = null;
-
     public ?string $lng = null;
 
     // TAB 3: Additional Info (Subscription & Settings)
     public ?string $license_number = null;
-
     public ?string $tax_number = null;
-
     public ?string $cr_number = null;
 
     public ?string $subscription_starts_at = null;
-
     public ?string $subscription_ends_at = null;
 
     public int $allowed_users = 1;
 
     public string $timezone = 'Asia/Aden';
-
     public string $default_locale = 'ar';
-
     public string $datetime_format = 'Y-m-d H:i';
+
+    // ✅ Branches (created during company creation by SaaS admin)
+    public array $branches = [];
 
     // TAB 4: Documents
     public $doc_cr = null;
-
     public $doc_vat = null;
-
     public $doc_activity_license = null;
-
     public $doc_incorporation = null;
-
     public $doc_owner_id = null;
-
     public $doc_national_address = null;
 
     // Store existing documents info for display (empty for create, populated for edit)
@@ -118,6 +98,39 @@ class Create extends Component
         }
 
         $this->loadTimezones();
+
+        // ✅ Default one branch row so company always has at least 1 branch
+        if (empty($this->branches)) {
+            $this->branches = [[
+                'name' => $this->txt('الفرع الرئيسي', 'Main Branch'),
+                'code' => null,
+                'is_active' => true,
+            ]];
+        }
+    }
+
+    public function addBranchRow(): void
+    {
+        $this->branches[] = [
+            'name' => '',
+            'code' => null,
+            'is_active' => true,
+        ];
+    }
+
+    public function removeBranchRow(int $index): void
+    {
+        // ✅ Keep at least 1 row
+        if (count($this->branches) <= 1) {
+            return;
+        }
+
+        if (! isset($this->branches[$index])) {
+            return;
+        }
+
+        unset($this->branches[$index]);
+        $this->branches = array_values($this->branches);
     }
 
     private function loadTimezones(): void
@@ -181,7 +194,7 @@ class Create extends Component
         // لو كتب anas.com أو anas.athkahr.com نأخذ أول جزء فقط
         $first = explode('.', $v)[0];
 
-        // نخليها حروف/أرقام/-
+        // نخليها حروف/أرقام/- 
         return Str::slug($first);
     }
 
@@ -210,7 +223,7 @@ class Create extends Component
     private function ensureNotReservedSubdomain(string $sub): string
     {
         $reserved = ['www', 'admin', 'api', 'saas', 'app'];
-        return in_array($sub, $reserved, true) ? ('company-'.$sub) : $sub;
+        return in_array($sub, $reserved, true) ? ('company-' . $sub) : $sub;
     }
 
     public function updatedSubscriptionStartsAt(): void
@@ -246,7 +259,6 @@ class Create extends Component
 
     private function validationAttributes(): array
     {
-        // نفس عناوين الحقول بالواجهة (تطلع عربي/إنجليزي حسب tr())
         return [
             'legal_name_ar' => tr('Legal Name (AR)'),
             'legal_name_en' => tr('Legal Name (EN)'),
@@ -282,6 +294,12 @@ class Create extends Component
             'default_locale' => tr('Default Locale'),
             'datetime_format' => tr('DateTime Format'),
 
+            // ✅ Branches
+            'branches' => tr('Branches'),
+            'branches.*.name' => tr('Branch Name'),
+            'branches.*.code' => tr('Branch Code'),
+            'branches.*.is_active' => tr('Active'),
+
             'doc_cr' => tr('CR Document'),
             'doc_vat' => tr('VAT Certificate'),
             'doc_activity_license' => tr('Activity License'),
@@ -295,12 +313,10 @@ class Create extends Component
     private function rulesTab1(): array
     {
         return [
-            // ✅ Required
             'legal_name_ar' => ['required', 'string', 'max:190'],
             'company_type' => ['required', 'in:individual,foundation,company'],
 
             'company_admin_name' => ['required', 'string', 'max:190'],
-            // لاحظ: بدون dns لتجنب مشاكل بيئة لوكال
             'company_admin_email' => ['required', 'email', 'max:190', 'unique:users,email'],
 
             'primary_domain' => [
@@ -310,30 +326,24 @@ class Create extends Component
                 function ($attr, $value, $fail) {
                     $sub = $this->normalizeSubdomain($value);
 
-                    // subdomain: anas | anas-1 | a1
                     $ok = preg_match('/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/', $sub);
                     if (! $ok) {
                         $fail($this->txt('صيغة الساب دومين غير صحيحة (استخدم حروف/أرقام و - فقط).', 'Invalid subdomain format (letters/numbers and hyphen only).'));
-
                         return;
                     }
 
-                    // كلمات محجوزة (اختياري لكن مفيد)
                     $reserved = ['www', 'admin', 'api', 'saas', 'app'];
                     if (in_array($sub, $reserved, true)) {
                         $fail($this->txt('هذا الساب دومين محجوز.', 'This subdomain is reserved.'));
-
                         return;
                     }
 
-                    // ✅ يجب أن يكون فريد
                     if (SaasCompany::where('slug', $sub)->exists() || SaasCompany::where('primary_domain', $sub)->exists()) {
                         $fail($this->txt('هذا الساب دومين مستخدم مسبقاً.', 'This subdomain is already used.'));
                     }
                 },
             ],
 
-            // Optional
             'legal_name_en' => ['nullable', 'string', 'max:190'],
             'logo' => ['nullable', 'image', 'max:2048'],
 
@@ -351,7 +361,6 @@ class Create extends Component
             'phone_1' => ['nullable', 'string', 'max:50'],
             'phone_2' => ['nullable', 'string', 'max:50'],
 
-            // ✅ Required (خفيفة)
             'country' => ['required', 'string', 'max:120'],
             'city' => ['required', 'string', 'max:120'],
 
@@ -370,7 +379,6 @@ class Create extends Component
             'tax_number' => ['nullable', 'string', 'max:190'],
             'cr_number' => ['nullable', 'string', 'max:190'],
 
-            // ✅ Required
             'subscription_starts_at' => ['required', 'date'],
             'subscription_ends_at' => ['required', 'date', 'after_or_equal:subscription_starts_at'],
 
@@ -380,7 +388,6 @@ class Create extends Component
                 'min:1',
                 'max:100000',
                 function ($attribute, $value, $fail) {
-                    // ✅ التحقق من أن allowed_users >= 1 (لأن admin هو المستخدم الأول)
                     if ($value < 1) {
                         $fail(tr('Allowed users must be at least 1 (for the company admin).'));
                     }
@@ -389,12 +396,18 @@ class Create extends Component
             'timezone' => ['nullable', 'string', 'max:100'],
             'default_locale' => ['nullable', 'in:ar,en'],
             'datetime_format' => ['nullable', 'string', 'max:50'],
+
+            // ✅ Branches
+            'branches' => ['required', 'array', 'min:1', 'max:30'],
+            'branches.*.name' => ['required', 'string', 'max:190', 'distinct'],
+            'branches.*.code' => ['nullable', 'string', 'max:50', 'distinct'],
+            'branches.*.is_active' => ['nullable', 'boolean'],
         ];
     }
 
     private function rulesTab4(): array
     {
-        $file = ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240']; // 10MB
+        $file = ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'];
 
         return [
             'doc_cr' => $file,
@@ -417,19 +430,15 @@ class Create extends Component
         };
     }
 
-    // ✅ منع القفز: لو رايح للأمام نتحقق من كل التبويبات السابقة
     public function goToTab(int $target): void
     {
         $target = max(1, min(4, $target));
 
-        // إذا كان الانتقال للخلف، لا حاجة للتحقق
         if ($target < $this->tab) {
             $this->tab = $target;
-
             return;
         }
 
-        // إذا كان الانتقال للأمام، نتحقق من التبويبات السابقة
         if ($target > $this->tab) {
             for ($t = $this->tab; $t < $target; $t++) {
                 $this->validate(
@@ -456,7 +465,6 @@ class Create extends Component
 
     public function prevTab(): void
     {
-        // الانتقال للخلف لا يحتاج validation
         $this->tab = max(1, $this->tab - 1);
     }
 
@@ -477,7 +485,6 @@ class Create extends Component
                 ->values()
                 ->all();
 
-            // ✅ Always generate domain automatically (do not trust client input)
             $base = Str::slug($this->legal_name_en ?: $this->legal_name_ar) ?: 'company';
             $base = $this->ensureNotReservedSubdomain($base);
             $slug = $this->makeUniqueSlug($base);
@@ -489,8 +496,6 @@ class Create extends Component
                     'legal_name_ar' => $this->legal_name_ar,
                     'legal_name_en' => $this->legal_name_en,
                     'slug' => $slug,
-
-                    // نخزنها نفس slug (لأنها فعلياً subdomain عندك الآن)
                     'primary_domain' => $slug,
 
                     'company_type' => $this->company_type,
@@ -512,19 +517,20 @@ class Create extends Component
                 ]);
 
                 if ($this->logo) {
-                    // ✅ حذف جميع الصور القديمة من مجلد logo
                     $logoDir = "saas/companies/{$company->id}/logo";
-                    if (\Illuminate\Support\Facades\Storage::disk('public')->exists($logoDir)) {
-                        $oldFiles = \Illuminate\Support\Facades\Storage::disk('public')->files($logoDir);
+                    if (Storage::disk('public')->exists($logoDir)) {
+                        $oldFiles = Storage::disk('public')->files($logoDir);
                         foreach ($oldFiles as $oldFile) {
-                            \Illuminate\Support\Facades\Storage::disk('public')->delete($oldFile);
+                            Storage::disk('public')->delete($oldFile);
                         }
                     }
-                    
-                    // ✅ حفظ الصورة الجديدة
+
                     $path = $this->logo->store($logoDir, 'public');
                     $company->update(['logo_path' => $path]);
                 }
+
+                // ✅ Create branches for company now
+                $primaryBranchId = $this->createCompanyBranches($company->id);
 
                 $adminData = [
                     'name' => $this->company_admin_name,
@@ -541,9 +547,14 @@ class Create extends Component
                 if (Schema::hasColumn('users', 'email_verified_at')) {
                     $adminData['email_verified_at'] = null;
                 }
+                if (Schema::hasColumn('users', 'branch_id') && $primaryBranchId) {
+                    $adminData['branch_id'] = $primaryBranchId;
+                }
+                if (Schema::hasColumn('users', 'access_scope') && empty($adminData['access_scope'])) {
+                    // keep default, but set explicitly if needed
+                    $adminData['access_scope'] = 'all';
+                }
 
-                // ✅ التحقق من عدد المستخدمين المسموحين قبل إنشاء admin
-                // (admin هو المستخدم الأول، لذا يجب أن يكون allowed_users >= 1)
                 if ($this->allowed_users < 1) {
                     throw new \Exception(tr('Allowed users must be at least 1 (for the company admin).'));
                 }
@@ -590,64 +601,117 @@ class Create extends Component
                     'saas.company-admin.password.create',
                     now()->addHours(24),
                     ['email' => $admin->email, 'token' => $token],
-                    false // ✅ relative signature
+                    false
                 );
 
-                $url = request()->getSchemeAndHttpHost().$relative; // ✅ نخلي الرابط مطلق للإيميل
+                $url = request()->getSchemeAndHttpHost() . $relative;
 
-                $locale = $this->default_locale ?: app()->getLocale(); // ✅ لغة الشركة (أو الواجهة كاحتياط)
+                $locale = $this->default_locale ?: app()->getLocale();
 
                 $companyName = str_starts_with($locale, 'ar')
                     ? ($this->legal_name_ar ?: $this->legal_name_en)
                     : ($this->legal_name_en ?: $this->legal_name_ar);
 
-                \Illuminate\Support\Facades\Notification::sendNow(
+                Notification::sendNow(
                     $admin,
                     (new \App\Notifications\CompanyAdminSetPasswordNotification(
                         $url,
                         $companyName
                     ))->locale($locale)
                 );
-
-
             } catch (\Throwable $e) {
                 report($e);
                 session()->flash('warning', tr('Company created but invitation email could not be sent.'));
             }
 
-            // مسح Cache الفلاتر لإظهار المدينة الجديدة في قائمة المدن (لجميع اللغات)
             foreach (['ar', 'en'] as $lang) {
                 Cache::forget("companies:filters:industries:{$lang}");
                 Cache::forget("companies:filters:locations:{$lang}");
             }
 
-            // ✅ استخدام 'status' بدلاً من 'success' لعرض الرسالة عبر flash-toast
             return redirect()->route('saas.companies.index')
                 ->with('status', tr('Company created successfully'))
                 ->with('company_admin_email', $this->company_admin_email);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
-            // ✅ البحث عن أول حقل به خطأ وتحديد التبويب المناسب له
             $errors = $e->validator->errors()->keys();
-            if (!empty($errors)) {
-                $firstErrorField = $errors[0];
-                
-                // تحديد التبويب بناءً على الحقل
-                if (array_key_exists($firstErrorField, $this->rulesTab1())) $this->tab = 1;
-                elseif (array_key_exists($firstErrorField, $this->rulesTab2())) $this->tab = 2;
-                elseif (array_key_exists($firstErrorField, $this->rulesTab3())) $this->tab = 3;
-                elseif (array_key_exists($firstErrorField, $this->rulesTab4())) $this->tab = 4;
+            if (! empty($errors)) {
+                $this->tab = $this->detectTabForField($errors[0]);
             }
             throw $e;
+
         } catch (\Throwable $e) {
             report($e);
-            
-            // ✅ إظهار رسالة خطأ عبر flash-toast
             session()->flash('error', tr('Failed to create company. Please try again.'));
-            
-            // إعادة تحميل الصفحة لإظهار رسالة الخطأ
             return redirect()->route('saas.companies.create');
         }
+    }
+
+    private function detectTabForField(string $field): int
+    {
+        $tabs = [
+            1 => array_keys($this->rulesTab1()),
+            2 => array_keys($this->rulesTab2()),
+            3 => array_keys($this->rulesTab3()),
+            4 => array_keys($this->rulesTab4()),
+        ];
+
+        foreach ($tabs as $tab => $keys) {
+            foreach ($keys as $key) {
+                if ($key === $field) {
+                    return $tab;
+                }
+
+                // wildcard support: branches.*.name matches branches.0.name
+                if (str_contains($key, '*')) {
+                    $pattern = '/^' . str_replace(['\*', '\.'], ['[^.]+', '\.'], preg_quote($key, '/')) . '$/';
+                    if (preg_match($pattern, $field)) {
+                        return $tab;
+                    }
+                }
+            }
+        }
+
+        return $this->tab ?: 1;
+    }
+
+    private function createCompanyBranches(int $companyId): ?int
+    {
+        $rows = collect($this->branches ?? [])
+            ->map(function ($b) {
+                return [
+                    'name' => trim((string) ($b['name'] ?? '')),
+                    'code' => trim((string) ($b['code'] ?? '')) ?: null,
+                    'is_active' => (bool) ($b['is_active'] ?? true),
+                ];
+            })
+            ->filter(fn ($b) => $b['name'] !== '')
+            ->values();
+
+        if ($rows->isEmpty()) {
+            $rows = collect([[
+                'name' => $this->txt('الفرع الرئيسي', 'Main Branch'),
+                'code' => null,
+                'is_active' => true,
+            ]]);
+        }
+
+        $firstId = null;
+
+        foreach ($rows as $row) {
+            $branch = Branch::create([
+                'saas_company_id' => $companyId,
+                'name' => $row['name'],
+                'code' => $row['code'],
+                'is_active' => $row['is_active'],
+            ]);
+
+            if ($firstId === null) {
+                $firstId = (int) $branch->id;
+            }
+        }
+
+        return $firstId;
     }
 
     private function makeUniqueSlug(string $base): string
@@ -655,7 +719,6 @@ class Create extends Component
         $base = Str::slug($base) ?: 'company';
         $base = $this->ensureNotReservedSubdomain($base);
 
-        // limit to subdomain max length (DNS label = 63)
         $base = Str::substr($base, 0, 63);
 
         $slug = $base;
@@ -665,9 +728,9 @@ class Create extends Component
             SaasCompany::where('slug', $slug)->exists()
             || SaasCompany::where('primary_domain', $slug)->exists()
         ) {
-            $suffix = '-'.$i;
+            $suffix = '-' . $i;
             $maxBaseLen = 63 - strlen($suffix);
-            $slug = Str::substr($base, 0, max(1, $maxBaseLen)).$suffix;
+            $slug = Str::substr($base, 0, max(1, $maxBaseLen)) . $suffix;
             $i++;
         }
 
@@ -694,7 +757,6 @@ class Create extends Component
         );
     }
 
-    // ✅ Computed property لجلب الصناعات مترجمة
     public function getIndustriesProperty(): array
     {
         $locale = app()->getLocale();
@@ -702,7 +764,7 @@ class Create extends Component
 
         return collect($industriesConfig)->map(function ($english, $arabic) use ($locale) {
             return [
-                'value' => $arabic, // نخزن العربي كـ value (كما هو عندك)
+                'value' => $arabic,
                 'label' => $locale === 'en' ? $english : $arabic,
             ];
         })->values()->toArray();
@@ -710,7 +772,6 @@ class Create extends Component
 
     public function existingDocument(string $type): ?array
     {
-        // In create mode, there are no existing documents, so always return null
         return $this->existingDocuments[$type] ?? null;
     }
 

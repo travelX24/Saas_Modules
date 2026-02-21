@@ -3,6 +3,7 @@
 namespace Athka\Saas\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Athka\Saas\Models\Branch;
 
 class SaasCompany extends Model
 {
@@ -10,8 +11,6 @@ class SaasCompany extends Model
 
     protected $fillable = [
         'legal_name_ar', 'legal_name_en',
-
-        // ✅ موجود في الجدول
         'slug',
         'primary_domain',
 
@@ -35,8 +34,8 @@ class SaasCompany extends Model
     {
         parent::boot();
 
-        // حذف جميع المستخدمين المرتبطين بالشركة عند حذف الشركة
         static::deleting(function ($company) {
+            $company->branches()->delete();
             $company->users()->delete();
         });
     }
@@ -55,4 +54,10 @@ class SaasCompany extends Model
     {
         return $this->hasMany(\App\Models\User::class, 'saas_company_id');
     }
+
+    public function branches()
+    {
+        return $this->hasMany(\Athka\Saas\Models\Branch::class, 'saas_company_id');
+    }
+
 }
