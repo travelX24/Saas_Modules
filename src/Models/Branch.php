@@ -6,6 +6,7 @@ use Athka\Employees\Models\Employee;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Branch extends Model
 {
@@ -38,5 +39,13 @@ class Branch extends Model
         $userModel = config('auth.providers.users.model');
 
         return $this->hasMany($userModel, 'branch_id');
+    }
+
+    public function allowedUsers(): BelongsToMany
+    {
+        $userModel = config('auth.providers.users.model');
+
+        return $this->belongsToMany($userModel, 'branch_user_access', 'branch_id', 'user_id')
+            ->withTimestamps();
     }
 }
