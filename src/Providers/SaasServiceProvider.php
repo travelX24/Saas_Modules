@@ -10,6 +10,9 @@ class SaasServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
+        // ✅ تسجيل ملف الـ Config
+        $this->mergeConfigFrom(__DIR__.'/../Config/saas.php', 'saas');
+
         // Routes / Views / Migrations
         $this->loadRoutesFrom(__DIR__.'/../Routes/web.php');
         $this->loadViewsFrom(__DIR__.'/../Resources/views', 'saas');

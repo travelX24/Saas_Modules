@@ -17,8 +17,8 @@ class ForceCompanyDomain
 
         // ✅ التحقق من الدومين أولاً
         $host = strtolower($request->getHost());
-        $base = strtolower(env('TENANT_BASE_DOMAIN', 'athkahr.lvh.me'));
-        $central = strtolower(env('CENTRAL_DOMAIN', $base));
+        $base = strtolower(config('saas.tenant_base_domain', env('TENANT_BASE_DOMAIN', 'athkahr.com')));
+        $central = strtolower(config('saas.central_domain', env('CENTRAL_DOMAIN', $base)));
 
         // ✅ لو نحن على nip.io استخرج IP واصنع base/central ديناميكي
         if (preg_match('/\.(\d{1,3}(?:\.\d{1,3}){3})\.nip\.io$/', $host, $m)) {
