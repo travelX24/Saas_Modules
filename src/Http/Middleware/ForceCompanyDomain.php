@@ -54,7 +54,7 @@ class ForceCompanyDomain
 
         // ✅ فقط إذا كان على route الشركة -> إعادة التوجيه
         // إذا كان على SaaS route -> لا تعيد التوجيه
-        if ($request->routeIs('company-admin.*')) {
+        if ($request->is('company-admin*')) {
             // ابني نفس الرابط لكن على الدومين الجديد
             $scheme = $request->isSecure() ? 'https' : 'http';
             $port = $request->getPort();
