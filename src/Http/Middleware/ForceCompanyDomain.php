@@ -52,23 +52,17 @@ class ForceCompanyDomain
             return $next($request);
         }
 
-        // ✅ فقط إذا كان على route الشركة -> إعادة التوجيه
-        // إذا كان على SaaS route -> لا تعيد التوجيه
-        if ($request->is('company-admin*')) {
-            // ابني نفس الرابط لكن على الدومين الجديد
-            $scheme = $request->isSecure() ? 'https' : 'http';
-            $port = $request->getPort();
+        // ✅ إعادة التوجيه لدومين الشركة
+        $scheme = $request->isSecure() ? 'https' : 'http';
+        $port = $request->getPort();
 
-            $portPart = '';
-            if (! in_array($port, [80, 443], true)) {
-                $portPart = ':'.$port; // مهم في local (8000)
-            }
-
-            $target = $scheme.'://'.$desiredHost.$portPart.$request->getRequestUri();
-
-            return redirect()->away($target);
+        $portPart = '';
+        if (! in_array($port, [80, 443], true)) {
+            $portPart = ':'.$port;
         }
 
-        return $next($request);
+        $target = $scheme.'://'.$desiredHost.$portPart.$request->getRequestUri();
+
+        return redirect()->away($target);
     }
 }

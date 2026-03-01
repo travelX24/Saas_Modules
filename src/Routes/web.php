@@ -82,7 +82,7 @@ Route::prefix('saas')
  * ✅ صفحة Company Admin (مؤقتة للاختبار)
  * URL: /company-admin/hello
  */
-Route::prefix('company-admin')
+Route::prefix('')
     ->name('company-admin.')
     ->middleware([
         'web',
