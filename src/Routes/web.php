@@ -67,14 +67,14 @@ Route::prefix('saas')
     ->middleware(['web'])
     ->group(function () {
 
-        Route::get('/company-admin/set-password', [CompanyAdminSetPasswordController::class, 'create'])
+        Route::get('/set-password', [CompanyAdminSetPasswordController::class, 'create'])
             ->middleware('signed:relative')
             ->name('company-admin.password.create');
 
-        Route::post('/company-admin/set-password', [CompanyAdminSetPasswordController::class, 'store'])
+        Route::post('/set-password', [CompanyAdminSetPasswordController::class, 'store'])
             ->name('company-admin.password.store');
 
-        Route::get('/company-admin/set-password/done', [CompanyAdminSetPasswordController::class, 'done'])
+        Route::get('/set-password/done', [CompanyAdminSetPasswordController::class, 'done'])
             ->name('company-admin.password.done');
     });
 
