@@ -46,7 +46,8 @@ class ResolveCompanyByDomain
         });
 
         if (! $company) {
-            abort(404);
+            // بدلاً من 404، وجهه للدومين الرئيسي ليعيد تسجيل الدخول
+            return redirect()->away('https://' . $central);
         }
 
         app()->instance('currentCompany', $company);
