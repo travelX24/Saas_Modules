@@ -53,8 +53,18 @@ class EnsureCompanyAdmin
             return redirect()->route('saas.dashboard');
         }
 
-        // ✅ Company Admin على الدومين المركزي -> إعادة توجيه لصفحة الشركة
+        // ✅ Company Admin على الدومين المركزي -> إعادة توجيه لدومين الشركة مباشرة
         if ($isCompanyAdmin && $isOnCentralDomain) {
+            $company = \Athka\Saas\Models\SaasCompany::find($u->saas_company_id);
+            if ($company && $company->primary_domain) {
+                $desiredHost = $company->primary_domain . '.' . $base;
+                $scheme = $request->isSecure() ? 'https' : 'http';
+                $port = $request->getPort();
+                $portPart = in_array($port, [80, 443], true) ? '' : ':' . $port;
+
+                return redirect()->away($scheme . '://' . $desiredHost . $portPart . '/hello');
+            }
+
             return redirect()->route('company-admin.hello');
         }
 
