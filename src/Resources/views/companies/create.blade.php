@@ -8,15 +8,18 @@
         @php
             $isRtl = in_array(app()->getLocale(), ['ar','fa','ur']) || (config('app.rtl') === true);
         @endphp
-        <a href="{{ route('saas.companies.index') }}"
-           class="w-full sm:w-auto px-4 py-2 bg-white border border-gray-200 rounded-2xl hover:bg-gray-50 flex items-center justify-center gap-2 text-sm sm:text-base">
+        <x-ui.secondary-button
+            :href="route('saas.companies.index')"
+            :fullWidth="false"
+            class="!py-2 !px-4 !rounded-2xl !text-sm sm:!text-base"
+        >
             @if($isRtl)
                 <i class="fas fa-arrow-right"></i>
             @else
                 <i class="fas fa-arrow-left"></i>
             @endif
             <span>{{ tr('Back') }}</span>
-        </a>
+        </x-ui.secondary-button>
     </div>
 
     @php
@@ -180,14 +183,15 @@
                             </div>
                         </div>
 
-                        <button
+                        <x-ui.primary-button
                             type="button"
                             wire:click="addBranchRow"
-                            class="px-3 py-2 rounded-xl text-xs font-semibold text-white shadow bg-[color:var(--brand-via)] hover:opacity-95 active:scale-[0.98] transition"
+                            :fullWidth="false"
+                            class="!px-3 !py-2 !rounded-xl !text-xs"
                         >
                             <i class="fas fa-plus mr-1"></i>
                             {{ tr('Add Branch') }}
-                        </button>
+                        </x-ui.primary-button>
                     </div>
 
                     <div class="p-4 space-y-3">
@@ -234,15 +238,15 @@
                                     </div>
 
                                     <div class="md:col-span-1 flex justify-end">
-                                        <button
+                                        <x-ui.secondary-button
                                             type="button"
                                             wire:click="removeBranchRow({{ $i }})"
-                                            @disabled(count($branches) <= 1)
-                                            class="px-3 py-2 rounded-xl text-xs font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                                            :disabled="count($branches) <= 1"
+                                            class="!px-3 !py-2 !rounded-xl !text-xs !border-gray-200 !text-gray-700 hover:!bg-gray-50"
                                             title="{{ tr('Remove') }}"
                                         >
                                             <i class="fas fa-trash"></i>
-                                        </button>
+                                        </x-ui.secondary-button>
                                     </div>
                                 </div>
                             @endforeach

@@ -58,8 +58,9 @@
     </x-ui.card>
 
     {{-- Translations Table --}}
+    <div wire:poll.30s>
     @if($translations->count() > 0)
-        <x-ui.card>
+        <x-ui.card class="relative overflow-hidden">
             @php
                 $locale = app()->getLocale();
                 $isRtl = in_array(substr($locale, 0, 2), ['ar', 'fa', 'ur', 'he']);
@@ -134,29 +135,33 @@
                                 <td class="py-3 px-4">
                                     @if(isset($editing[$translation->id]))
                                         <div class="flex items-center gap-2 {{ $isRtl ? 'flex-row-reverse' : '' }}">
-                                            <button
+                                            <x-ui.primary-button
                                                 wire:click="saveTranslation({{ $translation->id }})"
-                                                class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-white bg-green-600 hover:bg-green-700 rounded-md transition-colors"
+                                                :fullWidth="false"
+                                                class="!px-3 !py-1.5 !text-xs !rounded-lg"
+                                                loading="saveTranslation"
                                             >
                                                 <i class="cursor-pointer fas fa-check {{ $isRtl ? 'ms-1' : 'me-1' }}"></i>
                                                 {{ tr('Save') }}
-                                            </button>
-                                            <button
+                                            </x-ui.primary-button>
+                                            <x-ui.secondary-button
                                                 wire:click="cancelEdit({{ $translation->id }})"
-                                                class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+                                                :fullWidth="false"
+                                                class="!px-3 !py-1.5 !text-xs !rounded-lg"
                                             >
                                                 <i class="fas fa-times {{ $isRtl ? 'ms-1' : 'me-1' }}"></i>
                                                 {{ tr('Cancel') }}
-                                            </button>
+                                            </x-ui.secondary-button>
                                         </div>
                                     @else
-                                        <button
+                                        <x-ui.secondary-button
                                             wire:click="startEdit({{ $translation->id }})"
-                                            class="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors"
+                                            :fullWidth="false"
+                                            class="!px-3 !py-1.5 !text-xs !rounded-lg !text-blue-700 !bg-blue-50 !border-blue-100 hover:!bg-blue-100"
                                         >
                                             <i class="fas fa-edit"></i>
                                             {{ tr('Edit') }}
-                                        </button>
+                                        </x-ui.secondary-button>
                                     @endif
                                 </td>
                             </tr>
@@ -274,4 +279,5 @@
             </div>
         </x-ui.card>
     @endif
+    </div>
 </div>

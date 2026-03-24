@@ -30,7 +30,7 @@
     </x-ui.page-header>
 
     {{-- Tabs --}}
-    <x-ui.card class="p-0">
+    <x-ui.card class="p-0 relative overflow-hidden">
         <div class="border-b border-gray-200">
             <nav class="flex -mb-px" aria-label="Tabs">
                 <button

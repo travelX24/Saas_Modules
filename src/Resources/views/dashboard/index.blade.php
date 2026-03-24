@@ -1,4 +1,4 @@
-<div class="space-y-4">
+<div class="space-y-4" wire:poll.30s>
     {{-- Header --}}
     <x-ui.page-header
         :title="tr('Dashboard')"
@@ -294,9 +294,17 @@
             <div class="space-y-2">
                 @forelse($recentCompanies as $company)
                     <div class="flex items-center gap-2 p-2 rounded-xl hover:bg-gray-50 transition-colors">
-                        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-[color:var(--brand-from)] via-[color:var(--brand-via)] to-[color:var(--brand-to)] flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-building text-white text-sm"></i>
-                        </div>
+                        {{-- Company Logo or Icon --}}
+                        @if($company->logo_path)
+                            <img src="{{ asset('storage/' . ltrim(str_replace(['\\', '//'], '/', $company->logo_path), '/')) }}" 
+                                 class="w-10 h-10 rounded-lg object-cover flex-shrink-0 shadow-sm border border-gray-100 dark:border-gray-800"
+                                 onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($company->legal_name_ar) }}&color=7543eb&background=f3e8ff&bold=true&length=1';">
+                        @else
+                            <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-[color:var(--brand-from)] via-[color:var(--brand-via)] to-[color:var(--brand-to)] flex items-center justify-center flex-shrink-0 shadow-sm">
+                                <i class="fas fa-building text-white text-sm"></i>
+                            </div>
+                        @endif
+
                         <div class="flex-1 min-w-0">
                             <h4 class="text-sm font-semibold text-gray-900 truncate">
                                 {{ app()->getLocale() === 'ar' ? $company->legal_name_ar : ($company->legal_name_en ?: $company->legal_name_ar) }}
@@ -314,14 +322,24 @@
                                 @endif
                             </div>
                         </div>
-                        @if($company->settings && $company->settings->subscription_ends_at)
-                            @php
-                                $isActive = $company->settings->subscription_ends_at->isFuture();
-                            @endphp
-                            <x-ui.badge :type="$isActive ? 'success' : 'danger'" size="sm">
-                                {{ $isActive ? tr('Active') : tr('Expired') }}
-                            </x-ui.badge>
-                        @endif
+
+                        {{-- Company Status Badge --}}
+                        @php
+                            $hasValidSubscription = $company->settings && $company->settings->subscription_ends_at && $company->settings->subscription_ends_at->isFuture();
+                            $effectiveActive = $company->is_active && $hasValidSubscription;
+                            
+                            $statusType = 'danger';
+                            if ($company->is_active) {
+                                $statusType = $hasValidSubscription ? 'success' : 'warning';
+                                $statusLabel = $hasValidSubscription ? tr('Active') : tr('Expired');
+                            } else {
+                                $statusLabel = tr('Suspended');
+                            }
+                        @endphp
+                        
+                        <x-ui.badge :type="$statusType" size="sm" class="flex-shrink-0">
+                            {{ $statusLabel }}
+                        </x-ui.badge>
                     </div>
                 @empty
                     <div class="text-center py-8 text-gray-500">

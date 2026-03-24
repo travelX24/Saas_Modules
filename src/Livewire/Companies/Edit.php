@@ -368,11 +368,8 @@ class Edit extends Component
                 $this->saveDoc($company->id, 'national_address', $this->doc_national_address);
             });
 
-            // مسح Cache الفلاتر لإظهار المدينة الجديدة في قائمة المدن (لجميع اللغات)
-            foreach (['ar', 'en'] as $lang) {
-                Cache::forget("companies:filters:industries:{$lang}");
-                Cache::forget("companies:filters:locations:{$lang}");
-            }
+            // مسح Cache الفلاتر وكاش لوحة التحكم لضمان ظهور البيانات الجديدة فوراً
+            $this->clearDashboardCache();
 
 // ✅ أرسل تفاصيل التحديث (عشان viewLocationModal يحدّث lat/lng بدون Refresh)
 $lat = filled($this->lat) ? (float) $this->lat : null;
@@ -520,6 +517,25 @@ $this->dispatch('toast', type: 'success', message: tr('Company updated successfu
     public function existingDocument(string $type): ?array
     {
         return $this->existingDocuments[$type] ?? null;
+    }
+
+    private function clearDashboardCache(): void
+    {
+        $hNow = now()->format('Y-m-d-H');
+        $mNow = now()->format('Y-m-d-H-i');
+        $dNow = now()->format('Y-m-d');
+
+        Cache::forget('dashboard:stats:'.$hNow);
+        Cache::forget('dashboard:charts:'.$hNow);
+        Cache::forget('dashboard:recent:'.$mNow);
+        Cache::forget('dashboard:chart:companies:'.$hNow);
+        Cache::forget('dashboard:chart:users:'.$hNow);
+        Cache::forget('dashboard:chart:subscriptions:'.$dNow);
+        
+        foreach (['ar', 'en'] as $lang) {
+            Cache::forget("companies:filters:industries:{$lang}");
+            Cache::forget("companies:filters:locations:{$lang}");
+        }
     }
 
     public function render()

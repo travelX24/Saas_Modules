@@ -77,27 +77,23 @@
                 {{ tr('Location Coordinates') }}
             </label>
             <div class="flex items-center gap-2 w-full sm:w-auto">
-                <button
+                <x-ui.secondary-button
                     type="button"
                     @click="openModal()"
-                    class="flex-1 sm:flex-none px-4 py-2 rounded-xl border border-[color:var(--brand-via)] bg-white text-[color:var(--brand-via)] font-semibold
-                           hover:bg-[color:var(--brand-via)] hover:text-white transition-all duration-200
-                           flex items-center justify-center gap-2 shadow-sm text-sm sm:text-base"
+                    class="!flex-1 sm:!flex-none !px-4 !py-2 !rounded-xl !border-[color:var(--brand-via)] !bg-white !text-[color:var(--brand-via)] hover:!bg-[color:var(--brand-via)] hover:!text-white !text-sm sm:!text-base"
                 >
                     <i class="fas fa-map-marker-alt"></i>
                     <span>{{ tr('Choose from Map') }}</span>
-                </button>
-                <button
+                </x-ui.secondary-button>
+                <x-ui.secondary-button
                     type="button"
                     @click="clearLocation()"
-                    class="px-4 py-2 rounded-xl border border-gray-300 bg-white text-gray-600 font-semibold
-                           hover:bg-gray-50 hover:border-gray-400 transition-all duration-200
-                           flex items-center justify-center gap-2 shadow-sm text-sm sm:text-base"
+                    class="!px-4 !py-2 !rounded-xl !border-gray-300 !bg-white !text-gray-600 hover:!bg-gray-50 hover:!border-gray-400 !text-sm sm:!text-base"
                     title="{{ tr('Clear Location') }}"
                 >
                     <i class="fas fa-times"></i>
                     <span class="hidden sm:inline">{{ tr('Clear') }}</span>
-                </button>
+                </x-ui.secondary-button>
             </div>
         </div>
 
@@ -141,18 +137,16 @@
                             <span class="text-sm sm:text-base">{{ tr('Choose Location from Map') }}</span>
                         </h3>
                         <div class="flex items-center gap-2 w-full sm:w-auto">
-                            <button
+                            <x-ui.secondary-button
                                 @click="getCurrentLocation()"
                                 x-bind:disabled="isGettingLocation"
-                                class="flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-lg sm:rounded-xl border border-green-500 bg-white text-green-600 font-semibold
-                                       hover:bg-green-500 hover:text-white transition-all duration-200
-                                       flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm"
+                                class="!flex-1 sm:!flex-none !px-3 sm:!px-4 !py-2 !rounded-lg sm:!rounded-xl !border-green-500 !bg-white !text-green-600 hover:!bg-green-500 hover:!text-white !text-xs sm:!text-sm"
                             >
                                 <i x-show="!isGettingLocation" class="fas fa-location-arrow"></i>
                                 <i x-show="isGettingLocation" class="fas fa-spinner fa-spin"></i>
                                 <span x-text="isGettingLocation ? '{{ tr('Getting Location...') }}' : '{{ tr('Use My Location') }}'" class="hidden sm:inline"></span>
                                 <span x-text="isGettingLocation ? '{{ tr('Loading...') }}' : '{{ tr('My Location') }}'" class="sm:hidden"></span>
-                            </button>
+                            </x-ui.secondary-button>
                             <button
                                 @click="closeModal()"
                                 class="p-2 rounded-lg sm:rounded-xl hover:bg-gray-100 transition text-gray-500 hover:text-gray-700 flex-shrink-0"
@@ -192,17 +186,15 @@
                                         <span x-text="selectedLat"></span>, <span x-text="selectedLng"></span>
                                     </div>
                                 </div>
-                                <button
+                                <x-ui.primary-button
                                     @click="confirmSelection()"
                                     x-bind:disabled="isLoading"
-                                    class="w-full sm:w-auto px-4 sm:px-6 py-2 rounded-xl bg-gradient-to-r from-[color:var(--brand-from)] via-[color:var(--brand-via)] to-[color:var(--brand-to)] 
-                                           text-white font-semibold hover:shadow-lg transition-all duration-200
-                                           flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+                                    class="!w-full sm:!w-auto !px-4 sm:!px-6 !py-2 !rounded-xl !text-sm sm:!text-base"
                                 >
                                     <i x-show="!isLoading" class="fas fa-check"></i>
                                     <i x-show="isLoading" class="fas fa-spinner fa-spin"></i>
                                     <span x-text="isLoading ? '{{ tr('Loading...') }}' : '{{ tr('Confirm') }}'"></span>
-                                </button>
+                                </x-ui.primary-button>
                             </div>
                         </div>
                     </div>

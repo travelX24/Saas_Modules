@@ -107,8 +107,8 @@ class Index extends Component
             $company->is_active = !$company->is_active;
             $company->save();
 
-            // مسح Cache الفلاتر عند التغيير
-            $this->clearFiltersCache();
+            // مسح Cache الفلاتر وكاش لوحة التحكم لضمان تحديث الإحصائيات
+            $this->clearDashboardCache();
 
             // إظهار إشعار نجاح
             $companyName = app()->getLocale() === 'ar' ? $company->legal_name_ar : ($company->legal_name_en ?: $company->legal_name_ar);
@@ -202,6 +202,25 @@ public function resendPasswordReset(int $companyId): void
     }
 }
 
+
+    private function clearDashboardCache(): void
+    {
+        $hNow = now()->format('Y-m-d-H');
+        $mNow = now()->format('Y-m-d-H-i');
+        $dNow = now()->format('Y-m-d');
+
+        Cache::forget('dashboard:stats:'.$hNow);
+        Cache::forget('dashboard:charts:'.$hNow);
+        Cache::forget('dashboard:recent:'.$mNow);
+        Cache::forget('dashboard:chart:companies:'.$hNow);
+        Cache::forget('dashboard:chart:users:'.$hNow);
+        Cache::forget('dashboard:chart:subscriptions:'.$dNow);
+        
+        foreach (['ar', 'en'] as $lang) {
+            Cache::forget("companies:filters:industries:{$lang}");
+            Cache::forget("companies:filters:locations:{$lang}");
+        }
+    }
 
     private function clearFiltersCache(): void
     {

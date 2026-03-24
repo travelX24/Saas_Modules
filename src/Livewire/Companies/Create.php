@@ -624,10 +624,8 @@ class Create extends Component
                 session()->flash('warning', tr('Company created but invitation email could not be sent.'));
             }
 
-            foreach (['ar', 'en'] as $lang) {
-                Cache::forget("companies:filters:industries:{$lang}");
-                Cache::forget("companies:filters:locations:{$lang}");
-            }
+            // ✅ مسح كاش لوحة التحكم لضمان ظهور الإحصائيات الجديدة والشركة الحديثة
+            $this->clearDashboardCache();
 
             return redirect()->route('saas.companies.index')
                 ->with('status', tr('Company created successfully'))
@@ -773,6 +771,25 @@ class Create extends Component
     public function existingDocument(string $type): ?array
     {
         return $this->existingDocuments[$type] ?? null;
+    }
+
+    private function clearDashboardCache(): void
+    {
+        $hNow = now()->format('Y-m-d-H');
+        $mNow = now()->format('Y-m-d-H-i');
+        $dNow = now()->format('Y-m-d');
+
+        Cache::forget('dashboard:stats:'.$hNow);
+        Cache::forget('dashboard:charts:'.$hNow);
+        Cache::forget('dashboard:recent:'.$mNow);
+        Cache::forget('dashboard:chart:companies:'.$hNow);
+        Cache::forget('dashboard:chart:users:'.$hNow);
+        Cache::forget('dashboard:chart:subscriptions:'.$dNow);
+        
+        foreach (['ar', 'en'] as $lang) {
+            Cache::forget("companies:filters:industries:{$lang}");
+            Cache::forget("companies:filters:locations:{$lang}");
+        }
     }
 
     public function render()

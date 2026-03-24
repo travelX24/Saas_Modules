@@ -81,6 +81,8 @@
 </head>
 
 <body class="bg-gray-50 text-gray-900">
+    {{-- Global Page Loading Bar --}}
+    <x-ui.loading-bar :fullPage="true" />
 
     {{-- Toast Notifications --}}
     <x-ui.toast />
