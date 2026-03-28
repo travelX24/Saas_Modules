@@ -1,4 +1,4 @@
-<div class="space-y-4 sm:space-y-6" wire:poll.10s>
+<div class="space-y-4 sm:space-y-6">
     {{-- Header --}}
     <x-ui.page-header
         :title="tr('Email Messages')"
@@ -102,7 +102,7 @@
                                 tr('Actions'),
                             ]">
                                 @foreach($scheduledEmails as $scheduledEmail)
-                                    <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                                    <tr wire:key="scheduled-email-row-{{ $scheduledEmail->id }}" class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                                         <td class="py-3 px-3">
                                             <div class="font-semibold text-gray-900 text-sm">
                                                 {{ $scheduledEmail->template->name }}
@@ -116,10 +116,13 @@
                                                 @php
                                                     $companyId = $scheduledEmail->recipient_company_ids[0] ?? null;
                                                     $company = $companyId ? \Athka\Saas\Models\SaasCompany::find($companyId) : null;
+                                                    $admin = null;
+
                                                     if ($company) {
                                                         $admin = $company->users()->whereHas('roles', function ($q) {
                                                             $q->where('name', 'company-admin');
                                                         })->first();
+
                                                         if (!$admin) {
                                                             $admin = $company->users()->first();
                                                         }
@@ -168,16 +171,26 @@
                                         </td>
                                         <td class="py-3 px-3 relative overflow-visible">
                                             <x-ui.dropdown-menu>
-                                                <x-ui.dropdown-item 
+                                                <x-ui.dropdown-item
                                                     href="#"
                                                     wire:click="viewEmail({{ $scheduledEmail->id }})"
                                                 >
                                                     <i class="fas fa-eye w-4 me-2"></i>
                                                     {{ tr('View') }}
                                                 </x-ui.dropdown-item>
+
+                                                <x-ui.dropdown-item
+                                                    href="#"
+                                                    wire:click="resendEmail({{ $scheduledEmail->id }})"
+                                                    wire:confirm="{{ tr('Are you sure you want to resend this email?') }}"
+                                                >
+                                                    <i class="fas fa-rotate-right w-4 me-2"></i>
+                                                    {{ tr('Resend') }}
+                                                </x-ui.dropdown-item>
+
                                                 @if($scheduledEmail->status === 'pending')
                                                     <div class="border-t border-gray-100 my-1"></div>
-                                                    <x-ui.dropdown-item 
+                                                    <x-ui.dropdown-item
                                                         class="text-red-600 hover:bg-red-50"
                                                         href="#"
                                                         wire:click="cancelScheduled({{ $scheduledEmail->id }})"
@@ -262,17 +275,18 @@
                             </div>
                         </div>
                     </div>
-{{-- ✅ Confirm Delete Email Template --}}
-<x-ui.confirm-dialog
-    id="delete-email-template"
-    :title="tr('Delete Template')"
-    :message="tr('Are you sure you want to delete this template? This action cannot be undone.')"
-    :confirmText="tr('Yes, Delete')"
-    :cancelText="tr('Cancel')"
-    confirmAction="wire:deleteTemplate(__ID__)"
-    type="danger"
-    icon="fa-trash"
-/>
+
+                    {{-- ✅ Confirm Delete Email Template --}}
+                    <x-ui.confirm-dialog
+                        id="delete-email-template"
+                        :title="tr('Delete Template')"
+                        :message="tr('Are you sure you want to delete this template? This action cannot be undone.')"
+                        :confirmText="tr('Yes, Delete')"
+                        :cancelText="tr('Cancel')"
+                        confirmAction="wire:deleteTemplate(__ID__)"
+                        type="danger"
+                        icon="fa-trash"
+                    />
 
                     {{-- Templates List --}}
                     @if($templates && $templates->count() > 0)
@@ -286,7 +300,7 @@
                                 tr('Actions'),
                             ]">
                                 @foreach($templates as $template)
-                                    <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                                    <tr wire:key="email-template-row-{{ $template->id }}" class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                                         <td class="py-3 px-3">
                                             <div class="font-semibold text-gray-900 text-sm">
                                                 {{ $template->name }}
@@ -314,20 +328,20 @@
                                         </td>
                                         <td class="py-3 px-3 relative overflow-visible">
                                             <x-ui.dropdown-menu>
-                                                <x-ui.dropdown-item 
+                                                <x-ui.dropdown-item
                                                     href="{{ route('saas.email-templates.edit', $template->id) }}"
                                                 >
                                                     <i class="fas fa-edit w-4 me-2"></i>
                                                     {{ tr('Edit') }}
                                                 </x-ui.dropdown-item>
-                                                <x-ui.dropdown-item 
+                                                <x-ui.dropdown-item
                                                     href="{{ route('saas.emails.send', ['templateId' => $template->id]) }}"
                                                 >
                                                     <i class="fas fa-paper-plane w-4 me-2"></i>
                                                     {{ tr('Send') }}
                                                 </x-ui.dropdown-item>
                                                 <div class="border-t border-gray-100 my-1"></div>
-                                                <x-ui.dropdown-item 
+                                                <x-ui.dropdown-item
                                                     :class="$template->is_active ? 'text-orange-600 hover:bg-orange-50' : 'text-green-600 hover:bg-green-50'"
                                                     href="#"
                                                     wire:click="toggleStatus({{ $template->id }})"
@@ -341,7 +355,7 @@
                                                     @endif
                                                 </x-ui.dropdown-item>
                                                 <div class="border-t border-gray-100 my-1"></div>
-                                                <x-ui.dropdown-item 
+                                                <x-ui.dropdown-item
                                                     class="text-red-600 hover:bg-red-50 cursor-pointer"
                                                     href="#"
                                                     x-on:click.prevent="$dispatch('open-confirm-delete-email-template', { id: {{ (int) $template->id }} })"
@@ -349,7 +363,6 @@
                                                     <i class="fas fa-trash w-4 me-2"></i>
                                                     {{ tr('Delete') }}
                                                 </x-ui.dropdown-item>
-
                                             </x-ui.dropdown-menu>
                                         </td>
                                     </tr>
@@ -425,7 +438,7 @@
                             {{ $viewingEmail->template->name }}
                         </p>
                     </div>
-                    
+
                     <button
                         type="button"
                         @click="open = false; $wire.closeViewModal()"
@@ -578,18 +591,18 @@
             if (utcTime && utcTime.trim() !== '') {
                 try {
                     const date = new Date(utcTime);
-                    
+
                     if (isNaN(date.getTime())) {
                         console.warn('Invalid date:', utcTime);
                         return;
                     }
-                    
+
                     const year = date.getFullYear();
                     const month = String(date.getMonth() + 1).padStart(2, '0');
                     const day = String(date.getDate()).padStart(2, '0');
                     const hours = String(date.getHours()).padStart(2, '0');
                     const minutes = String(date.getMinutes()).padStart(2, '0');
-                    
+
                     element.textContent = `${year}-${month}-${day} ${hours}:${minutes}`;
                 } catch (e) {
                     console.error('Error converting time:', e, 'UTC time:', utcTime);
@@ -597,18 +610,18 @@
             }
         });
     }
-    
+
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', convertSentTime);
     } else {
         convertSentTime();
     }
-    
+
     if (typeof Livewire !== 'undefined') {
         Livewire.hook('morph.updated', convertSentTime);
         Livewire.hook('morph.added', convertSentTime);
     }
-    
+
     document.addEventListener('livewire:init', function() {
         Livewire.hook('morph.updated', convertSentTime);
     });

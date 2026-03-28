@@ -2,6 +2,7 @@
 
 namespace Athka\Saas\Livewire\Emails;
 
+use Athka\Saas\Jobs\SendScheduledEmailJob;
 use Athka\Saas\Models\EmailTemplate;
 use Athka\Saas\Models\ScheduledEmail;
 use Livewire\Component;
@@ -57,7 +58,7 @@ class Index extends Component
         if (in_array($tab, ['emails', 'templates'])) {
             $this->activeTab = $tab;
             $this->resetPage();
-            
+
             // Reset filters when switching tabs
             if ($tab === 'emails') {
                 $this->statusFilter = 'all';
@@ -85,7 +86,7 @@ class Index extends Component
     {
         try {
             $scheduledEmail = ScheduledEmail::findOrFail($scheduledEmailId);
-            
+
             if ($scheduledEmail->status !== 'pending') {
                 session()->flash('error', tr('Only pending emails can be cancelled'));
                 return;
@@ -100,6 +101,31 @@ class Index extends Component
         } catch (\Throwable $e) {
             report($e);
             session()->flash('error', tr('Failed to cancel scheduled email. Please try again.'));
+        }
+    }
+
+    public function resendEmail(int $scheduledEmailId): void
+    {
+        try {
+            $scheduledEmail = ScheduledEmail::findOrFail($scheduledEmailId);
+
+            $newScheduledEmail = $scheduledEmail->replicate();
+
+            $newScheduledEmail->status = 'pending';
+            $newScheduledEmail->error_message = null;
+            $newScheduledEmail->sent_at = null;
+            $newScheduledEmail->failed_at = null;
+            $newScheduledEmail->send_type = 'immediate';
+            $newScheduledEmail->scheduled_at = now();
+
+            $newScheduledEmail->save();
+
+            SendScheduledEmailJob::dispatchSync($newScheduledEmail);
+
+            session()->flash('status', tr('Email resent successfully'));
+        } catch (\Throwable $e) {
+            report($e);
+            session()->flash('error', tr('Failed to resend email. Please try again.'));
         }
     }
 
@@ -149,7 +175,10 @@ class Index extends Component
             $template->is_active = !$template->is_active;
             $template->save();
 
-            $status = $template->is_active ? tr('Template activated successfully') : tr('Template deactivated successfully');
+            $status = $template->is_active
+                ? tr('Template activated successfully')
+                : tr('Template deactivated successfully');
+
             session()->flash('status', $status);
         } catch (\Throwable $e) {
             report($e);
@@ -165,7 +194,7 @@ class Index extends Component
         if (env('APP_TIMEZONE')) {
             return env('APP_TIMEZONE');
         }
-        
+
         if (PHP_OS_FAMILY === 'Windows') {
             $timezone = @shell_exec('tzutil /g 2>nul');
             if ($timezone) {
@@ -178,10 +207,11 @@ class Index extends Component
                     'GMT Standard Time' => 'Europe/London',
                     'Central European Standard Time' => 'Europe/Berlin',
                 ];
+
                 return $windowsToPhp[$timezone] ?? 'Asia/Riyadh';
             }
         }
-        
+
         return config('app.timezone', 'Asia/Riyadh');
     }
 
@@ -204,7 +234,7 @@ class Index extends Component
 
             $scheduledEmails = $query->paginate(15);
 
-            $viewingEmail = $this->viewingEmailId 
+            $viewingEmail = $this->viewingEmailId
                 ? ScheduledEmail::with(['template', 'logs'])->find($this->viewingEmailId)
                 : null;
 
@@ -213,7 +243,7 @@ class Index extends Component
 
         // Get templates for templates tab
         $templates = null;
-        
+
         // Always define types array (needed for filters even when tab is not active)
         $types = [
             ['value' => 'all', 'label' => tr('All Types')],
@@ -231,8 +261,8 @@ class Index extends Component
             $query = EmailTemplate::query()
                 ->when($this->search, function ($q) {
                     $q->where(function ($query) {
-                        $query->where('name', 'like', '%'.$this->search.'%')
-                            ->orWhere('subject', 'like', '%'.$this->search.'%');
+                        $query->where('name', 'like', '%' . $this->search . '%')
+                            ->orWhere('subject', 'like', '%' . $this->search . '%');
                     });
                 })
                 ->when($this->typeFilter !== 'all', function ($q) {
