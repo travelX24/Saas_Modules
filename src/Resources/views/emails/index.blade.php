@@ -136,37 +136,65 @@
                                             </div>
                                         </td>
 
-                                        <td class="py-3 px-3">
-                                            @if($scheduledEmail->recipient_type === 'single')
-                                                @php
-                                                    $companyId = $scheduledEmail->recipient_company_ids[0] ?? null;
-                                                    $company = $companyId ? \Athka\Saas\Models\SaasCompany::find($companyId) : null;
-                                                    $admin = null;
+<td class="py-3 px-3">
+    @php
+        $recipientCompanyIds = $scheduledEmail->recipient_company_ids ?? [];
 
-                                                    if ($company) {
-                                                        $admin = $company->users()->whereHas('roles', function ($q) {
-                                                            $q->where('name', 'company-admin');
-                                                        })->first();
+        $recipientCompanies = \Athka\Saas\Models\SaasCompany::with('users.roles')
+            ->whereIn('id', $recipientCompanyIds)
+            ->get();
 
-                                                        if (!$admin) {
-                                                            $admin = $company->users()->first();
-                                                        }
-                                                    }
-                                                @endphp
+        $recipientItems = [];
 
-                                                <div class="text-sm text-gray-700">
-                                                    @if($admin && $admin->email)
-                                                        {{ $admin->email }}
-                                                    @else
-                                                        {{ tr('No admin email found') }}
-                                                    @endif
-                                                </div>
-                                            @else
-                                                <div class="text-sm text-gray-700">
-                                                    {{ count($scheduledEmail->recipient_company_ids ?? []) }} {{ tr('companies') }}
-                                                </div>
-                                            @endif
-                                        </td>
+        foreach ($recipientCompanies as $company) {
+            $admin = $company->users->first(function ($user) {
+                return $user->roles->contains('name', 'company-admin');
+            });
+
+            if (!$admin) {
+                $admin = $company->users->first();
+            }
+
+            $companyName = app()->isLocale('ar')
+                ? ($company->legal_name_ar ?: $company->legal_name_en ?: tr('Unnamed company'))
+                : ($company->legal_name_en ?: $company->legal_name_ar ?: tr('Unnamed company'));
+
+            $emailText = ($admin && $admin->email)
+                ? $admin->email
+                : tr('No admin email found');
+
+            $recipientItems[] = [
+                'company_name' => $companyName,
+                'email' => $emailText,
+            ];
+        }
+
+        $companiesCount = count($recipientItems);
+    @endphp
+
+    <div class="relative inline-block group">
+        <div class="text-sm text-gray-700 cursor-default">
+            {{ $companiesCount }} {{ $companiesCount === 1 ? tr('company') : tr('companies') }}
+        </div>
+
+        @if($companiesCount > 0)
+            <div class="pointer-events-none absolute z-50 hidden group-hover:block group-focus-within:block top-full mt-2 start-0 min-w-[260px] max-w-[340px] rounded-xl border border-gray-200 bg-white shadow-xl p-3">
+                <div class="space-y-2">
+                    @foreach($recipientItems as $item)
+                        <div class="border-b border-gray-100 pb-2 last:border-b-0 last:pb-0">
+                            <div class="text-sm font-semibold text-gray-900">
+                                {{ $item['company_name'] }}
+                            </div>
+                            <div class="text-xs text-gray-500 break-all mt-0.5">
+                                {{ $item['email'] }}
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+    </div>
+</td>
 
                                         <td class="py-3 px-3">
                                             <x-ui.badge type="info" size="sm">
