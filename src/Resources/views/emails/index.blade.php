@@ -28,6 +28,7 @@
             </div>
         </x-slot:action>
     </x-ui.page-header>
+    <x-ui.flash-toast/>
 
     {{-- Tabs --}}
     <x-ui.card class="p-0 relative overflow-hidden">
@@ -90,6 +91,29 @@
                         />
                     </div>
 
+                    {{-- Confirm Dialogs --}}
+                    <x-ui.confirm-dialog
+                        id="resend-email"
+                        :title="tr('Resend Email')"
+                        :message="tr('Are you sure you want to resend this email?')"
+                        :confirmText="tr('Yes, Resend')"
+                        :cancelText="tr('Cancel')"
+                        confirmAction="wire:resendEmail(__ID__)"
+                        type="info"
+                        icon="fa-rotate-right"
+                    />
+
+                    <x-ui.confirm-dialog
+                        id="cancel-scheduled-email"
+                        :title="tr('Cancel Scheduled Email')"
+                        :message="tr('Are you sure you want to cancel this scheduled email?')"
+                        :confirmText="tr('Yes, Cancel')"
+                        :cancelText="tr('Back')"
+                        confirmAction="wire:cancelScheduled(__ID__)"
+                        type="danger"
+                        icon="fa-times"
+                    />
+
                     {{-- Scheduled Emails List --}}
                     @if($scheduledEmails && $scheduledEmails->count() > 0)
                         <x-ui.card class="overflow-visible">
@@ -111,6 +135,7 @@
                                                 {{ $scheduledEmail->template->subject }}
                                             </div>
                                         </td>
+
                                         <td class="py-3 px-3">
                                             @if($scheduledEmail->recipient_type === 'single')
                                                 @php
@@ -128,6 +153,7 @@
                                                         }
                                                     }
                                                 @endphp
+
                                                 <div class="text-sm text-gray-700">
                                                     @if($admin && $admin->email)
                                                         {{ $admin->email }}
@@ -141,20 +167,33 @@
                                                 </div>
                                             @endif
                                         </td>
+
                                         <td class="py-3 px-3">
                                             <x-ui.badge type="info" size="sm">
                                                 {{ $scheduledEmail->send_type === 'immediate' ? tr('Immediate') : tr('Scheduled') }}
                                             </x-ui.badge>
                                         </td>
+
                                         <td class="py-3 px-3">
+                                            @php
+                                                $scheduledAtText = tr('Immediate');
+
+                                                if ($scheduledEmail->scheduled_at) {
+                                                    $scheduledAt = $scheduledEmail->scheduled_at->copy();
+
+                                                    $periodText = $scheduledAt->format('A') === 'AM'
+                                                        ? (app()->isLocale('ar') ? 'صباحًا' : 'AM')
+                                                        : (app()->isLocale('ar') ? 'مساءً' : 'PM');
+
+                                                    $scheduledAtText = $scheduledAt->format('Y/m/d') . ' – ' . $scheduledAt->format('h:i') . ' ' . $periodText;
+                                                }
+                                            @endphp
+
                                             <span class="text-sm text-gray-700">
-                                                @if($scheduledEmail->scheduled_at)
-                                                    {{ $scheduledEmail->scheduled_at->format('Y-m-d') }}
-                                                @else
-                                                    {{ tr('Immediate') }}
-                                                @endif
+                                                {{ $scheduledAtText }}
                                             </span>
                                         </td>
+
                                         <td class="py-3 px-3">
                                             @php
                                                 $statusColors = [
@@ -165,10 +204,12 @@
                                                 ];
                                                 $statusColor = $statusColors[$scheduledEmail->status] ?? 'info';
                                             @endphp
+
                                             <x-ui.badge :type="$statusColor" size="sm">
                                                 {{ tr(ucfirst($scheduledEmail->status)) }}
                                             </x-ui.badge>
                                         </td>
+
                                         <td class="py-3 px-3 relative overflow-visible">
                                             <x-ui.dropdown-menu>
                                                 <x-ui.dropdown-item
@@ -181,8 +222,7 @@
 
                                                 <x-ui.dropdown-item
                                                     href="#"
-                                                    wire:click="resendEmail({{ $scheduledEmail->id }})"
-                                                    wire:confirm="{{ tr('Are you sure you want to resend this email?') }}"
+                                                    x-on:click.prevent="$dispatch('open-confirm-resend-email', { id: {{ (int) $scheduledEmail->id }} })"
                                                 >
                                                     <i class="fas fa-rotate-right w-4 me-2"></i>
                                                     {{ tr('Resend') }}
@@ -190,11 +230,11 @@
 
                                                 @if($scheduledEmail->status === 'pending')
                                                     <div class="border-t border-gray-100 my-1"></div>
+
                                                     <x-ui.dropdown-item
                                                         class="text-red-600 hover:bg-red-50"
                                                         href="#"
-                                                        wire:click="cancelScheduled({{ $scheduledEmail->id }})"
-                                                        wire:confirm="{{ tr('Are you sure you want to cancel this scheduled email?') }}"
+                                                        x-on:click.prevent="$dispatch('open-confirm-cancel-scheduled-email', { id: {{ (int) $scheduledEmail->id }} })"
                                                     >
                                                         <i class="fas fa-times w-4 me-2"></i>
                                                         {{ tr('Cancel') }}
@@ -218,9 +258,11 @@
                                 <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
                                     <i class="fas fa-calendar text-gray-400 text-2xl"></i>
                                 </div>
+
                                 <h3 class="text-lg font-semibold text-gray-900 mb-2">
                                     {{ tr('No scheduled emails found') }}
                                 </h3>
+
                                 <p class="text-sm text-gray-500">
                                     {{ tr('Start by sending or scheduling an email') }}
                                 </p>
@@ -246,7 +288,6 @@
 
                         {{-- Filters --}}
                         <div class="flex flex-col gap-3 lg:flex-shrink-0">
-                            {{-- Filters Content --}}
                             <div class="flex flex-col sm:flex-row gap-3 flex-wrap items-end">
                                 <x-ui.filter-select
                                     model="typeFilter"
@@ -276,7 +317,7 @@
                         </div>
                     </div>
 
-                    {{-- ✅ Confirm Delete Email Template --}}
+                    {{-- Confirm Delete Email Template --}}
                     <x-ui.confirm-dialog
                         id="delete-email-template"
                         :title="tr('Delete Template')"
@@ -306,26 +347,31 @@
                                                 {{ $template->name }}
                                             </div>
                                         </td>
+
                                         <td class="py-3 px-3">
                                             <div class="text-sm text-gray-700 truncate max-w-xs" title="{{ $template->subject }}">
                                                 {{ $template->subject }}
                                             </div>
                                         </td>
+
                                         <td class="py-3 px-3">
                                             <x-ui.badge type="info" size="sm">
                                                 {{ tr(ucfirst(str_replace('_', ' ', $template->type))) }}
                                             </x-ui.badge>
                                         </td>
+
                                         <td class="py-3 px-3">
                                             <x-ui.badge :type="$template->is_active ? 'success' : 'danger'" size="sm">
                                                 {{ $template->is_active ? tr('Active') : tr('Inactive') }}
                                             </x-ui.badge>
                                         </td>
+
                                         <td class="py-3 px-3">
                                             <span class="text-sm text-gray-700">
                                                 {{ $template->created_at->format('Y-m-d') }}
                                             </span>
                                         </td>
+
                                         <td class="py-3 px-3 relative overflow-visible">
                                             <x-ui.dropdown-menu>
                                                 <x-ui.dropdown-item
@@ -334,13 +380,16 @@
                                                     <i class="fas fa-edit w-4 me-2"></i>
                                                     {{ tr('Edit') }}
                                                 </x-ui.dropdown-item>
+
                                                 <x-ui.dropdown-item
                                                     href="{{ route('saas.emails.send', ['templateId' => $template->id]) }}"
                                                 >
                                                     <i class="fas fa-paper-plane w-4 me-2"></i>
                                                     {{ tr('Send') }}
                                                 </x-ui.dropdown-item>
+
                                                 <div class="border-t border-gray-100 my-1"></div>
+
                                                 <x-ui.dropdown-item
                                                     :class="$template->is_active ? 'text-orange-600 hover:bg-orange-50' : 'text-green-600 hover:bg-green-50'"
                                                     href="#"
@@ -354,7 +403,9 @@
                                                         {{ tr('Activate') }}
                                                     @endif
                                                 </x-ui.dropdown-item>
+
                                                 <div class="border-t border-gray-100 my-1"></div>
+
                                                 <x-ui.dropdown-item
                                                     class="text-red-600 hover:bg-red-50 cursor-pointer"
                                                     href="#"
@@ -381,9 +432,11 @@
                                 <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
                                     <i class="fas fa-envelope text-gray-400 text-2xl"></i>
                                 </div>
+
                                 <h3 class="text-lg font-semibold text-gray-900 mb-2">
                                     {{ tr('No templates found') }}
                                 </h3>
+
                                 <p class="text-sm text-gray-500">
                                     @if($search || $typeFilter !== 'all' || $statusFilterTemplates !== 'all')
                                         {{ tr('Try adjusting your search or filters') }}
@@ -458,10 +511,12 @@
                             <label class="text-xs font-semibold text-gray-500 uppercase">{{ tr('Template') }}</label>
                             <p class="text-sm text-gray-900 mt-1">{{ $viewingEmail->template->name }}</p>
                         </div>
+
                         <div>
                             <label class="text-xs font-semibold text-gray-500 uppercase">{{ tr('Subject') }}</label>
                             <p class="text-sm text-gray-900 mt-1">{{ $viewingEmail->template->subject }}</p>
                         </div>
+
                         <div>
                             <label class="text-xs font-semibold text-gray-500 uppercase">{{ tr('Status') }}</label>
                             <div class="mt-1">
@@ -479,22 +534,36 @@
                                 </x-ui.badge>
                             </div>
                         </div>
+
                         <div>
                             <label class="text-xs font-semibold text-gray-500 uppercase">{{ tr('Scheduled At') }}</label>
+
+                            @php
+                                $viewingScheduledAtText = tr('Immediate');
+
+                                if ($viewingEmail->scheduled_at) {
+                                    $viewingScheduledAt = $viewingEmail->scheduled_at->copy();
+
+                                    $viewingPeriodText = $viewingScheduledAt->format('A') === 'AM'
+                                        ? (app()->isLocale('ar') ? 'صباحًا' : 'AM')
+                                        : (app()->isLocale('ar') ? 'مساءً' : 'PM');
+
+                                    $viewingScheduledAtText = $viewingScheduledAt->format('Y/m/d') . ' – ' . $viewingScheduledAt->format('h:i') . ' ' . $viewingPeriodText;
+                                }
+                            @endphp
+
                             <p class="text-sm text-gray-900 mt-1">
-                                @if($viewingEmail->scheduled_at)
-                                    {{ $viewingEmail->scheduled_at->format('Y-m-d') }}
-                                @else
-                                    {{ tr('Immediate') }}
-                                @endif
+                                {{ $viewingScheduledAtText }}
                             </p>
                         </div>
+
                         <div>
                             <label class="text-xs font-semibold text-gray-500 uppercase">{{ tr('Recipient Type') }}</label>
                             <p class="text-sm text-gray-900 mt-1">
                                 {{ $viewingEmail->recipient_type === 'single' ? tr('Single Recipient') : tr('Multiple Companies') }}
                             </p>
                         </div>
+
                         @if($viewingEmail->sent_at)
                         <div>
                             <label class="text-xs font-semibold text-gray-500 uppercase">{{ tr('Sent At') }}</label>

@@ -35,8 +35,6 @@ class Index extends Component
 
     public function mount(?string $tab = null): void
     {
-        // Support tab from query string or route parameter
-        // Priority: route parameter > query string > default (emails)
         if ($tab && in_array($tab, ['emails', 'templates'])) {
             $this->activeTab = $tab;
         } elseif (request()->has('tab')) {
@@ -47,8 +45,6 @@ class Index extends Component
                 $this->activeTab = 'emails';
             }
         } else {
-            // Default to emails tab when no tab is specified (sidebar click)
-            // This ensures "Email Messages" tab is shown first when clicking from sidebar
             $this->activeTab = 'emails';
         }
     }
@@ -59,7 +55,6 @@ class Index extends Component
             $this->activeTab = $tab;
             $this->resetPage();
 
-            // Reset filters when switching tabs
             if ($tab === 'emails') {
                 $this->statusFilter = 'all';
                 $this->sendTypeFilter = 'all';
@@ -69,6 +64,26 @@ class Index extends Component
                 $this->statusFilterTemplates = 'all';
             }
         }
+    }
+
+    private function toastSuccess(string $message): void
+    {
+        $this->dispatch(
+            'toast',
+            type: 'success',
+            title: tr('Success'),
+            message: $message
+        );
+    }
+
+    private function toastError(string $message): void
+    {
+        $this->dispatch(
+            'toast',
+            type: 'error',
+            title: $message,
+            message: ''
+        );
     }
 
     // Emails tab methods
@@ -88,7 +103,7 @@ class Index extends Component
             $scheduledEmail = ScheduledEmail::findOrFail($scheduledEmailId);
 
             if ($scheduledEmail->status !== 'pending') {
-                session()->flash('error', tr('Only pending emails can be cancelled'));
+                $this->toastError(tr('Only pending emails can be cancelled'));
                 return;
             }
 
@@ -97,10 +112,10 @@ class Index extends Component
                 'error_message' => tr('Cancelled by user'),
             ]);
 
-            session()->flash('status', tr('Scheduled email cancelled successfully'));
+            $this->toastSuccess(tr('Scheduled email cancelled successfully'));
         } catch (\Throwable $e) {
             report($e);
-            session()->flash('error', tr('Failed to cancel scheduled email. Please try again.'));
+            $this->toastError(tr('Failed to cancel scheduled email. Please try again.'));
         }
     }
 
@@ -122,10 +137,10 @@ class Index extends Component
 
             SendScheduledEmailJob::dispatchSync($newScheduledEmail);
 
-            session()->flash('status', tr('Email resent successfully'));
+            $this->toastSuccess(tr('Email resent successfully'));
         } catch (\Throwable $e) {
             report($e);
-            session()->flash('error', tr('Failed to resend email. Please try again.'));
+            $this->toastError(tr('Failed to resend email. Please try again.'));
         }
     }
 
@@ -161,10 +176,10 @@ class Index extends Component
             $template = EmailTemplate::findOrFail($templateId);
             $template->delete();
 
-            session()->flash('status', tr('Template deleted successfully'));
+            $this->toastSuccess(tr('Template deleted successfully'));
         } catch (\Throwable $e) {
             report($e);
-            session()->flash('error', tr('Failed to delete template. Please try again.'));
+            $this->toastError(tr('Failed to delete template. Please try again.'));
         }
     }
 
@@ -179,10 +194,10 @@ class Index extends Component
                 ? tr('Template activated successfully')
                 : tr('Template deactivated successfully');
 
-            session()->flash('status', $status);
+            $this->toastSuccess($status);
         } catch (\Throwable $e) {
             report($e);
-            session()->flash('error', tr('Failed to update template status. Please try again.'));
+            $this->toastError(tr('Failed to update template status. Please try again.'));
         }
     }
 
@@ -217,7 +232,6 @@ class Index extends Component
 
     public function render()
     {
-        // Get scheduled emails for emails tab
         $scheduledEmails = null;
         $viewingEmail = null;
         $systemTimezone = null;
@@ -241,10 +255,8 @@ class Index extends Component
             $systemTimezone = $this->getSystemTimezone();
         }
 
-        // Get templates for templates tab
         $templates = null;
 
-        // Always define types array (needed for filters even when tab is not active)
         $types = [
             ['value' => 'all', 'label' => tr('All Types')],
             ['value' => 'subscription_expiry', 'label' => tr('Subscription Expiry')],
