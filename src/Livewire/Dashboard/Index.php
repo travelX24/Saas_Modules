@@ -14,16 +14,15 @@ class Index extends Component
     public function setActiveTab(string $tab): void
     {
         $this->activeTab = $tab;
-    
+
         // ✅ اطلب من الواجهة إعادة رسم الشارت بعد تحديث Livewire
         $this->dispatch('charts:refresh');
     }
-    
 
     public function render()
     {
         // إحصائيات الشركات (Cache لمدة 5 دقائق)
-        $cacheKey = 'dashboard:stats:'.now()->format('Y-m-d-H');
+        $cacheKey = 'dashboard:stats:' . now()->format('Y-m-d-H');
         $stats = Cache::remember($cacheKey, now()->addMinutes(1), function () {
             return [
                 'totalCompanies' => SaasCompany::count(),
@@ -43,9 +42,8 @@ class Index extends Component
         });
 
         // بيانات الرسم البياني (Cache لمدة 10 دقائق)
-        $chartCacheKey = 'dashboard:charts:'.now()->format('Y-m-d-H');
-$charts = Cache::remember($chartCacheKey, now()->addMinutes(5), function () {
-
+        $chartCacheKey = 'dashboard:charts:' . now()->format('Y-m-d-H');
+        $charts = Cache::remember($chartCacheKey, now()->addMinutes(5), function () {
             return [
                 'companiesChartData' => $this->getCompaniesChartData(),
                 'usersChartData' => $this->getUsersChartData(),
@@ -54,7 +52,7 @@ $charts = Cache::remember($chartCacheKey, now()->addMinutes(5), function () {
         });
 
         // الشركات الحديثة (Cache لمدة 2 دقيقة)
-        $recentCacheKey = 'dashboard:recent:'.now()->format('Y-m-d-H-i');
+        $recentCacheKey = 'dashboard:recent:' . now()->format('Y-m-d-H-i');
         $recent = Cache::remember($recentCacheKey, now()->addMinutes(2), function () {
             return [
                 'recentCompanies' => SaasCompany::with(['settings', 'users'])
@@ -123,10 +121,10 @@ $charts = Cache::remember($chartCacheKey, now()->addMinutes(5), function () {
         // الشركات غير النشطة تشمل:
         // 1. الشركات المعطلة يدوياً (is_active = false)
         // 2. الشركات المنتهية الصلاحية (is_active = true ولكن subscription_ends_at منتهي)
-        
+
         // عدد الشركات المعطلة يدوياً
         $manuallyDeactivated = SaasCompany::where('is_active', false)->count();
-        
+
         // عدد الشركات المنتهية الصلاحية (نشطة ولكن اشتراكها منتهي)
         $expired = SaasCompany::where('is_active', true)
             ->leftJoin('saas_company_otherinfo', 'saas_companies.id', '=', 'saas_company_otherinfo.company_id')
@@ -136,7 +134,7 @@ $charts = Cache::remember($chartCacheKey, now()->addMinutes(5), function () {
             })
             ->distinct('saas_companies.id')
             ->count('saas_companies.id');
-        
+
         return $manuallyDeactivated + $expired;
     }
 
@@ -149,12 +147,23 @@ $charts = Cache::remember($chartCacheKey, now()->addMinutes(5), function () {
             ->count('saas_companies.id');
     }
 
+    private function getActiveStableCompaniesCount(): int
+    {
+        // للشارت فقط:
+        // الشركات النشطة المستقرة = مفعلة + الاشتراك ساري لأكثر من 30 يوم
+        // حتى لا تتداخل مع Expiring Soon داخل doughnut chart
+        return SaasCompany::where('is_active', true)
+            ->join('saas_company_otherinfo', 'saas_companies.id', '=', 'saas_company_otherinfo.company_id')
+            ->where('saas_company_otherinfo.subscription_ends_at', '>', now()->addDays(30))
+            ->distinct('saas_companies.id')
+            ->count('saas_companies.id');
+    }
+
     private function getCompaniesChartData(): array
     {
-        $cacheKey = 'dashboard:chart:companies:'.now()->format('Y-m-d-H'); // يتجدد كل ساعة
+        $cacheKey = 'dashboard:chart:companies:' . now()->format('Y-m-d-H'); // يتجدد كل ساعة
 
         return Cache::remember($cacheKey, now()->addMinutes(5), function () { // 5 دقائق كافية
-        
             $months = [];
             $counts = [];
 
@@ -175,10 +184,9 @@ $charts = Cache::remember($chartCacheKey, now()->addMinutes(5), function () {
 
     private function getUsersChartData(): array
     {
-        $cacheKey = 'dashboard:chart:users:'.now()->format('Y-m-d-H');
+        $cacheKey = 'dashboard:chart:users:' . now()->format('Y-m-d-H');
 
         return Cache::remember($cacheKey, now()->addMinutes(5), function () {
-        
             $months = [];
             $counts = [];
 
@@ -200,16 +208,16 @@ $charts = Cache::remember($chartCacheKey, now()->addMinutes(5), function () {
 
     private function getSubscriptionsChartData(): array
     {
-        $cacheKey = 'dashboard:chart:subscriptions:'.now()->format('Y-m-d');
+        $cacheKey = 'dashboard:chart:subscriptions:' . now()->format('Y-m-d-H');
 
-        return Cache::remember($cacheKey, now()->addHours(1), function () {
-            $active = $this->getActiveCompaniesCount();
-            $expired = $this->getExpiredCompaniesCount();
+        return Cache::remember($cacheKey, now()->addMinutes(5), function () {
+            $active = $this->getActiveStableCompaniesCount();
+            $inactive = $this->getInactiveCompaniesCount();
             $expiringSoon = $this->getSubscriptionsExpiringSoonCount();
 
             return [
-                'labels' => [tr('Active'), tr('Expired'), tr('Expiring Soon')],
-                'data' => [$active, $expired, $expiringSoon],
+                'labels' => [tr('Active'), tr('Inactive'), tr('Expiring Soon')],
+                'data' => [$active, $inactive, $expiringSoon],
             ];
         });
     }
