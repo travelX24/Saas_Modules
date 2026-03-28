@@ -378,7 +378,7 @@ $lng = filled($this->lng) ? (float) $this->lng : null;
 $this->dispatch('company-updated', companyId: $this->companyId, lat: $lat, lng: $lng);
 
 // ✅ أغلق نافذة التأكيد (Confirm Update Company)
-$this->dispatch('close-confirm-update-company');
+$this->dispatch("close-confirm-update-company-{$this->companyId}");
 
 // ✅ أغلق مودال عرض/تعديل الشركة
 $this->dispatch("close-view-company-{$this->companyId}");

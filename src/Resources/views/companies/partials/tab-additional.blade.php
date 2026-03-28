@@ -20,7 +20,7 @@
             <x-ui.input
                 type="date"
                 :label="tr('Subscription Start')"
-                wire:model.blur="subscription_starts_at"
+                wire:model.lazy="subscription_starts_at"
                 error="subscription_starts_at"
                 :required="true"
             />
@@ -28,7 +28,7 @@
             <x-ui.input
                 type="date"
                 :label="tr('Subscription End')"
-                wire:model.blur="subscription_ends_at"
+                wire:model.lazy="subscription_ends_at"
                 error="subscription_ends_at"
                 :required="true"
             />

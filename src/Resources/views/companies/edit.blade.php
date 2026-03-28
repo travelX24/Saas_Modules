@@ -10,7 +10,7 @@
 <div>
     {{-- Confirmation Dialog --}}
     <x-ui.confirm-dialog
-        id="update-company"
+        id="update-company-{{ $companyId }}"
         :title="tr('Confirm Update Company')"
         :message="tr('Are you sure you want to update this company? Please review all information before proceeding.')"
         :confirmText="tr('Yes, Update Company')"
@@ -283,7 +283,7 @@
                             :fullWidth="true"
                             wire:loading.attr="disabled"
                             wire:target="update"
-                            x-on:click="$dispatch('open-confirm-update-company')"
+                            x-on:click="$dispatch('open-confirm-update-company-{{ $companyId }}')"
                             class="cursor-pointer disabled:opacity-50 disabled:cursor-wait"
                         >
                             <span wire:loading.remove wire:target="update" class="flex items-center gap-2">
