@@ -151,16 +151,12 @@
                 <div 
                     x-data="{ 
                         hasFilters() {
-                            const filterSelects = document.querySelectorAll('select.hidden[wire\\:model], select.hidden[wire\\:model\\.defer], select.hidden[wire\\:model\\.live]');
-                            return Array.from(filterSelects).some(el => {
-                                const value = el.value;
-                                return value && value !== '' && value !== 'all';
-                            });
-                        },
-                        clearAll() {
-                            if ($wire && typeof $wire.clearAllFilters === 'function') {
-                                $wire.clearAllFilters();
-                            }
+                            return ($wire.search && $wire.search.trim() !== '') ||
+                                   $wire.statusFilter !== 'all' ||
+                                   $wire.industryFilter !== 'all' ||
+                                   $wire.cityFilter !== 'all' ||
+                                   $wire.countryFilter !== 'all' ||
+                                   $wire.companyTypeFilter !== 'all';
                         }
                     }"
                     x-show="hasFilters()"
@@ -169,7 +165,7 @@
                 >
                     <button
                         type="button"
-                        @click="clearAll()"
+                        wire:click="clearAllFilters"
                         wire:loading.attr="disabled"
                         wire:target="clearAllFilters"
                         class="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-gray-600 hover:text-gray-900 transition-colors disabled:opacity-50"
