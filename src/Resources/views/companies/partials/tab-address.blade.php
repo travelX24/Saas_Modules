@@ -11,21 +11,29 @@
             :requiredText="tr('Required (or Phone 1)')"
         />
 
-        <x-ui.input
-            :label="tr('Phone 1')"
-            wire:model.defer="phone_1"
-            error="phone_1"
-            placeholder="+967..."
-            :required="true"
-            :requiredText="tr('Required (or Official Email)')"
-        />
+       <x-ui.input
+    :label="tr('Phone 1')"
+    wire:model.defer="phone_1"
+    error="phone_1"
+    placeholder="+967..."
+    :required="true"
+    :requiredText="tr('Required (or Official Email)')"
+    type="tel"
+    inputmode="numeric"
+    dir="ltr"
+    oninput="this.value = this.value.replace(/[^\d+]/g, '').replace(/(?!^)\+/g, '')"
+/>
 
-        <x-ui.input
-            :label="tr('Phone 2')"
-            wire:model.defer="phone_2"
-            error="phone_2"
-            placeholder="+967..."
-        />
+<x-ui.input
+    :label="tr('Phone 2')"
+    wire:model.defer="phone_2"
+    error="phone_2"
+    placeholder="+967..."
+    type="tel"
+    inputmode="numeric"
+    dir="ltr"
+    oninput="this.value = this.value.replace(/[^\d+]/g, '').replace(/(?!^)\+/g, '')"
+/>
     </div>
 
     <div class="h-px bg-gray-100"></div>
