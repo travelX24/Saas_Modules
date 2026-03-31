@@ -98,12 +98,37 @@
 
                 {{-- Scheduled At (Full Width) --}}
                 @if($sendType === 'scheduled')
-                    <x-ui.input
-                        wire:model="scheduledAt"
-                        type="datetime-local"
-                        label="{{ tr('Scheduled Date & Time') }}"
-                        required
-                    />
+                    <div class="space-y-4">
+                        <x-ui.input
+                            wire:model="scheduledAt"
+                            type="datetime-local"
+                            label="{{ tr('Scheduled Date & Time') }}"
+                            required
+                        />
+
+                        {{-- Current Server Time Info --}}
+                        <div class="flex items-center gap-3 p-3 bg-blue-50/50 border border-blue-100 rounded-xl">
+                            <div class="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                                <i class="fas fa-clock text-sm"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-[10px] uppercase tracking-wider font-bold text-blue-500/80 leading-none mb-1">
+                                    {{ tr('Server Time Now') }}
+                                </p>
+                                <p class="text-sm font-semibold text-blue-900 leading-none">
+                                    {{ now(config('app.timezone', 'Asia/Riyadh'))->format('Y-m-d h:i A') }}
+                                </p>
+                            </div>
+                            <div class="text-[10px] font-medium text-blue-400 bg-white/60 px-2 py-0.5 rounded-full border border-blue-100/50">
+                                {{ config('app.timezone', 'Asia/Riyadh') }}
+                            </div>
+                        </div>
+
+                        <p class="text-xs text-gray-500 mt-1">
+                            <i class="fas fa-info-circle me-1"></i>
+                            {{ tr('The email will be sent at the scheduled time based on the server timezone.') }}
+                        </p>
+                    </div>
                 @endif
 
                 {{-- Single Recipient Company (Full Width) --}}

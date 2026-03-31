@@ -280,7 +280,7 @@ class Send extends Component
                 'templateId' => 'required|exists:email_templates,id',
                 'sendType' => 'required|in:immediate,scheduled',
                 'recipientType' => 'required|in:single,multiple',
-                'scheduledAt' => 'required_if:sendType,scheduled|nullable|date|after:now',
+                'scheduledAt' => 'required_if:sendType,scheduled|nullable|date|after:' . now()->subMinute()->toDateTimeString(),
             ];
 
             // Add conditional validation based on recipient type

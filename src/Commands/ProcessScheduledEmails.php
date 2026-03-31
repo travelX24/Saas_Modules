@@ -70,7 +70,7 @@ class ProcessScheduledEmails extends Command
             'count' => $scheduledEmails->count(),
             'current_time_utc' => $nowUtc->toDateTimeString(),
             'current_time_system' => $nowSystem->toDateTimeString(),
-            'query_condition' => 'scheduled_at <= ' . $nowUtc->toDateTimeString() . ' (UTC)',
+            'query_condition' => 'scheduled_at <= ' . $now->toDateTimeString() . ' (' . config('app.timezone', 'Asia/Riyadh') . ')',
         ]);
 
         if ($scheduledEmails->isEmpty()) {
@@ -89,6 +89,7 @@ class ProcessScheduledEmails extends Command
         ]);
 
         foreach ($scheduledEmails as $scheduledEmail) {
+            /** @var \Athka\Saas\Models\ScheduledEmail $scheduledEmail */
             try {
                 $this->info("Processing scheduled email ID: {$scheduledEmail->id} (scheduled for: {$scheduledEmail->scheduled_at})");
                 
