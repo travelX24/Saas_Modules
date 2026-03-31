@@ -79,14 +79,6 @@ class Create extends Component
 
     public function save()
     {
-        \Log::info('Create::save() method called', [
-            'name' => $this->name,
-            'type' => $this->type,
-            'type_empty' => empty($this->type),
-            'subject' => $this->subject,
-            'body_length' => strlen($this->body ?? ''),
-        ]);
-
         try {
             // Ensure variables are set before validation
             if (!empty($this->type) && empty($this->variables)) {
@@ -94,8 +86,6 @@ class Create extends Component
             }
             
             $this->validate();
-
-            \Log::info('Validation passed, creating template');
 
             EmailTemplate::create([
                 'name' => $this->name,
@@ -108,7 +98,6 @@ class Create extends Component
                 'updated_by' => Auth::id(),
             ]);
 
-            \Log::info('Template created successfully');
             session()->flash('success', tr('Template created successfully'));
             return redirect()->route('saas.emails.index', ['tab' => 'templates']);
             

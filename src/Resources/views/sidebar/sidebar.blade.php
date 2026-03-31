@@ -57,12 +57,12 @@
         'appName' => @tr('Athka HR'),
     ])
 
-    {{-- Profile --}}
-    @include('saas::sidebar.components.profile', [
+    {{-- Profile (Removed per user request) --}}
+    {{-- @include('saas::sidebar.components.profile', [
         'name'  => $name,
         'role'  => $role,
         'photo' => $photo,
-    ])
+    ]) --}}
 
     {{-- Nav --}}
     @include('saas::sidebar.components.nav', [

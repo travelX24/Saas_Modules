@@ -68,7 +68,7 @@
                                 ['value' => 'pending', 'label' => tr('Pending')],
                                 ['value' => 'processing', 'label' => tr('Processing')],
                                 ['value' => 'sent', 'label' => tr('Sent')],
-                                ['value' => 'failed', 'label' => tr('Failed')],
+                                ['value' => 'failed', 'label' => tr('Cancelled')],
                             ]"
                             width="md"
                             :defer="false"
@@ -89,6 +89,22 @@
                             :applyOnChange="true"
                             allValue="all"
                         />
+                    </div>
+
+                    {{-- Clear Filters Button --}}
+                    <div x-data="{
+                        hasFilters() {
+                            return ($wire.statusFilter && $wire.statusFilter !== 'all') ||
+                                   ($wire.sendTypeFilter && $wire.sendTypeFilter !== 'all');
+                        }
+                    }" x-show="hasFilters()" x-transition class="flex items-center justify-end">
+                        <button type="button" wire:click="clearAllFilters" wire:loading.attr="disabled"
+                            wire:target="clearAllFilters"
+                            class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-gray-600 hover:text-gray-900 transition-colors disabled:opacity-50 cursor-pointer">
+                            <i class="fas fa-times" wire:loading.remove wire:target="clearAllFilters"></i>
+                            <i class="fas fa-spinner fa-spin" wire:loading wire:target="clearAllFilters"></i>
+                            <span wire:loading.remove wire:target="clearAllFilters">{{ tr('Clear filters') }}</span>
+                        </button>
                     </div>
 
                     {{-- Confirm Dialogs --}}
@@ -234,7 +250,7 @@
                                             @endphp
 
                                             <x-ui.badge :type="$statusColor" size="sm">
-                                                {{ tr(ucfirst($scheduledEmail->status)) }}
+                                                {{ $scheduledEmail->status === 'failed' ? tr('Cancelled') : tr(ucfirst($scheduledEmail->status)) }}
                                             </x-ui.badge>
                                         </td>
 
@@ -343,6 +359,23 @@
                                 />
                             </div>
                         </div>
+                    </div>
+
+                    {{-- Clear Filters Button --}}
+                    <div x-data="{
+                        hasFilters() {
+                            return ($wire.search && $wire.search.trim() !== '') ||
+                                   ($wire.typeFilter && $wire.typeFilter !== 'all') ||
+                                   ($wire.statusFilterTemplates && $wire.statusFilterTemplates !== 'all');
+                        }
+                    }" x-show="hasFilters()" x-transition class="flex items-center justify-end">
+                        <button type="button" wire:click="clearAllFilters" wire:loading.attr="disabled"
+                            wire:target="clearAllFilters"
+                            class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-gray-600 hover:text-gray-900 transition-colors disabled:opacity-50 cursor-pointer">
+                            <i class="fas fa-times" wire:loading.remove wire:target="clearAllFilters"></i>
+                            <i class="fas fa-spinner fa-spin" wire:loading wire:target="clearAllFilters"></i>
+                            <span wire:loading.remove wire:target="clearAllFilters">{{ tr('Clear filters') }}</span>
+                        </button>
                     </div>
 
                     {{-- Confirm Delete Email Template --}}
@@ -558,7 +591,7 @@
                                     $statusColor = $statusColors[$viewingEmail->status] ?? 'info';
                                 @endphp
                                 <x-ui.badge :type="$statusColor" size="sm">
-                                    {{ tr(ucfirst($viewingEmail->status)) }}
+                                    {{ $viewingEmail->status === 'failed' ? tr('Cancelled') : tr(ucfirst($viewingEmail->status)) }}
                                 </x-ui.badge>
                             </div>
                         </div>

@@ -66,6 +66,19 @@ class Index extends Component
         }
     }
 
+    public function clearAllFilters(): void
+    {
+        if ($this->activeTab === 'emails') {
+            $this->statusFilter = 'all';
+            $this->sendTypeFilter = 'all';
+        } else {
+            $this->search = '';
+            $this->typeFilter = 'all';
+            $this->statusFilterTemplates = 'all';
+        }
+        $this->resetPage();
+    }
+
     private function toastSuccess(string $message): void
     {
         $this->dispatch(
