@@ -28,15 +28,18 @@ class Create extends Component
         'is_active' => 'boolean',
     ];
 
-    protected $messages = [
-        'name.required' => 'Template name is required',
-        'name.max' => 'Template name must not exceed 190 characters',
-        'subject.required' => 'Email subject is required',
-        'subject.max' => 'Email subject must not exceed 255 characters',
-        'body.required' => 'Email body is required',
-        'type.required' => 'Template type is required',
-        'type.in' => 'Invalid template type selected',
-    ];
+    public function messages(): array
+    {
+        return [
+            'name.required' => tr('Template name is required'),
+            'name.max' => tr('Template name must not exceed 190 characters'),
+            'subject.required' => tr('Email subject is required'),
+            'subject.max' => tr('Email subject must not exceed 255 characters'),
+            'body.required' => tr('Email body is required'),
+            'type.required' => tr('Template type is required'),
+            'type.in' => tr('Invalid template type selected'),
+        ];
+    }
 
     public function mount(): void
     {

@@ -301,17 +301,14 @@ class Send extends Component
                 'scheduledAt.after' => tr('Scheduled date must be in the future'),
             ]);
 
-            // Convert scheduledAt string to Carbon instance if it's a scheduled email
-            // Use system timezone (same as device timezone)
+            // Save scheduled_at directly in app timezone (no UTC conversion)
             if ($this->sendType === 'scheduled' && $this->scheduledAt) {
-                // Get system timezone - try to detect Windows timezone
-                $systemTimezone = $this->getSystemTimezone();
-                
-                // Parse the datetime string in system timezone, then convert to UTC for storage
-                $scheduledAt = \Carbon\Carbon::parse($this->scheduledAt, $systemTimezone)
-                    ->setTimezone('UTC'); // Convert to UTC for database storage
+                $scheduledAt = \Carbon\Carbon::parse(
+                    $this->scheduledAt,
+                    config('app.timezone', 'Asia/Riyadh')
+                );
             } else {
-                $scheduledAt = now('UTC');
+                $scheduledAt = now(config('app.timezone', 'Asia/Riyadh'));
             }
 
             $scheduledEmail = ScheduledEmail::create([

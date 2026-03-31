@@ -30,6 +30,19 @@ class Edit extends Component
         'is_active' => 'boolean',
     ];
 
+    public function messages(): array
+    {
+        return [
+            'name.required' => tr('Template name is required'),
+            'name.max' => tr('Template name must not exceed 190 characters'),
+            'subject.required' => tr('Email subject is required'),
+            'subject.max' => tr('Email subject must not exceed 255 characters'),
+            'body.required' => tr('Email body is required'),
+            'type.required' => tr('Template type is required'),
+            'type.in' => tr('Invalid template type selected'),
+        ];
+    }
+
     public function mount(int $id): void
     {
         $this->template = EmailTemplate::findOrFail($id);

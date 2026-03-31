@@ -1,4 +1,4 @@
-<div class="space-y-4 sm:space-y-6">
+<div class="space-y-4 sm:space-y-6" wire:poll.3s>
     {{-- Header --}}
     <x-ui.page-header
         :title="tr('Email Messages')"
@@ -28,7 +28,6 @@
             </div>
         </x-slot:action>
     </x-ui.page-header>
-    <x-ui.flash-toast/>
 
     {{-- Tabs --}}
     <x-ui.card class="p-0 relative overflow-hidden">
@@ -51,6 +50,11 @@
                     {{ tr('Templates') }}
                 </button>
             </nav>
+        </div>
+        
+        {{-- Loading Bar under tabs --}}
+        <div wire:loading wire:target="setActiveTab" class="absolute top-[53px] start-0 w-full h-[2px] overflow-hidden bg-gray-100 z-10">
+            <div class="h-full bg-gradient-to-r from-[color:var(--brand-from)] via-[color:var(--brand-via)] to-[color:var(--brand-to)] animate-loading-bar origin-left w-full h-full"></div>
         </div>
 
         {{-- Tab Content --}}
