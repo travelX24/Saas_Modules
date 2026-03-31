@@ -2,6 +2,7 @@
 
 namespace Athka\Saas\Livewire\Companies;
 
+use App\Models\User;
 use Athka\Saas\Models\SaasCompany;
 use Athka\Saas\Models\SaasCompanyDocument;
 use Athka\Saas\Models\SaasCompanyOtherinfo;
@@ -13,6 +14,7 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use Athka\Saas\Models\Branch;
 use Athka\Employees\Models\Employee;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class Edit extends Component
@@ -45,6 +47,10 @@ class Edit extends Component
     public ?string $bio = null;
 
     public string $primary_domain = '';
+
+    public ?int $companyAdminUserId = null;
+    public ?string $company_admin_name = null;
+    public ?string $company_admin_email = null;
 
     // TAB 2: Address & Contact
     public ?string $official_email = null;
@@ -107,7 +113,7 @@ class Edit extends Component
     public function mount(int $companyId): void
     {
         $this->companyId = $companyId;
-        $company = SaasCompany::with(['settings', 'documents'])->findOrFail($companyId);
+        $company = SaasCompany::with(['settings', 'documents', 'users'])->findOrFail($companyId);
 
         // Load company data
         $this->legal_name_ar = $company->legal_name_ar;
@@ -131,6 +137,11 @@ class Edit extends Component
         $this->sub_industries_text = $company->sub_industries ? implode(', ', $company->sub_industries) : '';
         $this->bio = $company->bio;
         $this->primary_domain = $company->primary_domain;
+
+        $admin = $company->users->first();
+        $this->companyAdminUserId = $admin?->id;
+        $this->company_admin_name = $admin?->name;
+        $this->company_admin_email = $admin?->email;
 
         // Address
         $this->official_email = $company->official_email;
@@ -245,6 +256,8 @@ class Edit extends Component
             'sub_industries_text' => tr('Sub Industries'),
             'bio' => tr('Bio'),
             'primary_domain' => tr('Company Subdomain'),
+            'company_admin_name' => tr('Company Admin Name'),
+            'company_admin_email' => tr('Company Admin Email'),
             'official_email' => tr('Official Email'),
             'phone_1' => tr('Phone 1'),
             'phone_2' => tr('Phone 2'),
@@ -314,6 +327,17 @@ class Edit extends Component
                     'lat' => $this->lat,
                     'lng' => $this->lng,
                 ]);
+
+                if ($this->companyAdminUserId) {
+                    $admin = User::find($this->companyAdminUserId);
+
+                    if ($admin) {
+                        $admin->update([
+                            'name' => $this->company_admin_name,
+                            'email' => $this->company_admin_email,
+                        ]);
+                    }
+                }
 
                 // Update logo if provided
                 if ($this->logo) {
@@ -417,6 +441,13 @@ $this->dispatch('toast', type: 'success', message: tr('Company updated successfu
             'legal_name_ar' => ['required', 'string', 'max:190'],
             'legal_name_en' => ['nullable', 'string', 'max:190'],
             'company_type' => ['required', 'in:individual,foundation,company'],
+            'company_admin_name' => ['nullable', 'string', 'max:190'],
+            'company_admin_email' => [
+                'nullable',
+                'email',
+                'max:190',
+                Rule::unique('users', 'email')->ignore($this->companyAdminUserId),
+            ],
             'primary_domain' => ['required', 'string', 'max:190'],
         ];
     }

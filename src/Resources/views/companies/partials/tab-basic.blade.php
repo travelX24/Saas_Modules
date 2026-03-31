@@ -121,6 +121,19 @@
                 :required="true"
                 readonly
             />
+
+            <x-ui.input
+                :label="tr('Company Admin Name')"
+                wire:model.defer="company_admin_name"
+                error="company_admin_name"
+            />
+
+            <x-ui.input
+                :label="tr('Company Admin Email')"
+                wire:model.defer="company_admin_email"
+                error="company_admin_email"
+                type="email"
+            />
         </div>
     @endif
 </div>
