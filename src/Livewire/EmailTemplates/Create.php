@@ -28,15 +28,18 @@ class Create extends Component
         'is_active' => 'boolean',
     ];
 
-    protected $messages = [
-        'name.required' => 'Template name is required',
-        'name.max' => 'Template name must not exceed 190 characters',
-        'subject.required' => 'Email subject is required',
-        'subject.max' => 'Email subject must not exceed 255 characters',
-        'body.required' => 'Email body is required',
-        'type.required' => 'Template type is required',
-        'type.in' => 'Invalid template type selected',
-    ];
+    public function messages(): array
+    {
+        return [
+            'name.required' => tr('Template name is required'),
+            'name.max' => tr('Template name must not exceed 190 characters'),
+            'subject.required' => tr('Email subject is required'),
+            'subject.max' => tr('Email subject must not exceed 255 characters'),
+            'body.required' => tr('Email body is required'),
+            'type.required' => tr('Template type is required'),
+            'type.in' => tr('Invalid template type selected'),
+        ];
+    }
 
     public function mount(): void
     {
@@ -79,14 +82,6 @@ class Create extends Component
 
     public function save()
     {
-        \Log::info('Create::save() method called', [
-            'name' => $this->name,
-            'type' => $this->type,
-            'type_empty' => empty($this->type),
-            'subject' => $this->subject,
-            'body_length' => strlen($this->body ?? ''),
-        ]);
-
         try {
             // Ensure variables are set before validation
             if (!empty($this->type) && empty($this->variables)) {
@@ -94,8 +89,6 @@ class Create extends Component
             }
             
             $this->validate();
-
-            \Log::info('Validation passed, creating template');
 
             EmailTemplate::create([
                 'name' => $this->name,
@@ -108,7 +101,6 @@ class Create extends Component
                 'updated_by' => Auth::id(),
             ]);
 
-            \Log::info('Template created successfully');
             session()->flash('success', tr('Template created successfully'));
             return redirect()->route('saas.emails.index', ['tab' => 'templates']);
             

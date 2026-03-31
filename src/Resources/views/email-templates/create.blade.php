@@ -36,9 +36,6 @@
                     required
                     placeholder="{{ tr('Enter template name') }}"
                 />
-                @error('name')
-                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
-                @enderror
 
                 {{-- Type --}}
                 <x-ui.select
@@ -56,9 +53,6 @@
                     <option value="holiday_greeting">{{ tr('Holiday Greeting') }}</option>
                     <option value="custom">{{ tr('Custom') }}</option>
                 </x-ui.select>
-                @error('type')
-                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
-                @enderror
 
                 {{-- Subject --}}
                 <x-ui.input
@@ -68,9 +62,6 @@
                     placeholder="{{ tr('Enter email subject') }}"
                     hint="{{ tr('You can use variables in {variable_name} or double curly braces format. See available variables below.') }}"
                 />
-                @error('subject')
-                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
-                @enderror
 
                 {{-- Body --}}
                 <div>
@@ -83,9 +74,6 @@
                         hint="{{ tr('You can use HTML tags and variables in {variable_name} or double curly braces format. See available variables below.') }}"
                     />
                 </div>
-                @error('body')
-                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
-                @enderror
 
                 {{-- Variables Hint --}}
                 @if(count($variables) > 0)
@@ -130,23 +118,24 @@
         </x-ui.card>
 
         {{-- Actions --}}
-        <div class="flex justify-end gap-3">
+        <div class="flex justify-end gap-3 pt-6">
             <x-ui.secondary-button
                 href="{{ route('saas.emails.index', ['tab' => 'templates']) }}"
+                :fullWidth="false"
             >
                 {{ tr('Cancel') }}
             </x-ui.secondary-button>
-            <button
+            
+            <x-ui.primary-button
                 type="button"
                 wire:click="save"
-                wire:loading.attr="disabled"
-                onclick="console.log('Button clicked - Livewire should handle this');"
-                class="cursor-pointer px-4 py-2 bg-[color:var(--brand-via)] text-white rounded-2xl hover:bg-[color:var(--brand-to)] flex items-center justify-center gap-2 text-sm sm:text-base font-semibold transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                loading="save"
+                :fullWidth="false"
+                :arrow="false"
             >
                 <i class="fas fa-save"></i>
-                <span class="ms-2" wire:loading.remove wire:target="save">{{ tr('Save Template') }}</span>
-                <span class="ms-2" wire:loading wire:target="save">{{ tr('Saving...') }}</span>
-            </button>
+                <span class="ms-2">{{ tr('Save Template') }}</span>
+            </x-ui.primary-button>
         </div>
         </form>
     </div>

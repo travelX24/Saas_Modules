@@ -1,4 +1,4 @@
-<div class="space-y-4 sm:space-y-6">
+<div class="space-y-4 sm:space-y-6" wire:poll.3s>
     {{-- Header --}}
     <x-ui.page-header
         :title="tr('Email Messages')"
@@ -28,7 +28,6 @@
             </div>
         </x-slot:action>
     </x-ui.page-header>
-    <x-ui.flash-toast/>
 
     {{-- Tabs --}}
     <x-ui.card class="p-0 relative overflow-hidden">
@@ -52,6 +51,11 @@
                 </button>
             </nav>
         </div>
+        
+        {{-- Loading Bar under tabs --}}
+        <div wire:loading wire:target="setActiveTab" class="absolute top-[53px] start-0 w-full h-[2px] overflow-hidden bg-gray-100 z-10">
+            <div class="h-full bg-gradient-to-r from-[color:var(--brand-from)] via-[color:var(--brand-via)] to-[color:var(--brand-to)] animate-loading-bar origin-left w-full h-full"></div>
+        </div>
 
         {{-- Tab Content --}}
         <div class="p-4 sm:p-6">
@@ -68,7 +72,7 @@
                                 ['value' => 'pending', 'label' => tr('Pending')],
                                 ['value' => 'processing', 'label' => tr('Processing')],
                                 ['value' => 'sent', 'label' => tr('Sent')],
-                                ['value' => 'failed', 'label' => tr('Failed')],
+                                ['value' => 'failed', 'label' => tr('Cancelled')],
                             ]"
                             width="md"
                             :defer="false"
@@ -89,6 +93,22 @@
                             :applyOnChange="true"
                             allValue="all"
                         />
+                    </div>
+
+                    {{-- Clear Filters Button --}}
+                    <div x-data="{
+                        hasFilters() {
+                            return ($wire.statusFilter && $wire.statusFilter !== 'all') ||
+                                   ($wire.sendTypeFilter && $wire.sendTypeFilter !== 'all');
+                        }
+                    }" x-show="hasFilters()" x-transition class="flex items-center justify-end">
+                        <button type="button" wire:click="clearAllFilters" wire:loading.attr="disabled"
+                            wire:target="clearAllFilters"
+                            class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-gray-600 hover:text-gray-900 transition-colors disabled:opacity-50 cursor-pointer">
+                            <i class="fas fa-times" wire:loading.remove wire:target="clearAllFilters"></i>
+                            <i class="fas fa-spinner fa-spin" wire:loading wire:target="clearAllFilters"></i>
+                            <span wire:loading.remove wire:target="clearAllFilters">{{ tr('Clear filters') }}</span>
+                        </button>
                     </div>
 
                     {{-- Confirm Dialogs --}}
@@ -234,7 +254,7 @@
                                             @endphp
 
                                             <x-ui.badge :type="$statusColor" size="sm">
-                                                {{ tr(ucfirst($scheduledEmail->status)) }}
+                                                {{ $scheduledEmail->status === 'failed' ? tr('Cancelled') : tr(ucfirst($scheduledEmail->status)) }}
                                             </x-ui.badge>
                                         </td>
 
@@ -343,6 +363,23 @@
                                 />
                             </div>
                         </div>
+                    </div>
+
+                    {{-- Clear Filters Button --}}
+                    <div x-data="{
+                        hasFilters() {
+                            return ($wire.search && $wire.search.trim() !== '') ||
+                                   ($wire.typeFilter && $wire.typeFilter !== 'all') ||
+                                   ($wire.statusFilterTemplates && $wire.statusFilterTemplates !== 'all');
+                        }
+                    }" x-show="hasFilters()" x-transition class="flex items-center justify-end">
+                        <button type="button" wire:click="clearAllFilters" wire:loading.attr="disabled"
+                            wire:target="clearAllFilters"
+                            class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-gray-600 hover:text-gray-900 transition-colors disabled:opacity-50 cursor-pointer">
+                            <i class="fas fa-times" wire:loading.remove wire:target="clearAllFilters"></i>
+                            <i class="fas fa-spinner fa-spin" wire:loading wire:target="clearAllFilters"></i>
+                            <span wire:loading.remove wire:target="clearAllFilters">{{ tr('Clear filters') }}</span>
+                        </button>
                     </div>
 
                     {{-- Confirm Delete Email Template --}}
@@ -558,7 +595,7 @@
                                     $statusColor = $statusColors[$viewingEmail->status] ?? 'info';
                                 @endphp
                                 <x-ui.badge :type="$statusColor" size="sm">
-                                    {{ tr(ucfirst($viewingEmail->status)) }}
+                                    {{ $viewingEmail->status === 'failed' ? tr('Cancelled') : tr(ucfirst($viewingEmail->status)) }}
                                 </x-ui.badge>
                             </div>
                         </div>

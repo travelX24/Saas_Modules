@@ -57,12 +57,11 @@ class ProcessScheduledEmails extends Command
             })->toArray(),
         ]);
 
-        // Compare in UTC (database stores in UTC) but convert both to same timezone
-        // Since scheduled_at is stored in UTC in database, we compare UTC to UTC
-        $nowUtc = now('UTC');
+        // Compare using app timezone since scheduled_at is stored in local time
+        $now = now(config('app.timezone', 'Asia/Riyadh'));
         $scheduledEmails = ScheduledEmail::where('status', 'pending')
-            ->where(function($query) use ($nowUtc) {
-                $query->where('scheduled_at', '<=', $nowUtc)
+            ->where(function($query) use ($now) {
+                $query->where('scheduled_at', '<=', $now)
                       ->orWhereNull('scheduled_at'); // Handle immediate emails
             })
             ->get();

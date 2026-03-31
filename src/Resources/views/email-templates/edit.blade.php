@@ -104,20 +104,22 @@
         </x-ui.card>
 
         {{-- Actions --}}
-        <div class="flex justify-end gap-3">
+        <div class="flex justify-end gap-3 pt-6">
             <x-ui.secondary-button
                 href="{{ route('saas.emails.index', ['tab' => 'templates']) }}"
+                :fullWidth="false"
             >
                 {{ tr('Cancel') }}
             </x-ui.secondary-button>
+            
             <x-ui.primary-button
                 type="submit"
-                wire:loading.attr="disabled"
-                class="cursor-pointer"
+                loading="save"
+                :fullWidth="false"
+                :arrow="false"
             >
                 <i class="fas fa-save"></i>
-                <span class="ms-2" wire:loading.remove wire:target="save">{{ tr('Update Template') }}</span>
-                <span class="ms-2" wire:loading wire:target="save">{{ tr('Updating...') }}</span>
+                <span class="ms-2">{{ tr('Update Template') }}</span>
             </x-ui.primary-button>
         </div>
     </form>
