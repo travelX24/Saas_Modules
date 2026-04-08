@@ -1,4 +1,98 @@
 <div class="space-y-4 sm:space-y-6" wire:poll.3s>
+    {{-- Top Fixed Loading Bar (shows on tab switch) --}}
+    <div wire:loading wire:target="setActiveTab" class="fixed top-0 left-0 right-0 h-[3px] z-[9999] overflow-hidden pointer-events-none">
+        <div class="h-full w-full bg-gradient-to-r from-[color:var(--brand-from)] via-[color:var(--brand-via)] to-[color:var(--brand-to)]">
+            <div class="h-full w-full bg-white/30 animate-[loading-sweep_1.5s_infinite]"></div>
+        </div>
+    </div>
+    <style>
+        @keyframes loading-sweep {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+    </style>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            // Fix for makeTablePagination function
+            if (!window.makeTablePagination) {
+                window.makeTablePagination = function(config) {
+                    return {
+                        currentPage: 1,
+                        perPage: config.perPage || 10,
+                        totalRows: 0,
+                        rows: [],
+                        initialized: false,
+                        _observer: null,
+                        get totalPages() {
+                            if (this.totalRows === 0 || this.perPage === 0) return 0;
+                            return Math.ceil(this.totalRows / this.perPage);
+                        },
+                        get startIndex() { return (this.currentPage - 1) * this.perPage; },
+                        get endIndex() { return this.startIndex + this.perPage; },
+                        init() {
+                            const hideExtraRows = () => {
+                                if (!this.$refs.tbody) return;
+                                const allRows = Array.from(this.$refs.tbody.querySelectorAll('tr'));
+                                allRows.forEach((row, index) => {
+                                    row.style.display = 'table-row';
+                                    if (index >= this.perPage) row.style.display = 'none';
+                                });
+                            };
+                            const updateRows = () => {
+                                this.refreshRows();
+                                hideExtraRows();
+                                this.initialized = true;
+                            };
+                            hideExtraRows();
+                            this.$nextTick(() => updateRows());
+                            [10, 50, 100, 200].forEach((delay) => setTimeout(() => updateRows(), delay));
+                            if (this.$refs.tbody) {
+                                const observer = new MutationObserver(() => updateRows());
+                                observer.observe(this.$refs.tbody, { childList: true, subtree: false });
+                                this._observer = observer;
+                            }
+                            setTimeout(() => updateRows(), 50);
+                        },
+                        refreshRows() {
+                            if (!this.$refs.tbody) return;
+                            this.rows = Array.from(this.$refs.tbody.querySelectorAll('tr'));
+                            this.totalRows = this.rows.length;
+                            if (this.totalRows === 0) return;
+                            this.rows.forEach((row, index) => {
+                                row.style.display = index >= this.startIndex && index < this.endIndex ? 'table-row' : 'none';
+                            });
+                        },
+                        nextPage() {
+                            if (this.currentPage < this.totalPages) {
+                                this.currentPage++;
+                                this.refreshRows();
+                            }
+                        },
+                        prevPage() {
+                            if (this.currentPage > 1) {
+                                this.currentPage--;
+                                this.refreshRows();
+                            }
+                        },
+                        goToPage(page) {
+                            if (page >= 1 && page <= this.totalPages) {
+                                this.currentPage = page;
+                                this.refreshRows();
+                            }
+                        },
+                        destroy() {
+                            if (this._observer) {
+                                this._observer.disconnect();
+                                this._observer = null;
+                            }
+                        }
+                    };
+                }
+            }
+        });
+    </script>
+
     {{-- Header --}}
     <x-ui.page-header
         :title="tr('Email Messages')"
@@ -31,7 +125,7 @@
 
     {{-- Tabs --}}
     <x-ui.card class="p-0 relative overflow-hidden">
-        <div class="border-b border-gray-200">
+        <div class="border-b border-gray-200 relative">
             <nav class="flex -mb-px" aria-label="Tabs">
                 <button
                     wire:click="setActiveTab('emails')"
@@ -50,11 +144,6 @@
                     {{ tr('Templates') }}
                 </button>
             </nav>
-        </div>
-        
-        {{-- Loading Bar under tabs --}}
-        <div wire:loading wire:target="setActiveTab" class="absolute top-[53px] start-0 w-full h-[2px] overflow-hidden bg-gray-100 z-10">
-            <div class="h-full bg-gradient-to-r from-[color:var(--brand-from)] via-[color:var(--brand-via)] to-[color:var(--brand-to)] animate-loading-bar origin-left w-full h-full"></div>
         </div>
 
         {{-- Tab Content --}}
@@ -259,36 +348,38 @@
                                         </td>
 
                                         <td class="py-3 px-3 relative overflow-visible">
-                                            <x-ui.dropdown-menu>
-                                                <x-ui.dropdown-item
-                                                    href="#"
-                                                    wire:click="viewEmail({{ $scheduledEmail->id }})"
-                                                >
-                                                    <i class="fas fa-eye w-4 me-2"></i>
-                                                    {{ tr('View') }}
-                                                </x-ui.dropdown-item>
-
-                                                <x-ui.dropdown-item
-                                                    href="#"
-                                                    x-on:click.prevent="$dispatch('open-confirm-resend-email', { id: {{ (int) $scheduledEmail->id }} })"
-                                                >
-                                                    <i class="fas fa-rotate-right w-4 me-2"></i>
-                                                    {{ tr('Resend') }}
-                                                </x-ui.dropdown-item>
-
-                                                @if($scheduledEmail->status === 'pending')
-                                                    <div class="border-t border-gray-100 my-1"></div>
+                                            <div wire:key="dropdown-scheduled-{{ $scheduledEmail->id }}" wire:ignore class="relative">
+                                                <x-ui.dropdown-menu>
+                                                    <x-ui.dropdown-item
+                                                        href="#"
+                                                        wire:click="viewEmail({{ $scheduledEmail->id }})"
+                                                    >
+                                                        <i class="fas fa-eye w-4 me-2"></i>
+                                                        {{ tr('View') }}
+                                                    </x-ui.dropdown-item>
 
                                                     <x-ui.dropdown-item
-                                                        class="text-red-600 hover:bg-red-50"
                                                         href="#"
-                                                        x-on:click.prevent="$dispatch('open-confirm-cancel-scheduled-email', { id: {{ (int) $scheduledEmail->id }} })"
+                                                        x-on:click.prevent="$dispatch('open-confirm-resend-email', { id: {{ (int) $scheduledEmail->id }} })"
                                                     >
-                                                        <i class="fas fa-times w-4 me-2"></i>
-                                                        {{ tr('Cancel') }}
+                                                        <i class="fas fa-rotate-right w-4 me-2"></i>
+                                                        {{ tr('Resend') }}
                                                     </x-ui.dropdown-item>
-                                                @endif
-                                            </x-ui.dropdown-menu>
+
+                                                    @if($scheduledEmail->status === 'pending')
+                                                        <div class="border-t border-gray-100 my-1"></div>
+
+                                                        <x-ui.dropdown-item
+                                                            class="text-red-600 hover:bg-red-50"
+                                                            href="#"
+                                                            x-on:click.prevent="$dispatch('open-confirm-cancel-scheduled-email', { id: {{ (int) $scheduledEmail->id }} })"
+                                                        >
+                                                            <i class="fas fa-times w-4 me-2"></i>
+                                                            {{ tr('Cancel') }}
+                                                        </x-ui.dropdown-item>
+                                                    @endif
+                                                </x-ui.dropdown-menu>
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -438,48 +529,50 @@
                                         </td>
 
                                         <td class="py-3 px-3 relative overflow-visible">
-                                            <x-ui.dropdown-menu>
-                                                <x-ui.dropdown-item
-                                                    href="{{ route('saas.email-templates.edit', $template->id) }}"
-                                                >
-                                                    <i class="fas fa-edit w-4 me-2"></i>
-                                                    {{ tr('Edit') }}
-                                                </x-ui.dropdown-item>
+                                            <div wire:key="dropdown-template-{{ $template->id }}" wire:ignore class="relative">
+                                                <x-ui.dropdown-menu>
+                                                    <x-ui.dropdown-item
+                                                        href="{{ route('saas.email-templates.edit', $template->id) }}"
+                                                    >
+                                                        <i class="fas fa-edit w-4 me-2"></i>
+                                                        {{ tr('Edit') }}
+                                                    </x-ui.dropdown-item>
 
-                                                <x-ui.dropdown-item
-                                                    href="{{ route('saas.emails.send', ['templateId' => $template->id]) }}"
-                                                >
-                                                    <i class="fas fa-paper-plane w-4 me-2"></i>
-                                                    {{ tr('Send') }}
-                                                </x-ui.dropdown-item>
+                                                    <x-ui.dropdown-item
+                                                        href="{{ route('saas.emails.send', ['templateId' => $template->id]) }}"
+                                                    >
+                                                        <i class="fas fa-paper-plane w-4 me-2"></i>
+                                                        {{ tr('Send') }}
+                                                    </x-ui.dropdown-item>
 
-                                                <div class="border-t border-gray-100 my-1"></div>
+                                                    <div class="border-t border-gray-100 my-1"></div>
 
-                                                <x-ui.dropdown-item
-                                                    :class="$template->is_active ? 'text-orange-600 hover:bg-orange-50' : 'text-green-600 hover:bg-green-50'"
-                                                    href="#"
-                                                    wire:click="toggleStatus({{ $template->id }})"
-                                                >
-                                                    @if($template->is_active)
-                                                        <i class="fas fa-pause w-4 me-2"></i>
-                                                        {{ tr('Deactivate') }}
-                                                    @else
-                                                        <i class="fas fa-play w-4 me-2"></i>
-                                                        {{ tr('Activate') }}
-                                                    @endif
-                                                </x-ui.dropdown-item>
+                                                    <x-ui.dropdown-item
+                                                        :class="$template->is_active ? 'text-orange-600 hover:bg-orange-50' : 'text-green-600 hover:bg-green-50'"
+                                                        href="#"
+                                                        wire:click="toggleStatus({{ $template->id }})"
+                                                    >
+                                                        @if($template->is_active)
+                                                            <i class="fas fa-pause w-4 me-2"></i>
+                                                            {{ tr('Deactivate') }}
+                                                        @else
+                                                            <i class="fas fa-play w-4 me-2"></i>
+                                                            {{ tr('Activate') }}
+                                                        @endif
+                                                    </x-ui.dropdown-item>
 
-                                                <div class="border-t border-gray-100 my-1"></div>
+                                                    <div class="border-t border-gray-100 my-1"></div>
 
-                                                <x-ui.dropdown-item
-                                                    class="text-red-600 hover:bg-red-50 cursor-pointer"
-                                                    href="#"
-                                                    x-on:click.prevent="$dispatch('open-confirm-delete-email-template', { id: {{ (int) $template->id }} })"
-                                                >
-                                                    <i class="fas fa-trash w-4 me-2"></i>
-                                                    {{ tr('Delete') }}
-                                                </x-ui.dropdown-item>
-                                            </x-ui.dropdown-menu>
+                                                    <x-ui.dropdown-item
+                                                        class="text-red-600 hover:bg-red-50 cursor-pointer"
+                                                        href="#"
+                                                        x-on:click.prevent="$dispatch('open-confirm-delete-email-template', { id: {{ (int) $template->id }} })"
+                                                    >
+                                                        <i class="fas fa-trash w-4 me-2"></i>
+                                                        {{ tr('Delete') }}
+                                                    </x-ui.dropdown-item>
+                                                </x-ui.dropdown-menu>
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach
