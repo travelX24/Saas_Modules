@@ -199,7 +199,7 @@
                 @endif
 
                 {{-- Variables Data --}}
-                @if($templateId && count($variablesData) > 0)
+                @if($templateId && count($variablesData) > 0 && $recipientType === 'single')
                     <div class="border-t border-gray-200 pt-4">
                         <div class="mb-3">
                             <h3 class="text-sm font-semibold text-gray-700 mb-1">{{ tr('Template Variables') }}</h3>
