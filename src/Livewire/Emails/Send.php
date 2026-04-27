@@ -327,16 +327,20 @@ class Send extends Component
 
             // If immediate, dispatch job to send
             if ($this->sendType === 'immediate') {
-                // Try to send synchronously first (for testing/debugging)
-                // If queue is not running, this will still work
-                try {
-                    \Athka\Saas\Jobs\SendScheduledEmailJob::dispatchSync($scheduledEmail);
-                } catch (\Throwable $e) {
-                    // Fallback to async dispatch if sync fails
-                    \Log::warning("Failed to send email synchronously, falling back to queue", [
-                        'error' => $e->getMessage(),
-                    ]);
+                // For multiple companies, ALWAYS use async dispatch to avoid timeouts
+                if ($this->recipientType === 'multiple' || count($this->selectedCompanyIds) > 1) {
                     \Athka\Saas\Jobs\SendScheduledEmailJob::dispatch($scheduledEmail);
+                } else {
+                    // Try to send synchronously for single recipient (for immediate feedback)
+                    try {
+                        \Athka\Saas\Jobs\SendScheduledEmailJob::dispatchSync($scheduledEmail);
+                    } catch (\Throwable $e) {
+                        // Fallback to async dispatch if sync fails
+                        \Log::warning("Failed to send email synchronously, falling back to queue", [
+                            'error' => $e->getMessage(),
+                        ]);
+                        \Athka\Saas\Jobs\SendScheduledEmailJob::dispatch($scheduledEmail);
+                    }
                 }
             }
 

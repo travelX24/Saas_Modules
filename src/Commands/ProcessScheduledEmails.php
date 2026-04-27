@@ -29,33 +29,22 @@ class ProcessScheduledEmails extends Command
             'php_timezone' => date_default_timezone_get(),
         ]);
 
-        // Get all pending emails for debugging
-        $allPending = ScheduledEmail::where('status', 'pending')->get();
-        \Log::info('ProcessScheduledEmails: All pending emails', [
-            'count' => $allPending->count(),
-            'emails' => $allPending->map(function ($email) use ($nowUtc, $nowSystem, $systemTimezone) {
-                $scheduledAt = $email->scheduled_at;
-                if ($scheduledAt) {
-                    // scheduled_at is stored in UTC, convert to system timezone for comparison
-                    $scheduledAtSystem = $scheduledAt->copy()->setTimezone($systemTimezone);
-                    // Compare in UTC (both are in UTC)
-                    $isDue = $scheduledAt->lte($nowUtc);
-                } else {
-                    $scheduledAtSystem = null;
-                    $isDue = false;
-                }
-                
-                return [
-                    'id' => $email->id,
-                    'scheduled_at_utc' => $scheduledAt ? $scheduledAt->toDateTimeString() : null,
-                    'scheduled_at_system' => $scheduledAtSystem ? $scheduledAtSystem->toDateTimeString() : null,
-                    'scheduled_at_timezone' => $scheduledAt ? $scheduledAt->timezone->getName() : null,
-                    'is_due' => $isDue,
-                    'current_time_utc' => $nowUtc->toDateTimeString(),
-                    'current_time_system' => $nowSystem->toDateTimeString(),
-                ];
-            })->toArray(),
-        ]);
+        // 1. Handle stuck emails (in 'processing' status for more than 15 minutes)
+        // This ensures that if a process died, the emails will be retried
+        $stuckEmails = ScheduledEmail::where('status', 'processing')
+            ->where('updated_at', '<=', now()->subMinutes(15))
+            ->get();
+
+        if ($stuckEmails->isNotEmpty()) {
+            \Log::warning("ProcessScheduledEmails: Resetting stuck processing emails", [
+                'count' => $stuckEmails->count(),
+                'ids' => $stuckEmails->pluck('id')->toArray(),
+            ]);
+            foreach ($stuckEmails as $stuckEmail) {
+                $stuckEmail->update(['status' => 'pending']);
+            }
+            $this->info("Reset {$stuckEmails->count()} stuck emails to pending.");
+        }
 
         // Compare using app timezone since scheduled_at is stored in local time
         $now = now(config('app.timezone', 'Asia/Riyadh'));
@@ -75,59 +64,41 @@ class ProcessScheduledEmails extends Command
 
         if ($scheduledEmails->isEmpty()) {
             $this->info('No scheduled emails to process.');
-            \Log::info('ProcessScheduledEmails: No scheduled emails to process', [
-                'total_pending' => $allPending->count(),
-                'current_time_utc' => $nowUtc->toDateTimeString(),
-                'current_time_system' => $nowSystem->toDateTimeString(),
-            ]);
             return self::SUCCESS;
         }
 
         $this->info("Found {$scheduledEmails->count()} scheduled email(s) to process.");
-        \Log::info("ProcessScheduledEmails: Found {$scheduledEmails->count()} scheduled email(s) to process", [
-            'emails' => $scheduledEmails->pluck('id')->toArray(),
-        ]);
 
         foreach ($scheduledEmails as $scheduledEmail) {
             /** @var \Athka\Saas\Models\ScheduledEmail $scheduledEmail */
             try {
-                $this->info("Processing scheduled email ID: {$scheduledEmail->id} (scheduled for: {$scheduledEmail->scheduled_at})");
+                $this->info("Processing scheduled email ID: {$scheduledEmail->id}");
                 
                 // Update status to processing
                 $scheduledEmail->update(['status' => 'processing']);
                 
-                \Log::info("ProcessScheduledEmails: Processing email ID {$scheduledEmail->id}", [
-                    'scheduled_at' => $scheduledEmail->scheduled_at,
-                    'template_id' => $scheduledEmail->template_id,
-                ]);
-                
-                // Try to send synchronously first (for immediate processing)
-                try {
-                    SendScheduledEmailJob::dispatchSync($scheduledEmail);
-                    $this->info("✓ Successfully processed scheduled email ID: {$scheduledEmail->id}");
-                    \Log::info("ProcessScheduledEmails: Successfully processed email ID {$scheduledEmail->id}");
-                } catch (\Throwable $jobException) {
-                    // If dispatchSync fails, try async dispatch
-                    \Log::warning("ProcessScheduledEmails: dispatchSync failed, trying async dispatch", [
-                        'email_id' => $scheduledEmail->id,
-                        'error' => $jobException->getMessage(),
-                    ]);
-                    
+                // Always use async dispatch for multiple recipients to avoid timeouts
+                // Use sync only for single recipient if preferred, but async is safer
+                if ($scheduledEmail->recipient_type === 'multiple' || count($scheduledEmail->recipient_company_ids ?? []) > 1) {
                     SendScheduledEmailJob::dispatch($scheduledEmail);
                     $this->info("Dispatched job asynchronously for scheduled email ID: {$scheduledEmail->id}");
-                    \Log::info("ProcessScheduledEmails: Dispatched job asynchronously for email ID {$scheduledEmail->id}");
+                } else {
+                    // For single recipient, try sync first but fallback to async
+                    try {
+                        SendScheduledEmailJob::dispatchSync($scheduledEmail);
+                        $this->info("✓ Successfully processed scheduled email ID: {$scheduledEmail->id}");
+                    } catch (\Throwable $jobException) {
+                        SendScheduledEmailJob::dispatch($scheduledEmail);
+                        $this->info("Dispatched job asynchronously after sync failed for ID: {$scheduledEmail->id}");
+                    }
                 }
             } catch (\Throwable $e) {
                 $this->error("✗ Failed to process scheduled email ID: {$scheduledEmail->id}");
-                $this->error("Error: {$e->getMessage()}");
-                
                 \Log::error("ProcessScheduledEmails: Failed to process email", [
                     'email_id' => $scheduledEmail->id,
                     'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString(),
                 ]);
                 
-                // Mark as failed
                 $scheduledEmail->update([
                     'status' => 'failed',
                     'error_message' => $e->getMessage(),
@@ -137,7 +108,6 @@ class ProcessScheduledEmails extends Command
         }
 
         $this->info('Done processing scheduled emails.');
-        \Log::info('ProcessScheduledEmails: Finished processing scheduled emails');
         return self::SUCCESS;
     }
     
