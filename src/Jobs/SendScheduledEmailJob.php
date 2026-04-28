@@ -68,19 +68,18 @@ class SendScheduledEmailJob implements ShouldQueue
                     \Log::info("SendScheduledEmailJob: Attempting to send email", [
                         'recipient_email' => $recipient['email'],
                         'subject' => $subject,
-                        'company_name' => $companyName,
+                        'mailer' => config('mail.mailer'),
+                        'host' => config('mail.mailers.smtp.host'),
                     ]);
 
-                    // Send email with company and recipient info
+                    // Send email
                     Mail::to($recipient['email'])->send(
                         new TemplateEmailNotification($subject, $body, $companyName, $recipientName, $recipient['email'])
                     );
 
-                    \Log::info("SendScheduledEmailJob: Email sent successfully", [
-                        'recipient_email' => $recipient['email'],
-                    ]);
+                    \Log::info("SendScheduledEmailJob: Email sent successfully to " . $recipient['email']);
 
-                    // Log success
+                    // Log success in DB
                     EmailLog::create([
                         'scheduled_email_id' => $this->scheduledEmail->id,
                         'recipient_email' => $recipient['email'],
@@ -90,13 +89,20 @@ class SendScheduledEmailJob implements ShouldQueue
                         'sent_at' => now(),
                     ]);
                 } catch (\Throwable $e) {
-                    \Log::error("SendScheduledEmailJob: Failed to send email", [
-                        'recipient_email' => $recipient['email'],
-                        'error' => $e->getMessage(),
-                        'trace' => $e->getTraceAsString(),
+                    \Log::error("SendScheduledEmailJob ERROR: Failed to send email to " . $recipient['email'], [
+                        'error_message' => $e->getMessage(),
+                        'exception' => get_class($e),
+                        'file' => $e->getFile(),
+                        'line' => $e->getLine(),
+                        'smtp_config' => [
+                            'host' => config('mail.mailers.smtp.host'),
+                            'port' => config('mail.mailers.smtp.port'),
+                            'encryption' => config('mail.mailers.smtp.encryption'),
+                            'username' => config('mail.mailers.smtp.username'),
+                        ]
                     ]);
 
-                    // Log failure
+                    // Log failure in DB
                     EmailLog::create([
                         'scheduled_email_id' => $this->scheduledEmail->id,
                         'recipient_email' => $recipient['email'],
