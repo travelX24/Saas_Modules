@@ -46,6 +46,7 @@ class Branch extends Model
         $userModel = config('auth.providers.users.model');
 
         return $this->belongsToMany($userModel, 'branch_user_access', 'branch_id', 'user_id')
+            ->withPivot('saas_company_id')
             ->withTimestamps();
     }
 }
