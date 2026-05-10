@@ -1,15 +1,17 @@
 <div class="space-y-4 sm:space-y-6">
     {{-- Header --}}
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <h1 class="text-xl sm:text-2xl font-bold text-[color:var(--brand-via)]">
-            {{ tr('Send Email') }}
-        </h1>
+    <div class="mobile-header-adjust">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <h1 class="text-xl sm:text-2xl font-bold text-[color:var(--brand-via)]">
+                {{ tr('Send Email') }}
+            </h1>
 
-        <a href="{{ route('saas.emails.index', ['tab' => 'emails']) }}"
-           class="w-full sm:w-auto px-4 py-2 bg-white border border-gray-200 rounded-2xl hover:bg-gray-50 flex items-center justify-center gap-2 text-sm sm:text-base">
-            <i class="fas fa-arrow-left"></i>
-            <span>{{ tr('Back') }}</span>
-        </a>
+            <a href="{{ route('saas.emails.index', ['tab' => 'emails']) }}"
+               class="w-full sm:w-auto px-4 py-2 bg-white border border-gray-200 rounded-2xl hover:bg-gray-50 flex items-center justify-center gap-2 text-sm sm:text-base">
+                <i class="fas fa-arrow-left"></i>
+                <span>{{ tr('Back') }}</span>
+            </a>
+        </div>
     </div>
 
     <form wire:submit.prevent="send" class="space-y-4" id="send-email-form">

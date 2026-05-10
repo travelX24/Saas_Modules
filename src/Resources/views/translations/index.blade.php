@@ -4,35 +4,38 @@
         $locale = app()->getLocale();
         $isRtl = in_array(substr($locale, 0, 2), ['ar', 'fa', 'ur', 'he']);
     @endphp
-    <x-ui.page-header
-        :title="tr('Translations')"
-        :subtitle="tr('Manage and edit translations for English and Arabic')"
-    >
-        <x-slot:action>
-            <div class="flex items-center gap-2 {{ $isRtl ? 'flex-row-reverse' : '' }}">
-                <button
-                    wire:click="exportTranslations"
-                    class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 shadow-lg hover:shadow-xl rounded-lg transition-all duration-300"
-                >
-                    <i class="fas fa-download"></i>
-                    {{ tr('Export') }}
-                </button>
-                <label class="cursor-pointer inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-all duration-300 cursor-pointer relative {{ $isRtl ? 'flex-row-reverse' : '' }}"
-                       wire:loading.class="opacity-70 cursor-wait"
-                       wire:target="importFile,importTranslations">
-                    <input type="file" wire:model="importFile" accept=".json" class="hidden" wire:loading.attr="disabled">
-                    <span wire:loading.remove wire:target="importFile,importTranslations" class="inline-flex items-center gap-2">
-                        <i class="cursor-pointer fas fa-upload"></i>
-                        {{ tr('Import') }}
-                    </span>
-                    <span wire:loading wire:target="importFile,importTranslations" class="flex items-center gap-2 text-white">
-                        <i class="fas fa-spinner fa-spin text-amber-300 {{ $isRtl ? 'ms-2' : 'me-2' }}"></i>
-                        <span>{{ tr('Importing...') }}</span>
-                    </span>
-                </label>
-            </div>
-        </x-slot:action>
-    </x-ui.page-header>
+    {{-- Header --}}
+    <div class="mobile-header-adjust">
+        <x-ui.page-header
+            :title="tr('Translations')"
+            :subtitle="tr('Manage and edit translations for English and Arabic')"
+        >
+            <x-slot:action>
+                <div class="flex items-center gap-2 {{ $isRtl ? 'flex-row-reverse' : '' }}">
+                    <button
+                        wire:click="exportTranslations"
+                        class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 shadow-lg hover:shadow-xl rounded-lg transition-all duration-300"
+                    >
+                        <i class="fas fa-download"></i>
+                        {{ tr('Export') }}
+                    </button>
+                    <label class="cursor-pointer inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-all duration-300 cursor-pointer relative {{ $isRtl ? 'flex-row-reverse' : '' }}"
+                           wire:loading.class="opacity-70 cursor-wait"
+                           wire:target="importFile,importTranslations">
+                        <input type="file" wire:model="importFile" accept=".json" class="hidden" wire:loading.attr="disabled">
+                        <span wire:loading.remove wire:target="importFile,importTranslations" class="inline-flex items-center gap-2">
+                            <i class="cursor-pointer fas fa-upload"></i>
+                            {{ tr('Import') }}
+                        </span>
+                        <span wire:loading wire:target="importFile,importTranslations" class="flex items-center gap-2 text-white">
+                            <i class="fas fa-spinner fa-spin text-amber-300 {{ $isRtl ? 'ms-2' : 'me-2' }}"></i>
+                            <span>{{ tr('Importing...') }}</span>
+                        </span>
+                    </label>
+                </div>
+            </x-slot:action>
+        </x-ui.page-header>
+    </div>
 
     {{-- Search --}}
     <x-ui.card>
@@ -84,9 +87,45 @@
                 .translations-table-sticky-actions tbody tr:hover td:last-child {
                     background-color: #f9fafb;
                 }
+
+                @media (max-width: 768px) {
+                    .responsive-table-saas thead {
+                        display: none;
+                    }
+                    .responsive-table-saas tr {
+                        display: block;
+                        margin-bottom: 1rem;
+                        background: #fff;
+                        border: 1px solid #f0f0f0;
+                        border-radius: 1rem;
+                        padding: 0.75rem;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+                    }
+                    .responsive-table-saas td {
+                        display: block;
+                        width: 100% !important;
+                        padding: 0.5rem 0 !important;
+                        border: none !important;
+                        position: static !important;
+                    }
+                    .responsive-table-saas td::before {
+                        content: attr(data-label);
+                        display: block;
+                        font-size: 0.7rem;
+                        font-weight: 700;
+                        text-transform: uppercase;
+                        color: #94a3b8;
+                        margin-bottom: 0.25rem;
+                    }
+                    .responsive-table-saas td:last-child {
+                        border-top: 1px solid #f8fafc !important;
+                        margin-top: 0.5rem;
+                        padding-top: 0.75rem !important;
+                    }
+                }
             </style>
             <div class="overflow-x-auto overflow-y-visible translations-table-sticky-actions" dir="{{ $dir }}">
-                <table class="w-full" dir="{{ $dir }}">
+                <table class="w-full responsive-table-saas" dir="{{ $dir }}">
                     <thead>
                         <tr>
                             <th class="{{ $textAlign }} py-3 px-4 text-sm font-bold text-gray-700">
@@ -103,12 +142,12 @@
                     <tbody>
                         @foreach($translations as $translation)
                             <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                                <td class="py-3 px-4">
+                                <td class="py-3 px-4" data-label="{{ tr('English') }}">
                                     @if(isset($editing[$translation->id]))
                                         <x-ui.textarea
                                             wire:model="editing.{{ $translation->id }}.en"
                                             rows="2"
-                                            class="text-sm"
+                                            class="text-sm w-full"
                                             :error="null"
                                         />
                                     @else
@@ -117,12 +156,12 @@
                                         </div>
                                     @endif
                                 </td>
-                                <td class="py-3 px-4">
+                                <td class="py-3 px-4" data-label="{{ tr('Arabic') }}">
                                     @if(isset($editing[$translation->id]))
                                         <x-ui.textarea
                                             wire:model="editing.{{ $translation->id }}.ar"
                                             rows="2"
-                                            class="text-sm"
+                                            class="text-sm w-full"
                                             dir="rtl"
                                             :error="null"
                                         />
@@ -132,13 +171,13 @@
                                         </div>
                                     @endif
                                 </td>
-                                <td class="py-3 px-4">
+                                <td class="py-3 px-4" data-label="{{ tr('Actions') }}">
                                     @if(isset($editing[$translation->id]))
-                                        <div class="flex items-center gap-2 {{ $isRtl ? 'flex-row-reverse' : '' }}">
+                                        <div class="flex flex-wrap items-center gap-2 {{ $isRtl ? 'flex-row-reverse' : '' }}">
                                             <x-ui.primary-button
                                                 wire:click="saveTranslation({{ $translation->id }})"
                                                 :fullWidth="false"
-                                                class="!px-3 !py-1.5 !text-xs !rounded-lg"
+                                                class="!px-4 !py-2 !text-xs !rounded-xl"
                                                 loading="saveTranslation"
                                             >
                                                 <i class="cursor-pointer fas fa-check {{ $isRtl ? 'ms-1' : 'me-1' }}"></i>
@@ -147,7 +186,7 @@
                                             <x-ui.secondary-button
                                                 wire:click="cancelEdit({{ $translation->id }})"
                                                 :fullWidth="false"
-                                                class="!px-3 !py-1.5 !text-xs !rounded-lg"
+                                                class="!px-4 !py-2 !text-xs !rounded-xl"
                                             >
                                                 <i class="fas fa-times {{ $isRtl ? 'ms-1' : 'me-1' }}"></i>
                                                 {{ tr('Cancel') }}
@@ -157,9 +196,9 @@
                                         <x-ui.secondary-button
                                             wire:click="startEdit({{ $translation->id }})"
                                             :fullWidth="false"
-                                            class="!px-3 !py-1.5 !text-xs !rounded-lg !text-blue-700 !bg-blue-50 !border-blue-100 hover:!bg-blue-100"
+                                            class="!px-4 !py-2 !text-xs !rounded-xl !text-blue-700 !bg-blue-50 !border-blue-100 hover:!bg-blue-100"
                                         >
-                                            <i class="fas fa-edit"></i>
+                                            <i class="fas fa-edit {{ $isRtl ? 'ms-1' : 'me-1' }}"></i>
                                             {{ tr('Edit') }}
                                         </x-ui.secondary-button>
                                     @endif

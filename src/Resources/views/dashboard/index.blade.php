@@ -1,10 +1,11 @@
 <div class="space-y-4" wire:poll.30s>
     {{-- Header --}}
-    <x-ui.page-header
-        :title="tr('Dashboard')"
-        :subtitle="tr('Welcome back! Here\'s what\'s happening with your system.')"
-        titleSize="2xl"
-    >
+    <div class="mobile-header-adjust">
+        <x-ui.page-header
+            :title="tr('Dashboard')"
+            :subtitle="tr('Welcome back! Here\'s what\'s happening with your system.')"
+            titleSize="2xl"
+        >
         <x-slot:action>
             <div class="text-xs sm:text-sm text-gray-500 bg-white px-4 py-2 rounded-xl border border-gray-200">
                 <i class="fas fa-calendar-alt me-2"></i>
@@ -23,21 +24,22 @@
                 {{ $currentTime->toDayDateTimeString() }}
             </div>
         </x-slot:action>
-    </x-ui.page-header>
+        </x-ui.page-header>
+    </div>
 
     {{-- Stats Cards --}}
-    <div class="flex flex-row gap-3">
+    <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
         {{-- Total Companies --}}
         <x-ui.card class="relative overflow-hidden p-4 flex-1 min-w-0">
             <div class="absolute top-0 right-0 w-14 h-14 bg-gradient-to-br from-blue-500/10 to-blue-600/5 rounded-bl-full"></div>
             <div class="relative">
                 <div class="flex items-center mb-3 gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg flex-shrink-0">
-                        <i class="fas fa-building text-white text-base"></i>
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg flex-shrink-0">
+                        <i class="fas fa-building text-white text-lg"></i>
                     </div>
-                    <div class="text-right flex-1">
-                        <div class="text-xs text-gray-500 mb-1">{{ tr('Total Companies') }}</div>
-                        <div class="text-xl font-bold text-gray-900">{{ number_format($totalCompanies) }}</div>
+                    <div class="text-right flex-1 min-w-0">
+                        <div class="text-xs font-semibold text-gray-600 mb-0.5 truncate">{{ tr('Total Companies') }}</div>
+                        <div class="text-xl sm:text-2xl font-bold text-gray-900 leading-none">{{ number_format($totalCompanies) }}</div>
                     </div>
                 </div>
                 <div class="flex items-center gap-1.5 text-xs mt-2">
@@ -54,12 +56,12 @@
             <div class="absolute top-0 right-0 w-14 h-14 bg-gradient-to-br from-green-500/10 to-green-600/5 rounded-bl-full"></div>
             <div class="relative">
                 <div class="flex items-center mb-3 gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-lg flex-shrink-0">
-                        <i class="fas fa-check-circle text-white text-base"></i>
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-lg flex-shrink-0">
+                        <i class="fas fa-check-circle text-white text-lg"></i>
                     </div>
-                    <div class="text-right flex-1">
-                        <div class="text-xs text-gray-500 mb-1">{{ tr('Active Companies') }}</div>
-                        <div class="text-xl font-bold text-gray-900">{{ number_format($activeCompanies) }}</div>
+                    <div class="text-right flex-1 min-w-0">
+                        <div class="text-xs font-semibold text-gray-600 mb-0.5 truncate">{{ tr('Active Companies') }}</div>
+                        <div class="text-xl sm:text-2xl font-bold text-gray-900 leading-none">{{ number_format($activeCompanies) }}</div>
                     </div>
                 </div>
                 <div class="flex items-center gap-1.5 text-xs mt-2">
@@ -76,12 +78,12 @@
             <div class="absolute top-0 right-0 w-14 h-14 bg-gradient-to-br from-purple-500/10 to-purple-600/5 rounded-bl-full"></div>
             <div class="relative">
                 <div class="flex items-center mb-3 gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg flex-shrink-0">
-                        <i class="fas fa-users text-white text-base"></i>
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg flex-shrink-0">
+                        <i class="fas fa-users text-white text-lg"></i>
                     </div>
-                    <div class="text-right flex-1">
-                        <div class="text-xs text-gray-500 mb-1">{{ tr('Total Users') }}</div>
-                        <div class="text-xl font-bold text-gray-900">{{ number_format($totalUsers) }}</div>
+                    <div class="text-right flex-1 min-w-0">
+                        <div class="text-xs font-semibold text-gray-600 mb-0.5 truncate">{{ tr('Total Users') }}</div>
+                        <div class="text-xl sm:text-2xl font-bold text-gray-900 leading-none">{{ number_format($totalUsers) }}</div>
                     </div>
                 </div>
                 <div class="flex items-center gap-1.5 text-xs mt-2">
@@ -98,12 +100,12 @@
             <div class="absolute top-0 right-0 w-14 h-14 bg-gradient-to-br from-orange-500/10 to-orange-600/5 rounded-bl-full"></div>
             <div class="relative">
                 <div class="flex items-center mb-3 gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg flex-shrink-0">
-                        <i class="fas fa-exclamation-triangle text-white text-base"></i>
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg flex-shrink-0">
+                        <i class="fas fa-exclamation-triangle text-white text-lg"></i>
                     </div>
-                    <div class="text-right flex-1">
-                        <div class="text-xs text-gray-500 mb-1">{{ tr('Expiring Soon') }}</div>
-                        <div class="text-xl font-bold text-gray-900">{{ number_format($subscriptionsExpiringSoon) }}</div>
+                    <div class="text-right flex-1 min-w-0">
+                        <div class="text-xs font-semibold text-gray-600 mb-0.5 truncate">{{ tr('Expiring Soon') }}</div>
+                        <div class="text-xl sm:text-2xl font-bold text-gray-900 leading-none">{{ number_format($subscriptionsExpiringSoon) }}</div>
                     </div>
                 </div>
                 <div class="flex items-center gap-1.5 text-xs mt-2">
@@ -116,16 +118,16 @@
         </x-ui.card>
 
         {{-- Inactive Companies --}}
-        <x-ui.card class="relative overflow-hidden p-4 flex-1 min-w-0">
+        <x-ui.card class="relative overflow-hidden p-4 min-w-0 col-span-2 md:col-span-1">
             <div class="absolute top-0 right-0 w-14 h-14 bg-gradient-to-br from-red-500/10 to-red-600/5 rounded-bl-full"></div>
             <div class="relative">
                 <div class="flex items-center mb-3 gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center shadow-lg flex-shrink-0">
-                        <i class="fas fa-pause-circle text-white text-base"></i>
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center shadow-lg flex-shrink-0">
+                        <i class="fas fa-pause-circle text-white text-lg"></i>
                     </div>
-                    <div class="text-right flex-1">
-                        <div class="text-xs text-gray-500 mb-1">{{ tr('Inactive Companies') }}</div>
-                        <div class="text-xl font-bold text-gray-900">{{ number_format($inactiveCompanies) }}</div>
+                    <div class="text-right flex-1 min-w-0">
+                        <div class="text-xs font-semibold text-gray-600 mb-0.5 truncate">{{ tr('Inactive Companies') }}</div>
+                        <div class="text-xl sm:text-2xl font-bold text-gray-900 leading-none">{{ number_format($inactiveCompanies) }}</div>
                     </div>
                 </div>
                 <div class="flex items-center gap-1.5 text-xs mt-2">

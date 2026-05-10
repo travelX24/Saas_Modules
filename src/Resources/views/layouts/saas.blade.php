@@ -110,6 +110,10 @@
         </main>
     </div>
 
+    {{-- Sidebar Backdrop for Mobile --}}
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+
     @livewireScripts
     
     {{-- Chart.js --}}
@@ -550,7 +554,11 @@
             // mobile open/close
             if (mobileToggle) {
                 mobileToggle.addEventListener('click', function () {
-                    sidebar.classList.toggle('open');
+                    const isOpen = sidebar.classList.toggle('open');
+                    const icon = mobileToggle.querySelector('i');
+                    if (icon) {
+                        icon.className = isOpen ? 'fas fa-times' : 'fas fa-bars';
+                    }
                 });
             }
 
@@ -559,16 +567,29 @@
                 if (window.innerWidth < 769) {
                     const isClickInsideSidebar = sidebar.contains(e.target);
                     const isClickOnMobileToggle = mobileToggle && mobileToggle.contains(e.target);
+                    const isClickOnBackdrop = e.target.id === 'sidebarBackdrop';
 
                     if (!isClickInsideSidebar && !isClickOnMobileToggle && sidebar.classList.contains('open')) {
                         sidebar.classList.remove('open');
+                        const icon = mobileToggle && mobileToggle.querySelector('i');
+                        if (icon) icon.className = 'fas fa-bars';
+                    }
+
+                    if (isClickOnBackdrop) {
+                        sidebar.classList.remove('open');
+                        const icon = mobileToggle && mobileToggle.querySelector('i');
+                        if (icon) icon.className = 'fas fa-bars';
                     }
                 }
             });
 
             // ESC close
             window.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape') sidebar.classList.remove('open');
+                if (e.key === 'Escape') {
+                    sidebar.classList.remove('open');
+                    const icon = mobileToggle && mobileToggle.querySelector('i');
+                    if (icon) icon.className = 'fas fa-bars';
+                }
             });
 
             // resize

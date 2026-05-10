@@ -49,11 +49,13 @@
         backdrop-filter: blur(10px);
 
         color: #fff;
-        transition: width var(--transition-speed), transform var(--transition-speed);
         box-shadow: var(--sidebar-shadow-x) 0 15px rgba(0, 0, 0, 0.10);
         z-index: 1000;
         display: flex;
         flex-direction: column;
+
+        /* ✅ Animation base */
+        transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease;
     }
 
     .sidebar.collapsed { width: var(--sidebar-collapsed); }
@@ -180,7 +182,28 @@
         overflow-y: visible;
     }
 
-    .nav-item { margin-bottom: 5px; }
+    .nav-item { 
+        margin-bottom: 5px; 
+        transition: transform 0.4s ease, opacity 0.4s ease;
+    }
+
+    @media (max-width: 768px) {
+        .nav-item {
+            transform: scale(0.8) translateY(10px);
+            opacity: 0;
+        }
+        
+        .sidebar.open .nav-item {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+
+        .sidebar.open .nav-item:nth-child(1) { transition-delay: 0.1s; }
+        .sidebar.open .nav-item:nth-child(2) { transition-delay: 0.15s; }
+        .sidebar.open .nav-item:nth-child(3) { transition-delay: 0.2s; }
+        .sidebar.open .nav-item:nth-child(4) { transition-delay: 0.25s; }
+        .sidebar.open .nav-item:nth-child(5) { transition-delay: 0.3s; }
+    }
 
     .nav-link {
         display: flex;
@@ -394,14 +417,27 @@
     @media (max-width: 768px) {
         /* اخفاء حسب الاتجاه */
         .sidebar {
-            width: var(--sidebar-width);
-            transform: translateX(-100%);
+            inset-block: 20px; /* ✅ Floating from top and bottom */
+            inset-inline: 20px; /* ✅ Floating from sides */
+            height: calc(100vh - 40px);
+            width: 280px;
+            max-width: calc(100vw - 40px);
+            border-radius: 24px; /* ✅ Rounded corners like a card */
+            transform: scale(0);
+            opacity: 0;
+            transform-origin: top left; /* LTR: top-left */
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
         }
         [dir="rtl"] .sidebar {
-            transform: translateX(100%);
+            transform: scale(0);
+            transform-origin: top right; /* RTL: top-right */
         }
 
-        .sidebar.open { transform: translateX(0); }
+        .sidebar.open { 
+            transform: scale(1);
+            opacity: 1;
+        }
         .sidebar.collapsed { width: var(--sidebar-collapsed); }
 
         .main-content {
@@ -413,16 +449,25 @@
         .mobile-toggle{
             display: block;
             position: fixed;
-            inset-block-start: 15px;
-            inset-inline-start: 15px; /* ✅ مع الاتجاه */
+            inset-block-start: 20px;
+            inset-inline-start: 20px; /* ✅ Even more away for better look */
             background-color: var(--brand-via);
             color: #fff;
-            border: none;
-            border-radius: 8px;
-            padding: 10px 12px;
-            z-index: 999;
-            font-size: 16px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            border: 3px solid #fff; /* ✅ White border as requested */
+            border-radius: 14px;
+            width: 46px;
+            height: 46px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1002; /* Even higher to stay on top of everything */
+            font-size: 18px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .mobile-toggle:active {
+            transform: scale(0.9);
         }
 
         /* ✅ إخفاء زر السهم على الشاشات الصغيرة */
@@ -432,7 +477,10 @@
 
         /* تحسين Sidebar على الموبايل */
         .sidebar-header {
-            padding: 20px 15px;
+            padding: 35px 15px 20px 80px !important; /* ✅ Even more space to clear the button */
+        }
+        [dir="rtl"] .sidebar-header {
+            padding: 35px 80px 20px 15px !important; 
         }
 
         .profile-section {
@@ -446,6 +494,29 @@
 
         .sidebar-options {
             padding: 15px;
+        }
+
+        /* Backdrop when sidebar is open */
+        .sidebar-backdrop {
+            display: block;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 998;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+
+        .sidebar.open ~ .sidebar-backdrop {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .mobile-header-adjust {
+            padding-inline-start: 90px !important;
+            padding-top: 10px !important;
         }
     }
 

@@ -1,23 +1,25 @@
 <div class="space-y-4 sm:space-y-6">
     {{-- Header --}}
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <div>
-            <h1 class="text-xl sm:text-2xl font-bold text-[color:var(--brand-via)]">
-            {{ tr('Companies') }}
-        </h1>
-            <p class="text-sm text-gray-500 mt-1">
-                {{ tr('Manage and monitor all companies') }}
-            </p>
-        </div>
+    <div class="mobile-header-adjust">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div>
+                <h1 class="text-xl sm:text-2xl font-bold text-[color:var(--brand-via)]">
+                {{ tr('Companies') }}
+            </h1>
+                <p class="text-sm text-gray-500 mt-1">
+                    {{ tr('Manage and monitor all companies') }}
+                </p>
+            </div>
 
-        <x-ui.primary-button
-            href="{{ route('saas.companies.create') }}"
-            :arrow="false"
-            :fullWidth="false"
-        >
-            <i class="fas fa-plus"></i>
-            <span class="ms-2">{{ tr('Add Company') }}</span>
-        </x-ui.primary-button>
+            <x-ui.primary-button
+                href="{{ route('saas.companies.create') }}"
+                :arrow="false"
+                :fullWidth="false"
+            >
+                <i class="fas fa-plus"></i>
+                <span class="ms-2">{{ tr('Add Company') }}</span>
+            </x-ui.primary-button>
+        </div>
     </div>
 
     {{-- Search and Filters --}}

@@ -1,25 +1,27 @@
 <div class="space-y-3 sm:space-y-4">
     {{-- Header --}}
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <h1 class="text-xl sm:text-2xl font-bold text-[color:var(--brand-via)]">
-            {{ tr('Add Company') }}
-        </h1>
+    <div class="mobile-header-adjust">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <h1 class="text-xl sm:text-2xl font-bold text-[color:var(--brand-via)]">
+                {{ tr('Add Company') }}
+            </h1>
 
-        @php
-            $isRtl = in_array(app()->getLocale(), ['ar','fa','ur']) || (config('app.rtl') === true);
-        @endphp
-        <x-ui.secondary-button
-            :href="route('saas.companies.index')"
-            :fullWidth="false"
-            class="!py-2 !px-4 !rounded-2xl !text-sm sm:!text-base"
-        >
-            @if($isRtl)
-                <i class="fas fa-arrow-right"></i>
-            @else
-                <i class="fas fa-arrow-left"></i>
-            @endif
-            <span>{{ tr('Back') }}</span>
-        </x-ui.secondary-button>
+            @php
+                $isRtl = in_array(app()->getLocale(), ['ar','fa','ur']) || (config('app.rtl') === true);
+            @endphp
+            <x-ui.secondary-button
+                :href="route('saas.companies.index')"
+                :fullWidth="false"
+                class="!py-2 !px-4 !rounded-2xl !text-sm sm:!text-base"
+            >
+                @if($isRtl)
+                    <i class="fas fa-arrow-right"></i>
+                @else
+                    <i class="fas fa-arrow-left"></i>
+                @endif
+                <span>{{ tr('Back') }}</span>
+            </x-ui.secondary-button>
+        </div>
     </div>
 
     @php

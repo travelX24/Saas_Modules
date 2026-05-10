@@ -94,34 +94,36 @@
     </script>
 
     {{-- Header --}}
-    <x-ui.page-header
-        :title="tr('Email Messages')"
-        :subtitle="tr('Manage email messages and templates')"
-    >
-        <x-slot:action>
-            <div class="flex gap-2">
-                @if($activeTab === 'emails')
-                    <x-ui.primary-button
-                        href="{{ route('saas.emails.send') }}"
-                        :arrow="false"
-                        :fullWidth="false"
-                    >
-                        <i class="fas fa-plus"></i>
-                        <span class="ms-2">{{ tr('Send Email') }}</span>
-                    </x-ui.primary-button>
-                @else
-                    <x-ui.primary-button
-                        href="{{ route('saas.email-templates.create') }}"
-                        :arrow="false"
-                        :fullWidth="false"
-                    >
-                        <i class="fas fa-plus"></i>
-                        <span class="ms-2">{{ tr('Add Template') }}</span>
-                    </x-ui.primary-button>
-                @endif
-            </div>
-        </x-slot:action>
-    </x-ui.page-header>
+    <div class="mobile-header-adjust">
+        <x-ui.page-header
+            :title="tr('Email Messages')"
+            :subtitle="tr('Manage email messages and templates')"
+        >
+            <x-slot:action>
+                <div class="flex gap-2">
+                    @if($activeTab === 'emails')
+                        <x-ui.primary-button
+                            href="{{ route('saas.emails.send') }}"
+                            :arrow="false"
+                            :fullWidth="false"
+                        >
+                            <i class="fas fa-plus"></i>
+                            <span class="ms-2">{{ tr('Send Email') }}</span>
+                        </x-ui.primary-button>
+                    @else
+                        <x-ui.primary-button
+                            href="{{ route('saas.email-templates.create') }}"
+                            :arrow="false"
+                            :fullWidth="false"
+                        >
+                            <i class="fas fa-plus"></i>
+                            <span class="ms-2">{{ tr('Add Template') }}</span>
+                        </x-ui.primary-button>
+                    @endif
+                </div>
+            </x-slot:action>
+        </x-ui.page-header>
+    </div>
 
     {{-- Tabs --}}
     <x-ui.card class="p-0 relative overflow-hidden">
