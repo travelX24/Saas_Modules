@@ -551,8 +551,7 @@ class Create extends Component
                     $adminData['branch_id'] = $primaryBranchId;
                 }
                 if (Schema::hasColumn('users', 'access_scope') && empty($adminData['access_scope'])) {
-                    // keep default, but set explicitly if needed
-                    $adminData['access_scope'] = 'all';
+                    $adminData['access_scope'] = 'all_branches';
                 }
 
                 if ($this->allowed_users < 1) {
@@ -564,6 +563,16 @@ class Create extends Component
                 try {
                     if (method_exists($admin, 'assignRole')) {
                         $admin->assignRole('company-admin');
+                    }
+                    
+                    // ✅ Link the admin to all branches automatically
+                    if (method_exists($admin, 'allowedBranches')) {
+                        $allBranchIds = Branch::where('saas_company_id', $company->id)->pluck('id')->toArray();
+                        $syncData = [];
+                        foreach ($allBranchIds as $bid) {
+                            $syncData[$bid] = ['saas_company_id' => $company->id];
+                        }
+                        $admin->allowedBranches()->sync($syncData);
                     }
                 } catch (\Throwable $e) {
                     // ignore
