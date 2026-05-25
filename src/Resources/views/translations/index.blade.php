@@ -14,12 +14,12 @@
                 <div class="flex items-center gap-2 {{ $isRtl ? 'flex-row-reverse' : '' }}">
                     <button
                         wire:click="exportTranslations"
-                        class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 shadow-lg hover:shadow-xl rounded-lg transition-all duration-300"
+                        class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-[color:var(--brand-from)] to-[color:var(--brand-via)] hover:from-[color:var(--brand-from)] hover:to-[color:var(--brand-via)] shadow-lg hover:shadow-xl rounded-lg transition-all duration-300"
                     >
                         <i class="fas fa-download"></i>
                         {{ tr('Export') }}
                     </button>
-                    <label class="cursor-pointer inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-all duration-300 cursor-pointer relative {{ $isRtl ? 'flex-row-reverse' : '' }}"
+                    <label class="cursor-pointer inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-[color:var(--brand-from)] hover:bg-[color:var(--brand-via)] rounded-lg transition-all duration-300 cursor-pointer relative {{ $isRtl ? 'flex-row-reverse' : '' }}"
                            wire:loading.class="opacity-70 cursor-wait"
                            wire:target="importFile,importTranslations">
                         <input type="file" wire:model="importFile" accept=".json" class="hidden" wire:loading.attr="disabled">
@@ -28,7 +28,7 @@
                             {{ tr('Import') }}
                         </span>
                         <span wire:loading wire:target="importFile,importTranslations" class="flex items-center gap-2 text-white">
-                            <i class="fas fa-spinner fa-spin text-amber-300 {{ $isRtl ? 'ms-2' : 'me-2' }}"></i>
+                            <i class="fas fa-spinner fa-spin text-[color:var(--brand-via)] {{ $isRtl ? 'ms-2' : 'me-2' }}"></i>
                             <span>{{ tr('Importing...') }}</span>
                         </span>
                     </label>
@@ -196,7 +196,7 @@
                                         <x-ui.secondary-button
                                             wire:click="startEdit({{ $translation->id }})"
                                             :fullWidth="false"
-                                            class="!px-4 !py-2 !text-xs !rounded-xl !text-blue-700 !bg-blue-50 !border-blue-100 hover:!bg-blue-100"
+                                            class="!px-4 !py-2 !text-xs !rounded-xl !text-[color:var(--brand-via)] !bg-orange-50 !border-orange-100 hover:!bg-orange-100"
                                         >
                                             <i class="fas fa-edit {{ $isRtl ? 'ms-1' : 'me-1' }}"></i>
                                             {{ tr('Edit') }}

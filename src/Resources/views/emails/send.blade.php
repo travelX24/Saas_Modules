@@ -43,7 +43,7 @@
                             <div class="relative group mb-6">
                                 <button 
                                     type="button"
-                                    class="p-2.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                    class="p-2.5 text-[color:var(--brand-via)] hover:text-[color:var(--brand-from)] hover:bg-orange-50 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                                     aria-label="{{ tr('Template Preview') }}"
                                     title="{{ tr('Hover to preview template') }}"
                                 >
@@ -109,19 +109,19 @@
                         />
 
                         {{-- Current Server Time Info --}}
-                        <div class="flex items-center gap-3 p-3 bg-blue-50/50 border border-blue-100 rounded-xl">
-                            <div class="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                        <div class="flex items-center gap-3 p-3 bg-orange-50/50 border border-orange-100 rounded-xl">
+                            <div class="w-8 h-8 flex items-center justify-center rounded-lg bg-orange-100 text-[color:var(--brand-from)]">
                                 <i class="fas fa-clock text-sm"></i>
                             </div>
                             <div class="flex-1">
-                                <p class="text-[10px] uppercase tracking-wider font-bold text-blue-500/80 leading-none mb-1">
+                                <p class="text-[10px] uppercase tracking-wider font-bold text-[color:var(--brand-via)]/80 leading-none mb-1">
                                     {{ tr('Server Time Now') }}
                                 </p>
                                 <p class="text-sm font-semibold text-blue-900 leading-none">
                                     {{ now(config('app.timezone', 'Asia/Riyadh'))->format('Y-m-d h:i A') }}
                                 </p>
                             </div>
-                            <div class="text-[10px] font-medium text-blue-400 bg-white/60 px-2 py-0.5 rounded-full border border-blue-100/50">
+                            <div class="text-[10px] font-medium text-[color:var(--brand-via)] bg-white/60 px-2 py-0.5 rounded-full border border-blue-100/50">
                                 {{ config('app.timezone', 'Asia/Riyadh') }}
                             </div>
                         </div>

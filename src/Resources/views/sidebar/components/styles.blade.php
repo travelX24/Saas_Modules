@@ -1,11 +1,11 @@
 <style>
     :root {
-        --brand-via: #7543eb; /* fallback */
-        --brand-via-rgb: 117 67 235; /* fallback */
+        --brand-via: #ec4899; /* fallback */
+        --brand-via-rgb: 236 72 153; /* fallback */
 
         /* ✅ حتى language-switcher يشتغل لو ماعندك brand-from/to */
-        --brand-from: var(--brand-via);
-        --brand-to: var(--brand-via);
+        --brand-from: #f97316;
+        --brand-to: #ec4899;
 
         --sidebar-width: 260px;
         --sidebar-collapsed: 80px;

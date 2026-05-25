@@ -306,12 +306,12 @@
                 @if($viewingEmail->variables_data && count($viewingEmail->variables_data) > 0)
                 <div>
                     <label class="text-xs font-semibold text-gray-500 uppercase mb-2 block">{{ tr('Template Variables') }}</label>
-                    <div class="p-4 bg-blue-50 rounded-xl border border-blue-200">
+                    <div class="p-4 bg-orange-50 rounded-xl border border-orange-200">
                         <div class="space-y-2">
                             @foreach($viewingEmail->variables_data as $variable => $value)
                                 <div class="flex items-start gap-2">
-                                    <span class="text-xs font-semibold text-blue-900 min-w-[120px]">{{ tr(ucfirst(str_replace('_', ' ', $variable))) }}:</span>
-                                    <span class="text-sm text-blue-700 flex-1">{{ $value }}</span>
+                                    <span class="text-xs font-semibold text-[color:var(--brand-from)] min-w-[120px]">{{ tr(ucfirst(str_replace('_', ' ', $variable))) }}:</span>
+                                    <span class="text-sm text-[color:var(--brand-via)] flex-1">{{ $value }}</span>
                                 </div>
                             @endforeach
                         </div>

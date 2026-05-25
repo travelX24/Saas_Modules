@@ -62,7 +62,7 @@
                             wire:click="setViewMode('list')"
                             class="cursor-pointer px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200
                                 {{ $viewMode === 'list' 
-                                    ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-white shadow-lg hover:shadow-xl hover:from-amber-600 hover:to-yellow-600' 
+                                    ? 'bg-gradient-to-r from-[color:var(--brand-from)] to-[color:var(--brand-via)] text-white shadow-lg hover:shadow-xl hover:from-amber-600 hover:to-yellow-600' 
                                     : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 shadow-sm' }}"
                             title="{{ tr('List View') }}"
                         >
@@ -73,7 +73,7 @@
                             wire:click="setViewMode('cards')"
                             class="cursor-pointer px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200
                                 {{ $viewMode === 'cards' 
-                                    ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-white shadow-lg hover:shadow-xl hover:from-amber-600 hover:to-yellow-600' 
+                                    ? 'bg-gradient-to-r from-[color:var(--brand-from)] to-[color:var(--brand-via)] text-white shadow-lg hover:shadow-xl hover:from-amber-600 hover:to-yellow-600' 
                                     : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 shadow-sm' }}"
                             title="{{ tr('Card View') }}"
                         >
@@ -388,7 +388,7 @@
                                     <div class="border-t border-gray-100 my-1"></div>
                                     {{-- ✅ زر إعادة تعيين كلمة المرور --}}
                                     <x-ui.dropdown-item 
-                                        class="text-blue-600 hover:bg-blue-50"
+                                        class="text-[color:var(--brand-via)] hover:bg-orange-50"
                                         href="#"
                                         wire:click="resendPasswordReset({{ $company->id }})"
                                     >
@@ -489,7 +489,7 @@
                             <div class="border-t border-gray-100 my-1"></div>
                             {{-- ✅ زر إعادة تعيين كلمة المرور --}}
                             <x-ui.dropdown-item 
-                                class="text-blue-600 hover:bg-blue-50"
+                                class="text-[color:var(--brand-via)] hover:bg-orange-50"
                                 href="#"
                                 x-on:click.prevent="$dispatch('open-confirm-resend-password-reset', { id: {{ $company->id }} })"
                             >

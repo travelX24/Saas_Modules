@@ -31,10 +31,10 @@
     <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
         {{-- Total Companies --}}
         <x-ui.card class="relative overflow-hidden p-4 flex-1 min-w-0">
-            <div class="absolute top-0 right-0 w-14 h-14 bg-gradient-to-br from-blue-500/10 to-blue-600/5 rounded-bl-full"></div>
+            <div class="absolute top-0 right-0 w-14 h-14 bg-gradient-to-br from-[color:var(--brand-from)]/10 to-[color:var(--brand-via)]/5 rounded-bl-full"></div>
             <div class="relative">
                 <div class="flex items-center mb-3 gap-3">
-                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg flex-shrink-0">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[color:var(--brand-from)] to-[color:var(--brand-via)] flex items-center justify-center shadow-lg flex-shrink-0">
                         <i class="fas fa-building text-white text-lg"></i>
                     </div>
                     <div class="text-right flex-1 min-w-0">
@@ -75,10 +75,10 @@
 
         {{-- Total Users --}}
         <x-ui.card class="relative overflow-hidden p-4 flex-1 min-w-0">
-            <div class="absolute top-0 right-0 w-14 h-14 bg-gradient-to-br from-purple-500/10 to-purple-600/5 rounded-bl-full"></div>
+            <div class="absolute top-0 right-0 w-14 h-14 bg-gradient-to-br from-[color:var(--brand-from)]/10 to-[color:var(--brand-via)]/5 rounded-bl-full"></div>
             <div class="relative">
                 <div class="flex items-center mb-3 gap-3">
-                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg flex-shrink-0">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[color:var(--brand-from)] to-[color:var(--brand-via)] flex items-center justify-center shadow-lg flex-shrink-0">
                         <i class="fas fa-users text-white text-lg"></i>
                     </div>
                     <div class="text-right flex-1 min-w-0">
@@ -428,13 +428,13 @@
                     datasets: [{
                         label: '{{ tr("Companies") }}',
                         data: chartData.data,
-                        borderColor: 'rgb(117, 67, 235)',
-                        backgroundColor: 'rgba(117, 67, 235, 0.1)',
+                        borderColor: 'rgb(236, 72, 153)',
+                        backgroundColor: 'rgba(236, 72, 153, 0.1)',
                         tension: 0.4,
                         fill: true,
                         borderWidth: 2,
                         pointRadius: 4,
-                        pointBackgroundColor: 'rgb(117, 67, 235)',
+                        pointBackgroundColor: 'rgb(236, 72, 153)',
                         pointBorderColor: '#fff',
                         pointBorderWidth: 2,
                     }]
@@ -508,8 +508,8 @@
                     datasets: [{
                         label: '{{ tr("Users") }}',
                         data: chartData.data,
-                        backgroundColor: 'rgba(99, 102, 241, 0.8)',
-                        borderColor: 'rgb(99, 102, 241)',
+                        backgroundColor: 'rgba(249, 115, 22, 0.8)',
+                        borderColor: 'rgb(249, 115, 22)',
                         borderWidth: 2,
                         borderRadius: 8,
                     }]
