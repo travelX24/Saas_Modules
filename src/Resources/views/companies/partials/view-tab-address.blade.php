@@ -100,8 +100,8 @@
           <button
               type="button"
               @click="openModal()"
-              class="w-full sm:w-auto px-3 py-1.5 rounded-xl border border-[color:var(--brand-via)] bg-white text-[color:var(--brand-via)] font-semibold
-                     hover:bg-[color:var(--brand-via)] hover:text-white transition-all duration-200
+              class="w-full sm:w-auto px-3 py-1.5 rounded-xl border border-[color:var(--accent-orange)] bg-white text-[color:var(--accent-orange)] font-semibold
+                     hover:bg-[color:var(--accent-orange)] hover:text-white transition-all duration-200
                      flex items-center justify-center gap-2 shadow-sm text-xs sm:text-sm"
           >
               <i class="fas fa-map-marker-alt"></i>
@@ -151,7 +151,7 @@
               @mousedown.stop @click.stop @wheel.stop @touchstart.stop
           >
               {{-- Header --}}
-              <div class="px-4 sm:px-6 py-4 sm:py-5 bg-gradient-to-br from-[color:var(--brand-from)] via-[color:var(--brand-via)] to-[color:var(--brand-to)] flex items-center justify-between">
+              <div class="px-4 sm:px-6 py-4 sm:py-5 bg-[color:var(--accent-orange)] flex items-center justify-between">
                   <h3 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
                       <i class="fas fa-map-marker-alt"></i>
                       <span>{{ tr('Location on Map') }}</span>

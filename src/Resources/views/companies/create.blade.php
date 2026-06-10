@@ -2,7 +2,7 @@
     {{-- Header --}}
     <div class="mobile-header-adjust">
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <h1 class="text-xl sm:text-2xl font-bold text-[color:var(--brand-via)]">
+                <h1 class="text-xl sm:text-2xl font-bold text-gray-800">
                 {{ tr('Add Company') }}
             </h1>
 
@@ -81,8 +81,8 @@
                                 <div class="relative w-10 sm:w-12 h-10 sm:h-12 transition-transform duration-200 group-hover:scale-105">
                                     <svg viewBox="0 0 56 56" class="absolute inset-0">
                                         <polygon points="28,4 48,20 40,48 16,48 8,20"
-                                            fill="{{ $isActive ? 'var(--brand-via)' : ($isCompleted ? 'var(--brand-via)' : '#f3f4f6') }}"
-                                            stroke="{{ $isActive ? 'var(--brand-via)' : ($isCompleted ? 'var(--brand-via)' : '#d1d5db') }}"
+                                            fill="{{ $isActive ? 'var(--accent-orange)' : ($isCompleted ? 'var(--accent-orange)' : '#f3f4f6') }}"
+                                            stroke="{{ $isActive ? 'var(--accent-orange)' : ($isCompleted ? 'var(--accent-orange)' : '#d1d5db') }}"
                                             stroke-width="2"/>
                                     </svg>
 
@@ -93,14 +93,14 @@
                                 </div>
 
                                 <div class="text-[10px] sm:text-[11px] font-semibold text-center leading-4 max-w-[100px] sm:max-w-[120px]
-                                    {{ $isActive || $isCompleted ? 'text-[color:var(--brand-via)]' : 'text-gray-500' }}">
+                                    {{ $isActive || $isCompleted ? 'text-[color:var(--accent-orange)]' : 'text-gray-500' }}">
                                     {{ $stepLabel }}
                                 </div>
                             </button>
 
                             @if(! $isLast)
                                 <div class="h-[3px] w-8 sm:w-12 md:w-16 lg:w-20 mt-6 rounded-full
-                                    {{ $tab > $stepNum ? 'bg-[color:var(--brand-via)]' : 'bg-gray-200' }}">
+                                    {{ $tab > $stepNum ? 'bg-[color:var(--accent-orange)]' : 'bg-gray-200' }}">
                                 </div>
                             @endif
                         @endforeach
@@ -108,7 +108,7 @@
                 </div>
 
                 <div class="text-center mt-3">
-                    <span class="text-xs sm:text-sm font-semibold text-[color:var(--brand-via)]">
+                    <span class="text-xs sm:text-sm font-semibold text-[color:var(--accent-orange)]">
                         {{ tr('Step') }} {{ $tab }} {{ tr('of') }} 4: {{ $steps[$tab] ?? '' }}
                     </span>
                 </div>
@@ -129,8 +129,8 @@
                                 <div class="relative w-10 h-10">
                                     <svg viewBox="0 0 56 56" class="absolute inset-0">
                                         <polygon points="28,4 48,20 40,48 16,48 8,20"
-                                            fill="{{ $isActive ? 'var(--brand-via)' : ($isCompleted ? 'var(--brand-via)' : '#f3f4f6') }}"
-                                            stroke="{{ $isActive ? 'var(--brand-via)' : ($isCompleted ? 'var(--brand-via)' : '#d1d5db') }}"
+                                            fill="{{ $isActive ? 'var(--accent-orange)' : ($isCompleted ? 'var(--accent-orange)' : '#f3f4f6') }}"
+                                            stroke="{{ $isActive ? 'var(--accent-orange)' : ($isCompleted ? 'var(--accent-orange)' : '#d1d5db') }}"
                                             stroke-width="2"/>
                                     </svg>
                                     <div class="absolute inset-0 flex items-center justify-center text-sm font-extrabold
@@ -142,14 +142,14 @@
 
                             @if(! $isLast)
                                 <div class="h-[3px] w-7 rounded-full
-                                    {{ $tab > $stepNum ? 'bg-[color:var(--brand-via)]' : 'bg-gray-200' }}">
+                                    {{ $tab > $stepNum ? 'bg-[color:var(--accent-orange)]' : 'bg-gray-200' }}">
                                 </div>
                             @endif
                         @endforeach
                     </div>
                 </div>
 
-                <div class="text-center mt-3 text-sm font-semibold text-[color:var(--brand-via)]">
+                <div class="text-center mt-3 text-sm font-semibold text-[color:var(--accent-orange)]">
                     {{ tr('Step') }} {{ $tab }} / 4 — {{ $steps[$tab] ?? '' }}
                 </div>
             </div>
@@ -172,7 +172,7 @@
                 <div class="mt-6 bg-white rounded-2xl border border-gray-100 overflow-hidden">
                     <div class="px-4 py-3 bg-gray-50/60 border-b border-gray-100 flex items-center justify-between gap-3">
                         <div class="flex items-center gap-3">
-                            <div class="h-10 w-10 rounded-2xl bg-[color:var(--brand-via)]/10 text-[color:var(--brand-via)] flex items-center justify-center">
+                            <div class="h-10 w-10 rounded-2xl bg-[rgb(var(--accent-orange-rgb)/0.08)] text-[color:var(--accent-orange)] flex items-center justify-center">
                                 <i class="fas fa-code-branch"></i>
                             </div>
                             <div>
@@ -198,7 +198,7 @@
 
                     <div class="p-4 space-y-3">
                         @error('branches')
-                            <div class="text-xs text-red-600">{{ $message }}</div>
+                            <div class="text-xs text-[color:var(--error)]">{{ $message }}</div>
                         @enderror
 
                         <div class="space-y-3">
@@ -232,7 +232,7 @@
                                             id="branch_active_{{ $i }}"
                                             type="checkbox"
                                             wire:model.defer="branches.{{ $i }}.is_active"
-                                            class="rounded border-gray-300 text-[color:var(--brand-via)] shadow-sm focus:ring-[color:var(--brand-via)]"
+                                            class="rounded border-gray-300 text-[color:var(--accent-orange)] shadow-sm focus:ring-[color:var(--accent-orange)]"
                                         >
                                         <label for="branch_active_{{ $i }}" class="text-xs font-semibold text-gray-700">
                                             {{ tr('Active') }}

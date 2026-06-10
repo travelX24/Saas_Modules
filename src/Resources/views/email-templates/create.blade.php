@@ -3,7 +3,7 @@
         {{-- Header --}}
         <div class="mobile-header-adjust">
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <h1 class="text-xl sm:text-2xl font-bold text-[color:var(--brand-via)]">
+                <h1 class="text-xl sm:text-2xl font-bold text-gray-800">
                     {{ tr('Create Email Template') }}
                 </h1>
 
@@ -16,13 +16,13 @@
         </div>
 
         @if (session('success'))
-            <div class="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-green-800">
+            <div class="rounded-xl border border-[rgb(16_185_129/0.22)] bg-[rgb(16_185_129/0.10)] px-4 py-3 text-[color:var(--success)]">
                 {{ session('success') }}
             </div>
         @endif
 
         @if (session('error'))
-            <div class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-800">
+            <div class="rounded-xl border border-[rgb(239_68_68/0.22)] bg-[rgb(239_68_68/0.10)] px-4 py-3 text-[color:var(--error)]">
                 {{ session('error') }}
             </div>
         @endif
@@ -79,11 +79,11 @@
 
                 {{-- Variables Hint --}}
                 @if(count($variables) > 0)
-                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <div class="bg-[rgb(var(--accent-orange-rgb)/0.08)] border border-[rgb(var(--accent-orange-rgb)/0.16)] rounded-lg p-3">
                         <div class="flex items-start gap-2">
-                            <i class="fas fa-info-circle text-blue-600 mt-0.5 text-sm"></i>
+                            <i class="fas fa-info-circle text-[color:var(--accent-orange)] mt-0.5 text-sm"></i>
                             <div class="flex-1">
-                                <p class="text-xs font-semibold text-blue-900 mb-2">
+                                <p class="text-xs font-semibold text-[color:var(--accent-orange)] mb-2">
                                     {{ tr('Available Variables') }}:
                                 </p>
                                 <div class="flex flex-wrap gap-1.5">
@@ -92,16 +92,16 @@
                                     @endphp
                                     @foreach($variables as $variable)
                                         <span 
-                                            class="group relative inline-flex items-center gap-1 px-2 py-1 bg-white border border-blue-300 rounded text-xs font-mono text-blue-700 hover:bg-blue-100 cursor-pointer transition-colors"
+                                            class="group relative inline-flex items-center gap-1 px-2 py-1 bg-white border border-[rgb(var(--accent-orange-rgb)/0.22)] rounded text-xs font-mono text-[color:var(--accent-orange)] hover:bg-[rgb(var(--accent-orange-rgb)/0.08)] cursor-pointer transition-colors"
                                             onclick="copyVariable('{{ $variable }}', this)"
                                             title="{{ $descriptions[$variable] ?? tr('Variable description not available') }}"
                                         >
                                             {!! '{' . $variable . '}' !!}
-                                            <i class="fas fa-copy text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity text-[10px]"></i>
+                                            <i class="fas fa-copy text-[color:var(--accent-orange)] opacity-0 group-hover:opacity-100 transition-opacity text-[10px]"></i>
                                         </span>
                                     @endforeach
                                 </div>
-                                <p class="text-[10px] text-blue-700 mt-2">
+                                <p class="text-[10px] text-[color:var(--accent-orange)] mt-2">
                                     {{ tr('Click any variable to copy. You can use {variable} or double curly braces format.') }}
                                 </p>
                             </div>
@@ -152,12 +152,16 @@
                 // Show brief success feedback
                 if (element) {
                     const originalHTML = element.innerHTML;
-                    element.innerHTML = '<i class="fas fa-check text-green-600"></i> ' + originalHTML.replace(/<i[^>]*fa-copy[^>]*><\/i>/, '');
-                    element.classList.add('bg-green-100', 'border-green-400');
+                    const originalBackgroundColor = element.style.backgroundColor;
+                    const originalBorderColor = element.style.borderColor;
+                    element.innerHTML = '<i class="fas fa-check text-[color:var(--success)]"></i> ' + originalHTML.replace(/<i[^>]*fa-copy[^>]*><\/i>/, '');
+                    element.style.backgroundColor = 'rgb(16 185 129 / 0.10)';
+                    element.style.borderColor = 'rgb(16 185 129 / 0.22)';
                     
                     setTimeout(function() {
                         element.innerHTML = originalHTML;
-                        element.classList.remove('bg-green-100', 'border-green-400');
+                        element.style.backgroundColor = originalBackgroundColor;
+                        element.style.borderColor = originalBorderColor;
                     }, 1000);
                 }
             }).catch(function(err) {

@@ -31,10 +31,10 @@
     <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
         {{-- Total Companies --}}
         <x-ui.card class="relative overflow-hidden p-4 flex-1 min-w-0">
-            <div class="absolute top-0 right-0 w-14 h-14 bg-gradient-to-br from-[color:var(--brand-from)]/10 to-[color:var(--brand-via)]/5 rounded-bl-full"></div>
+            <div class="absolute top-0 right-0 w-14 h-14 bg-[rgb(var(--accent-orange-rgb)/0.08)] rounded-bl-full"></div>
             <div class="relative">
                 <div class="flex items-center mb-3 gap-3">
-                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[color:var(--brand-from)] to-[color:var(--brand-via)] flex items-center justify-center shadow-lg flex-shrink-0">
+                    <div class="w-12 h-12 rounded-xl bg-[color:var(--accent-orange)] flex items-center justify-center shadow-lg flex-shrink-0">
                         <i class="fas fa-building text-white text-lg"></i>
                     </div>
                     <div class="text-right flex-1 min-w-0">
@@ -43,7 +43,7 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-1.5 text-xs mt-2">
-                    <span class="text-green-600 font-semibold">
+                    <span class="text-[color:var(--success)] font-semibold">
                         <i class="fas fa-arrow-up"></i> {{ $newCompaniesThisMonth }}
                     </span>
                     <span class="text-gray-500">{{ tr('this month') }}</span>
@@ -53,10 +53,10 @@
 
         {{-- Active Companies --}}
         <x-ui.card class="relative overflow-hidden p-4 flex-1 min-w-0">
-            <div class="absolute top-0 right-0 w-14 h-14 bg-gradient-to-br from-green-500/10 to-green-600/5 rounded-bl-full"></div>
+            <div class="absolute top-0 right-0 w-14 h-14 bg-[rgb(16_185_129/0.10)] rounded-bl-full"></div>
             <div class="relative">
                 <div class="flex items-center mb-3 gap-3">
-                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-lg flex-shrink-0">
+                    <div class="w-12 h-12 rounded-xl bg-[color:var(--success)] flex items-center justify-center shadow-lg flex-shrink-0">
                         <i class="fas fa-check-circle text-white text-lg"></i>
                     </div>
                     <div class="text-right flex-1 min-w-0">
@@ -75,10 +75,10 @@
 
         {{-- Total Users --}}
         <x-ui.card class="relative overflow-hidden p-4 flex-1 min-w-0">
-            <div class="absolute top-0 right-0 w-14 h-14 bg-gradient-to-br from-[color:var(--brand-from)]/10 to-[color:var(--brand-via)]/5 rounded-bl-full"></div>
+            <div class="absolute top-0 right-0 w-14 h-14 bg-[rgb(var(--accent-orange-rgb)/0.08)] rounded-bl-full"></div>
             <div class="relative">
                 <div class="flex items-center mb-3 gap-3">
-                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[color:var(--brand-from)] to-[color:var(--brand-via)] flex items-center justify-center shadow-lg flex-shrink-0">
+                    <div class="w-12 h-12 rounded-xl bg-[color:var(--accent-orange)] flex items-center justify-center shadow-lg flex-shrink-0">
                         <i class="fas fa-users text-white text-lg"></i>
                     </div>
                     <div class="text-right flex-1 min-w-0">
@@ -87,7 +87,7 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-1.5 text-xs mt-2">
-                    <span class="text-green-600 font-semibold">
+                    <span class="text-[color:var(--success)] font-semibold">
                         <i class="fas fa-arrow-up"></i> {{ $newUsersThisMonth }}
                     </span>
                     <span class="text-gray-500">{{ tr('this month') }}</span>
@@ -97,10 +97,10 @@
 
         {{-- Expiring Soon --}}
         <x-ui.card class="relative overflow-hidden p-4 flex-1 min-w-0">
-            <div class="absolute top-0 right-0 w-14 h-14 bg-gradient-to-br from-orange-500/10 to-orange-600/5 rounded-bl-full"></div>
+            <div class="absolute top-0 right-0 w-14 h-14 bg-[rgb(245_158_11/0.10)] rounded-bl-full"></div>
             <div class="relative">
                 <div class="flex items-center mb-3 gap-3">
-                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg flex-shrink-0">
+                    <div class="w-12 h-12 rounded-xl bg-[color:var(--warning)] flex items-center justify-center shadow-lg flex-shrink-0">
                         <i class="fas fa-exclamation-triangle text-white text-lg"></i>
                     </div>
                     <div class="text-right flex-1 min-w-0">
@@ -109,7 +109,7 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-1.5 text-xs mt-2">
-                    <span class="text-orange-600 font-semibold">
+                    <span class="text-[color:var(--warning)] font-semibold">
                         <i class="fas fa-clock"></i>
                     </span>
                     <span class="text-gray-500">{{ tr('next 30 days') }}</span>
@@ -119,10 +119,10 @@
 
         {{-- Inactive Companies --}}
         <x-ui.card class="relative overflow-hidden p-4 min-w-0 col-span-2 md:col-span-1">
-            <div class="absolute top-0 right-0 w-14 h-14 bg-gradient-to-br from-red-500/10 to-red-600/5 rounded-bl-full"></div>
+            <div class="absolute top-0 right-0 w-14 h-14 bg-[rgb(239_68_68/0.10)] rounded-bl-full"></div>
             <div class="relative">
                 <div class="flex items-center mb-3 gap-3">
-                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center shadow-lg flex-shrink-0">
+                    <div class="w-12 h-12 rounded-xl bg-[color:var(--error)] flex items-center justify-center shadow-lg flex-shrink-0">
                         <i class="fas fa-pause-circle text-white text-lg"></i>
                     </div>
                     <div class="text-right flex-1 min-w-0">
@@ -131,7 +131,7 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-1.5 text-xs mt-2">
-                    <span class="text-red-600 font-semibold">
+                    <span class="text-[color:var(--error)] font-semibold">
                         <i class="fas fa-ban"></i>
                     </span>
                     <span class="text-gray-500">{{ tr('deactivated') }}</span>
@@ -151,7 +151,7 @@
                         type="button"
                         class="cursor-pointer px-3 py-2 text-sm font-medium transition-all duration-200 border-b-2 rounded-t-lg text-center
                             {{ $activeTab === 'companies' 
-                                ? 'border-[color:var(--brand-via)] text-[color:var(--brand-via)] bg-[color:var(--brand-via)]/5' 
+                                ? 'border-[color:var(--accent-orange)] text-[color:var(--accent-orange)] bg-[rgb(var(--accent-orange-rgb)/0.08)]' 
                                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}"
                     >
                         <i class="fas fa-building me-2"></i>
@@ -162,7 +162,7 @@
                         type="button"
                         class="cursor-pointer px-3 py-2 text-sm font-medium transition-all duration-200 border-b-2 rounded-t-lg text-center
                             {{ $activeTab === 'users' 
-                                ? 'border-[color:var(--brand-via)] text-[color:var(--brand-via)] bg-[color:var(--brand-via)]/5' 
+                                ? 'border-[color:var(--accent-orange)] text-[color:var(--accent-orange)] bg-[rgb(var(--accent-orange-rgb)/0.08)]' 
                                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}"
                     >
                         <i class="fas fa-users me-2"></i>
@@ -173,7 +173,7 @@
                         type="button"
                         class="cursor-pointer px-3 py-2 text-sm font-medium transition-all duration-200 border-b-2 rounded-t-lg text-center
                             {{ $activeTab === 'subscriptions' 
-                                ? 'border-[color:var(--brand-via)] text-[color:var(--brand-via)] bg-[color:var(--brand-via)]/5' 
+                                ? 'border-[color:var(--accent-orange)] text-[color:var(--accent-orange)] bg-[rgb(var(--accent-orange-rgb)/0.08)]' 
                                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}"
                     >
                         <i class="fas fa-credit-card me-2"></i>
@@ -184,7 +184,7 @@
                         type="button"
                         class="cursor-pointer px-3 py-2 text-sm font-medium transition-all duration-200 border-b-2 rounded-t-lg text-center
                             {{ $activeTab === 'industries' 
-                                ? 'border-[color:var(--brand-via)] text-[color:var(--brand-via)] bg-[color:var(--brand-via)]/5' 
+                                ? 'border-[color:var(--accent-orange)] text-[color:var(--accent-orange)] bg-[rgb(var(--accent-orange-rgb)/0.08)]' 
                                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}"
                     >
                         <i class="fas fa-industry me-2"></i>
@@ -259,7 +259,7 @@
                                         </div>
                                         <div class="w-full bg-gray-200 rounded-full h-2">
                                             <div 
-                                                class="bg-gradient-to-r from-[color:var(--brand-from)] via-[color:var(--brand-via)] to-[color:var(--brand-to)] h-2 rounded-full transition-all duration-500"
+                                                class="bg-[color:var(--accent-orange)] h-2 rounded-full transition-all duration-500"
                                                 style="width: {{ $companiesByIndustry->max('count') > 0 ? ($industry->count / $companiesByIndustry->max('count')) * 100 : 0 }}%"
                                             ></div>
                                         </div>
@@ -288,7 +288,7 @@
                     $locale = app()->getLocale();
                     $isRtl = in_array(substr($locale, 0, 2), ['ar', 'fa', 'ur', 'he']);
                 @endphp
-                <a href="{{ route('saas.companies.index') }}" class="text-xs text-[color:var(--brand-via)] hover:underline font-medium inline-flex items-center gap-1">
+                <a href="{{ route('saas.companies.index') }}" class="text-xs text-[color:var(--accent-orange)] hover:underline font-medium inline-flex items-center gap-1">
                     {{ tr('View All') }}
                     <i class="fas fa-arrow-{{ $isRtl ? 'left' : 'right' }}"></i>
                 </a>
@@ -302,7 +302,7 @@
                                  class="w-10 h-10 rounded-lg object-cover flex-shrink-0 shadow-sm border border-gray-100 dark:border-gray-800"
                                  onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($company->legal_name_ar) }}&color=7543eb&background=f3e8ff&bold=true&length=1';">
                         @else
-                            <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-[color:var(--brand-from)] via-[color:var(--brand-via)] to-[color:var(--brand-to)] flex items-center justify-center flex-shrink-0 shadow-sm">
+                            <div class="w-10 h-10 rounded-lg bg-[color:var(--accent-orange)] flex items-center justify-center flex-shrink-0 shadow-sm">
                                 <i class="fas fa-building text-white text-sm"></i>
                             </div>
                         @endif
@@ -428,13 +428,13 @@
                     datasets: [{
                         label: '{{ tr("Companies") }}',
                         data: chartData.data,
-                        borderColor: 'rgb(236, 72, 153)',
-                        backgroundColor: 'rgba(236, 72, 153, 0.1)',
+                        borderColor: 'rgb(196, 90, 26)',
+                        backgroundColor: 'rgba(196, 90, 26, 0.10)',
                         tension: 0.4,
                         fill: true,
                         borderWidth: 2,
                         pointRadius: 4,
-                        pointBackgroundColor: 'rgb(236, 72, 153)',
+                        pointBackgroundColor: 'rgb(196, 90, 26)',
                         pointBorderColor: '#fff',
                         pointBorderWidth: 2,
                     }]
@@ -508,8 +508,8 @@
                     datasets: [{
                         label: '{{ tr("Users") }}',
                         data: chartData.data,
-                        backgroundColor: 'rgba(249, 115, 22, 0.8)',
-                        borderColor: 'rgb(249, 115, 22)',
+                        backgroundColor: 'rgba(196, 90, 26, 0.78)',
+                        borderColor: 'rgb(196, 90, 26)',
                         borderWidth: 2,
                         borderRadius: 8,
                     }]
@@ -583,14 +583,14 @@
                     datasets: [{
                         data: chartData.data,
                         backgroundColor: [
-                            'rgba(34, 197, 94, 0.8)',
+                            'rgba(16, 185, 129, 0.8)',
                             'rgba(239, 68, 68, 0.8)',
-                            'rgba(249, 115, 22, 0.8)',
+                            'rgba(245, 158, 11, 0.8)',
                         ],
                         borderColor: [
-                            'rgb(34, 197, 94)',
+                            'rgb(16, 185, 129)',
                             'rgb(239, 68, 68)',
-                            'rgb(249, 115, 22)',
+                            'rgb(245, 158, 11)',
                         ],
                         borderWidth: 2,
                     }]

@@ -1,7 +1,7 @@
 <div class="space-y-4 sm:space-y-6" wire:poll.3s>
     {{-- Top Fixed Loading Bar (shows on tab switch) --}}
     <div wire:loading wire:target="setActiveTab" class="fixed top-0 left-0 right-0 h-[3px] z-[9999] overflow-hidden pointer-events-none">
-        <div class="h-full w-full bg-gradient-to-r from-[color:var(--brand-from)] via-[color:var(--brand-via)] to-[color:var(--brand-to)]">
+        <div class="h-full w-full bg-[color:var(--accent-orange)]">
             <div class="h-full w-full bg-white/30 animate-[loading-sweep_1.5s_infinite]"></div>
         </div>
     </div>
@@ -132,7 +132,7 @@
                 <button
                     wire:click="setActiveTab('emails')"
                     type="button"
-                    class="cursor-pointer flex-1 sm:flex-none px-4 sm:px-6 py-4 text-sm font-semibold border-b-2 transition-colors duration-200 {{ $activeTab === 'emails' ? 'border-[color:var(--brand-via)] text-[color:var(--brand-via)]' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}"
+                    class="cursor-pointer flex-1 sm:flex-none px-4 sm:px-6 py-4 text-sm font-semibold border-b-2 transition-colors duration-200 {{ $activeTab === 'emails' ? 'border-[color:var(--accent-orange)] text-[color:var(--accent-orange)]' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}"
                 >
                     <i class="fas fa-envelope me-2"></i>
                     {{ tr('Email Messages') }}
@@ -140,7 +140,7 @@
                 <button
                     wire:click="setActiveTab('templates')"
                     type="button"
-                    class="cursor-pointer flex-1 sm:flex-none px-4 sm:px-6 py-4 text-sm font-semibold border-b-2 transition-colors duration-200 {{ $activeTab === 'templates' ? 'border-[color:var(--brand-via)] text-[color:var(--brand-via)]' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}"
+                    class="cursor-pointer flex-1 sm:flex-none px-4 sm:px-6 py-4 text-sm font-semibold border-b-2 transition-colors duration-200 {{ $activeTab === 'templates' ? 'border-[color:var(--accent-orange)] text-[color:var(--accent-orange)]' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}"
                 >
                     <i class="fas fa-file-alt me-2"></i>
                     {{ tr('Templates') }}
@@ -372,7 +372,7 @@
                                                         <div class="border-t border-gray-100 my-1"></div>
 
                                                         <x-ui.dropdown-item
-                                                            class="text-red-600 hover:bg-red-50"
+                                                            class="text-[color:var(--error)] hover:bg-[rgb(239_68_68/0.10)]"
                                                             href="#"
                                                             x-on:click.prevent="$dispatch('open-confirm-cancel-scheduled-email', { id: {{ (int) $scheduledEmail->id }} })"
                                                         >
@@ -550,7 +550,7 @@
                                                     <div class="border-t border-gray-100 my-1"></div>
 
                                                     <x-ui.dropdown-item
-                                                        :class="$template->is_active ? 'text-orange-600 hover:bg-orange-50' : 'text-green-600 hover:bg-green-50'"
+                                                        :class="$template->is_active ? 'text-[color:var(--warning)] hover:bg-[rgb(245_158_11/0.10)]' : 'text-[color:var(--success)] hover:bg-[rgb(16_185_129/0.10)]'"
                                                         href="#"
                                                         wire:click="toggleStatus({{ $template->id }})"
                                                     >
@@ -566,7 +566,7 @@
                                                     <div class="border-t border-gray-100 my-1"></div>
 
                                                     <x-ui.dropdown-item
-                                                        class="text-red-600 hover:bg-red-50 cursor-pointer"
+                                                        class="text-[color:var(--error)] hover:bg-[rgb(239_68_68/0.10)] cursor-pointer"
                                                         href="#"
                                                         x-on:click.prevent="$dispatch('open-confirm-delete-email-template', { id: {{ (int) $template->id }} })"
                                                     >
@@ -641,7 +641,7 @@
             class="relative bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden ring-1 ring-black/5 flex flex-col"
         >
             {{-- Header --}}
-            <div class="px-6 pt-5 pb-4 bg-gradient-to-br from-indigo-50 via-purple-50 to-cyan-50 border-b border-indigo-200/50 relative">
+            <div class="px-6 pt-5 pb-4 bg-[rgb(var(--accent-orange-rgb)/0.08)] border-b border-[rgb(var(--accent-orange-rgb)/0.16)] relative">
                 <div class="flex items-center justify-between relative z-10">
                     <div class="min-w-0 flex-1 pr-4">
                         <h3 class="text-xl font-bold text-gray-900">
@@ -748,12 +748,12 @@
                     @if($viewingEmail->variables_data && count($viewingEmail->variables_data) > 0)
                     <div>
                         <label class="text-xs font-semibold text-gray-500 uppercase mb-2 block">{{ tr('Template Variables') }}</label>
-                        <div class="p-4 bg-orange-50 rounded-xl border border-orange-200">
+                        <div class="p-4 bg-[rgb(var(--accent-orange-rgb)/0.08)] rounded-xl border border-[rgb(var(--accent-orange-rgb)/0.16)]">
                             <div class="space-y-2">
                                 @foreach($viewingEmail->variables_data as $variable => $value)
                                     <div class="flex items-start gap-2">
-                                        <span class="text-xs font-semibold text-[color:var(--brand-from)] min-w-[120px]">{{ tr(ucfirst(str_replace('_', ' ', $variable))) }}:</span>
-                                        <span class="text-sm text-[color:var(--brand-via)] flex-1">{{ $value }}</span>
+                                        <span class="text-xs font-semibold text-[color:var(--accent-orange)] min-w-[120px]">{{ tr(ucfirst(str_replace('_', ' ', $variable))) }}:</span>
+                                        <span class="text-sm text-[color:var(--accent-orange)] flex-1">{{ $value }}</span>
                                     </div>
                                 @endforeach
                             </div>
@@ -765,8 +765,8 @@
                     @if($viewingEmail->status === 'failed' && $viewingEmail->error_message)
                     <div>
                         <label class="text-xs font-semibold text-gray-500 uppercase mb-2 block">{{ tr('Error Message') }}</label>
-                        <div class="p-4 bg-red-50 rounded-xl border border-red-200">
-                            <p class="text-sm text-red-700">{{ $viewingEmail->error_message }}</p>
+                        <div class="p-4 bg-[rgb(239_68_68/0.10)] rounded-xl border border-[rgb(239_68_68/0.22)]">
+                            <p class="text-sm text-[color:var(--error)]">{{ $viewingEmail->error_message }}</p>
                         </div>
                     </div>
                     @endif
@@ -788,7 +788,7 @@
                                         <p class="text-xs text-gray-500">{{ tr('Sent at') }}: {{ $log->sent_at->format('Y-m-d H:i:s') }}</p>
                                     @endif
                                     @if($log->error_message)
-                                        <p class="text-xs text-red-600 mt-1">{{ $log->error_message }}</p>
+                                        <p class="text-xs text-[color:var(--error)] mt-1">{{ $log->error_message }}</p>
                                     @endif
                                 </div>
                             @endforeach

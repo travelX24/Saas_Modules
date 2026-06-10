@@ -2,7 +2,7 @@
 
     <div class="text-center">
         <div class="mx-auto w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center text-white mb-3 sm:mb-4 text-lg sm:text-xl"
-             style="background: var(--brand-via);">
+             style="background: var(--accent-orange);">
             ✓
         </div>
 

@@ -88,7 +88,7 @@
                 <x-ui.secondary-button
                     type="button"
                     @click="openModal()"
-                    class="!flex-1 sm:!flex-none !px-4 !py-2 !rounded-xl !border-[color:var(--brand-via)] !bg-white !text-[color:var(--brand-via)] hover:!bg-[color:var(--brand-via)] hover:!text-white !text-sm sm:!text-base"
+                    class="!flex-1 sm:!flex-none !px-4 !py-2 !rounded-xl !border-[color:var(--accent-orange)] !bg-white !text-[color:var(--accent-orange)] hover:!bg-[color:var(--accent-orange)] hover:!text-white !text-sm sm:!text-base"
                 >
                     <i class="fas fa-map-marker-alt"></i>
                     <span>{{ tr('Choose from Map') }}</span>
@@ -138,17 +138,17 @@
                 class="bg-white rounded-none sm:rounded-xl md:rounded-2xl shadow-2xl w-full h-full sm:h-auto sm:max-w-4xl sm:max-h-[95vh] md:max-h-[90vh] overflow-hidden flex flex-col"
             >
                 {{-- Modal Header --}}
-                <div class="px-4 sm:px-4 md:px-6 py-3 sm:py-4 border-b border-gray-200 bg-gradient-to-r from-[color:var(--brand-from)]/5 via-[color:var(--brand-via)]/5 to-[color:var(--brand-to)]/5">
+                <div class="px-4 sm:px-4 md:px-6 py-3 sm:py-4 border-b border-gray-200 bg-[rgb(var(--accent-orange-rgb)/0.08)]">
                     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3">
                         <h3 class="text-base sm:text-lg font-bold text-gray-900 flex items-center gap-2">
-                            <i class="fas fa-map-marker-alt text-[color:var(--brand-via)]"></i>
+                            <i class="fas fa-map-marker-alt text-[color:var(--accent-orange)]"></i>
                             <span class="text-sm sm:text-base">{{ tr('Choose Location from Map') }}</span>
                         </h3>
                         <div class="flex items-center gap-2 w-full sm:w-auto">
                             <x-ui.secondary-button
                                 @click="getCurrentLocation()"
                                 x-bind:disabled="isGettingLocation"
-                                class="!flex-1 sm:!flex-none !px-3 sm:!px-4 !py-2 !rounded-lg sm:!rounded-xl !border-green-500 !bg-white !text-green-600 hover:!bg-green-500 hover:!text-white !text-xs sm:!text-sm"
+                                class="!flex-1 sm:!flex-none !px-3 sm:!px-4 !py-2 !rounded-lg sm:!rounded-xl !border-[color:var(--success)] !bg-white !text-[color:var(--success)] hover:!bg-[color:var(--success)] hover:!text-white !text-xs sm:!text-sm"
                             >
                                 <i x-show="!isGettingLocation" class="fas fa-location-arrow"></i>
                                 <i x-show="isGettingLocation" class="fas fa-spinner fa-spin"></i>
@@ -173,7 +173,7 @@
                     <div class="absolute top-2 sm:top-4 left-1/2 -translate-x-1/2 z-[1000] max-w-[90%] sm:max-w-md">
                         <div class="bg-white/95 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 sm:px-4 py-2 shadow-lg border border-gray-200">
                             <p class="text-xs sm:text-sm text-gray-700 flex items-center justify-center gap-2">
-                                <i class="fas fa-info-circle text-[color:var(--brand-via)] text-xs sm:text-sm"></i>
+                                <i class="fas fa-info-circle text-[color:var(--accent-orange)] text-xs sm:text-sm"></i>
                                 <span class="hidden sm:inline">{{ tr('Click on the map to select location') }}</span>
                                 <span class="sm:hidden">{{ tr('Tap to select') }}</span>
                             </p>

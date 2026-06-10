@@ -20,7 +20,7 @@
 <div class="mt-8">
     <div class="flex items-center justify-between mb-3 gap-3">
         <h4 class="text-sm font-bold text-gray-900 flex items-center gap-2">
-            <span class="h-8 w-8 rounded-xl bg-[color:var(--brand-via)]/10 flex items-center justify-center text-[color:var(--brand-via)]">
+            <span class="h-8 w-8 rounded-xl bg-[rgb(var(--accent-orange-rgb)/0.08)] flex items-center justify-center text-[color:var(--accent-orange)]">
                 <i class="fas fa-code-branch"></i>
             </span>
             {{ tr('Branches') }}
@@ -32,7 +32,7 @@
             </span>
 
             @if(! is_null($activeBranchesCount))
-                <span class="px-3 py-1 rounded-full bg-green-50 text-green-700 font-semibold">
+                <span class="px-3 py-1 rounded-full bg-[rgb(16_185_129/0.10)] text-[color:var(--success)] font-semibold">
                     {{ tr('Active') }}: {{ (int) $activeBranchesCount }}
                 </span>
             @endif
@@ -68,8 +68,8 @@
 
                             <div class="flex items-center gap-2 flex-shrink-0">
                                 @if((bool) $branch->is_active)
-                                    <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold bg-green-50 text-green-700">
-                                        <span class="h-1.5 w-1.5 rounded-full bg-green-500 me-1.5"></span>
+                                    <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold bg-[rgb(16_185_129/0.10)] text-[color:var(--success)]">
+                                        <span class="h-1.5 w-1.5 rounded-full bg-[color:var(--success)] me-1.5"></span>
                                         {{ tr('Active') }}
                                     </span>
                                 @else
@@ -86,7 +86,7 @@
                 @if($branchesCount > 10)
                     <div class="p-4 bg-gray-50 text-xs text-gray-600 flex items-center justify-between">
                         <span>{{ tr('Showing first') }} 10 {{ tr('branches') }}.</span>
-                        <span class="font-semibold text-[color:var(--brand-via)]">
+                        <span class="font-semibold text-[color:var(--accent-orange)]">
                             +{{ $branchesCount - 10 }} {{ tr('more') }}
                         </span>
                     </div>

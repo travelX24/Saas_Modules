@@ -1,11 +1,21 @@
 <style>
     :root {
-        --brand-via: #ec4899; /* fallback */
-        --brand-via-rgb: 236 72 153; /* fallback */
+        --brand-via: #575757; /* fallback */
+        --brand-via-rgb: 87 87 87; /* fallback */
 
         /* ✅ حتى language-switcher يشتغل لو ماعندك brand-from/to */
-        --brand-from: #f97316;
-        --brand-to: #ec4899;
+        --brand-from: #6B6B6B;
+        --brand-to: #3F3F3F;
+        --brand-from-rgb: 107 107 107;
+        --brand-to-rgb: 63 63 63;
+
+        --accent-orange: #C45A1A;
+        --accent-orange-hover: #A94814;
+        --accent-orange-rgb: 196 90 26;
+
+        --success: #10B981;
+        --warning: #F59E0B;
+        --error: #EF4444;
 
         --sidebar-width: 260px;
         --sidebar-collapsed: 80px;
@@ -43,7 +53,7 @@
         width: var(--sidebar-width);
 
         /* ✅ لون واحد شفاف */
-        background-color: rgba(117, 67, 235, 0.95) !important; /* fallback */
+        background-color: rgba(87, 87, 87, 0.96) !important; /* fallback */
         background-color: rgb(var(--brand-via-rgb) / 0.95) !important;
 
         backdrop-filter: blur(10px);
@@ -66,7 +76,7 @@
         inset-inline-end: -12px;
         inset-block-start: 20px;
 
-        background-color: var(--brand-via);
+        background-color: var(--accent-orange);
         color: #fff;
         border: 2px solid #fff;
         border-radius: 50%;
@@ -107,7 +117,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        color: var(--brand-via);
+        color: var(--accent-orange);
         font-weight: bold;
         font-size: 20px;
         margin-inline-end: 15px;
@@ -147,7 +157,7 @@
         align-items: center;
         justify-content: center;
 
-        color: var(--brand-via);
+        color: var(--accent-orange);
         font-size: 20px;
         overflow: hidden;
     }
@@ -237,9 +247,9 @@
         inset-block-end: 8px;
 
         height: 3px;
-        background-color: rgba(255,255,255,.92);
+        background-color: var(--accent-orange);
         border-radius: 999px;
-        box-shadow: 0 0 14px rgba(255,255,255,.35);
+        box-shadow: 0 0 14px rgb(var(--accent-orange-rgb) / .35);
     }
 
     .sidebar.collapsed .nav-link.active::after { display: none; }
@@ -305,7 +315,7 @@
 
     .lang-mini.active{
         background-color: #fff;
-        color: var(--brand-via);
+        color: var(--accent-orange);
     }
 /* ✅ Center language block nicely */
 .lang-title-center{
@@ -451,7 +461,7 @@
             position: fixed;
             inset-block-start: 20px;
             inset-inline-start: 20px; /* ✅ Even more away for better look */
-            background-color: var(--brand-via);
+            background-color: var(--accent-orange);
             color: #fff;
             border: 3px solid #fff; /* ✅ White border as requested */
             border-radius: 14px;

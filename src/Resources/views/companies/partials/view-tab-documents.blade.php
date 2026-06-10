@@ -30,7 +30,7 @@
                             <img src="{{ $fileUrl }}" alt="{{ $docTypes[$doc->type] ?? $doc->type }}" class="w-full h-28 object-cover rounded-lg mb-1.5">
                         @else
                             <div class="w-full h-28 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg mb-1.5 flex items-center justify-center">
-                                <i class="fas fa-file-pdf text-3xl text-red-500"></i>
+                                <i class="fas fa-file-pdf text-3xl text-[color:var(--error)]"></i>
                             </div>
                         @endif
                         
@@ -48,7 +48,7 @@
                             <a 
                                 href="{{ $fileUrl }}" 
                                 target="_blank"
-                                class="flex-shrink-0 px-2 py-1 bg-[color:var(--brand-via)] text-white rounded-lg hover:bg-[color:var(--brand-from)] transition-colors text-xs font-semibold flex items-center gap-1"
+                                class="flex-shrink-0 px-2 py-1 bg-[color:var(--accent-orange)] text-white rounded-lg hover:bg-[color:var(--accent-orange-hover)] transition-colors text-xs font-semibold flex items-center gap-1"
                             >
                                 <i class="fas fa-external-link-alt text-xs"></i>
                                 <span class="hidden sm:inline">{{ tr('View') }}</span>

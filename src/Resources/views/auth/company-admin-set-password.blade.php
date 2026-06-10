@@ -45,7 +45,7 @@
                 placeholder="••••••••"
                 autocomplete="new-password" />
 
-            <div id="password_match_error" class="text-xs text-red-600 mt-1 hidden flex items-center gap-1">
+            <div id="password_match_error" class="text-xs text-[color:var(--error)] mt-1 hidden flex items-center gap-1">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
                 </svg>
@@ -54,11 +54,11 @@
         </div>
 
         @error('email')
-            <div class="text-xs text-red-600">{{ $message }}</div>
+            <div class="text-xs text-[color:var(--error)]">{{ $message }}</div>
         @enderror
 
         @error('token')
-            <div class="text-xs text-red-600">{{ $message }}</div>
+            <div class="text-xs text-[color:var(--error)]">{{ $message }}</div>
         @enderror
 
         <x-ui.primary-button
@@ -94,7 +94,7 @@
 
                 if (passwordConfirmation.length === 0) {
                     errorDiv.classList.add('hidden');
-                    passwordConfirmationInput.classList.remove('border-red-400');
+                    passwordConfirmationInput.style.borderColor = '';
                     passwordConfirmationInput.classList.add('border-slate-200');
                     return true;
                 }
@@ -102,12 +102,12 @@
                 if (password !== passwordConfirmation) {
                     errorDiv.classList.remove('hidden');
                     passwordConfirmationInput.classList.remove('border-slate-200');
-                    passwordConfirmationInput.classList.add('border-red-400');
+                    passwordConfirmationInput.style.borderColor = 'var(--error)';
                     return false;
                 }
 
                 errorDiv.classList.add('hidden');
-                passwordConfirmationInput.classList.remove('border-red-400');
+                passwordConfirmationInput.style.borderColor = '';
                 passwordConfirmationInput.classList.add('border-slate-200');
                 return true;
             }

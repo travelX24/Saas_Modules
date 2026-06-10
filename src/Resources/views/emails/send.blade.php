@@ -2,7 +2,7 @@
     {{-- Header --}}
     <div class="mobile-header-adjust">
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <h1 class="text-xl sm:text-2xl font-bold text-[color:var(--brand-via)]">
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-800">
                 {{ tr('Send Email') }}
             </h1>
 
@@ -31,7 +31,7 @@
                             @endforeach
                         </x-ui.select>
                         @error('templateId')
-                            <div class="text-xs text-red-600 mt-1">{{ $message }}</div>
+                            <div class="text-xs text-[color:var(--error)] mt-1">{{ $message }}</div>
                         @enderror
                     </div>
                     
@@ -43,7 +43,7 @@
                             <div class="relative group mb-6">
                                 <button 
                                     type="button"
-                                    class="p-2.5 text-[color:var(--brand-via)] hover:text-[color:var(--brand-from)] hover:bg-orange-50 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                    class="p-2.5 text-[color:var(--accent-orange)] hover:text-[color:var(--accent-orange-hover)] hover:bg-[rgb(var(--accent-orange-rgb)/0.08)] rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-orange)] focus:ring-offset-2"
                                     aria-label="{{ tr('Template Preview') }}"
                                     title="{{ tr('Hover to preview template') }}"
                                 >
@@ -56,8 +56,8 @@
                                     <div class="absolute -top-1 right-6 rtl:right-auto rtl:left-6 transform rotate-45 w-3 h-3 bg-white border-r border-b border-gray-200"></div>
                                     <div class="relative bg-white rounded-xl">
                                         <div class="text-sm">
-                                            <div class="font-semibold text-blue-900 mb-2 flex items-center gap-2">
-                                                <i class="fas fa-file-alt text-blue-600"></i>
+                                            <div class="font-semibold text-[color:var(--accent-orange)] mb-2 flex items-center gap-2">
+                                                <i class="fas fa-file-alt text-[color:var(--accent-orange)]"></i>
                                                 <span>{{ tr('Template Preview') }}</span>
                                             </div>
                                             <div class="text-gray-700 mb-3 pb-3 border-b border-gray-100">
@@ -109,19 +109,19 @@
                         />
 
                         {{-- Current Server Time Info --}}
-                        <div class="flex items-center gap-3 p-3 bg-orange-50/50 border border-orange-100 rounded-xl">
-                            <div class="w-8 h-8 flex items-center justify-center rounded-lg bg-orange-100 text-[color:var(--brand-from)]">
+                        <div class="flex items-center gap-3 p-3 bg-[rgb(var(--accent-orange-rgb)/0.08)] border border-[rgb(var(--accent-orange-rgb)/0.16)] rounded-xl">
+                            <div class="w-8 h-8 flex items-center justify-center rounded-lg bg-[rgb(var(--accent-orange-rgb)/0.14)] text-[color:var(--accent-orange)]">
                                 <i class="fas fa-clock text-sm"></i>
                             </div>
                             <div class="flex-1">
-                                <p class="text-[10px] uppercase tracking-wider font-bold text-[color:var(--brand-via)]/80 leading-none mb-1">
+                                <p class="text-[10px] uppercase tracking-wider font-bold text-[color:var(--accent-orange)] leading-none mb-1">
                                     {{ tr('Server Time Now') }}
                                 </p>
-                                <p class="text-sm font-semibold text-blue-900 leading-none">
+                                <p class="text-sm font-semibold text-gray-900 leading-none">
                                     {{ now(config('app.timezone', 'Asia/Riyadh'))->format('Y-m-d h:i A') }}
                                 </p>
                             </div>
-                            <div class="text-[10px] font-medium text-[color:var(--brand-via)] bg-white/60 px-2 py-0.5 rounded-full border border-blue-100/50">
+                            <div class="text-[10px] font-medium text-[color:var(--accent-orange)] bg-white/70 px-2 py-0.5 rounded-full border border-[rgb(var(--accent-orange-rgb)/0.16)]">
                                 {{ config('app.timezone', 'Asia/Riyadh') }}
                             </div>
                         </div>
@@ -151,7 +151,7 @@
                         @endforeach
                     </x-ui.select>
                     @error('recipientCompanyId')
-                        <div class="text-xs text-red-600 mt-1">{{ $message }}</div>
+                        <div class="text-xs text-[color:var(--error)] mt-1">{{ $message }}</div>
                     @enderror
                 @endif
 
@@ -160,7 +160,7 @@
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">
                             {{ tr('Select Companies') }}
-                            <span class="text-red-500 ms-1">*</span>
+                            <span class="text-[color:var(--error)] ms-1">*</span>
                         </label>
                         <div class="border border-gray-200 rounded-xl p-4 max-h-60 overflow-y-auto">
                             @foreach($companies as $company)
@@ -195,7 +195,7 @@
                             @endforeach
                         </div>
                         @error('selectedCompanyIds')
-                            <div class="text-xs text-red-600 mt-1">{{ $message }}</div>
+                            <div class="text-xs text-[color:var(--error)] mt-1">{{ $message }}</div>
                         @enderror
                     </div>
                 @endif
@@ -266,9 +266,9 @@
 
     {{-- Display validation errors --}}
     @if ($errors->any())
-        <div class="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl">
-            <div class="text-sm font-semibold text-red-900 mb-2">{{ tr('Please fix the following errors') }}:</div>
-            <ul class="list-disc list-inside text-sm text-red-700 space-y-1">
+        <div class="mt-4 p-4 bg-[rgb(239_68_68/0.10)] border border-[rgb(239_68_68/0.22)] rounded-xl">
+            <div class="text-sm font-semibold text-[color:var(--error)] mb-2">{{ tr('Please fix the following errors') }}:</div>
+            <ul class="list-disc list-inside text-sm text-[color:var(--error)] space-y-1">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach

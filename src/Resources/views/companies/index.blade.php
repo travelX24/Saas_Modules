@@ -3,7 +3,7 @@
     <div class="mobile-header-adjust">
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div>
-                <h1 class="text-xl sm:text-2xl font-bold text-[color:var(--brand-via)]">
+                <h1 class="text-xl sm:text-2xl font-bold text-gray-800">
                 {{ tr('Companies') }}
             </h1>
                 <p class="text-sm text-gray-500 mt-1">
@@ -62,7 +62,7 @@
                             wire:click="setViewMode('list')"
                             class="cursor-pointer px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200
                                 {{ $viewMode === 'list' 
-                                    ? 'bg-gradient-to-r from-[color:var(--brand-from)] to-[color:var(--brand-via)] text-white shadow-lg hover:shadow-xl hover:from-amber-600 hover:to-yellow-600' 
+                                    ? 'bg-[color:var(--accent-orange)] text-white shadow-lg hover:shadow-xl hover:bg-[color:var(--accent-orange-hover)]' 
                                     : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 shadow-sm' }}"
                             title="{{ tr('List View') }}"
                         >
@@ -73,7 +73,7 @@
                             wire:click="setViewMode('cards')"
                             class="cursor-pointer px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200
                                 {{ $viewMode === 'cards' 
-                                    ? 'bg-gradient-to-r from-[color:var(--brand-from)] to-[color:var(--brand-via)] text-white shadow-lg hover:shadow-xl hover:from-amber-600 hover:to-yellow-600' 
+                                    ? 'bg-[color:var(--accent-orange)] text-white shadow-lg hover:shadow-xl hover:bg-[color:var(--accent-orange-hover)]' 
                                     : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 shadow-sm' }}"
                             title="{{ tr('Card View') }}"
                         >
@@ -227,11 +227,11 @@
                                             loading="lazy"
                                             onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';"
                                         />
-                                        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-[color:var(--brand-from)] via-[color:var(--brand-via)] to-[color:var(--brand-to)] flex items-center justify-center flex-shrink-0" style="display: none;">
+                                        <div class="w-9 h-9 rounded-lg bg-[color:var(--accent-orange)] flex items-center justify-center flex-shrink-0" style="display: none;">
                                             <i class="fas fa-building text-white text-xs"></i>
                                         </div>
                                     @else
-                                        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-[color:var(--brand-from)] via-[color:var(--brand-via)] to-[color:var(--brand-to)] flex items-center justify-center flex-shrink-0">
+                                        <div class="w-9 h-9 rounded-lg bg-[color:var(--accent-orange)] flex items-center justify-center flex-shrink-0">
                                             <i class="fas fa-building text-white text-xs"></i>
                                         </div>
                                     @endif
@@ -388,7 +388,7 @@
                                     <div class="border-t border-gray-100 my-1"></div>
                                     {{-- ✅ زر إعادة تعيين كلمة المرور --}}
                                     <x-ui.dropdown-item 
-                                        class="text-[color:var(--brand-via)] hover:bg-orange-50"
+                                        class="text-[color:var(--accent-orange)] hover:bg-[rgb(var(--accent-orange-rgb)/0.08)]"
                                         href="#"
                                         wire:click="resendPasswordReset({{ $company->id }})"
                                     >
@@ -397,7 +397,7 @@
                                     </x-ui.dropdown-item>
                                     <div class="border-t border-gray-100 my-1"></div>
                                     <x-ui.dropdown-item 
-                                        :class="$company->is_active ? 'text-orange-600 hover:bg-orange-50' : 'text-green-600 hover:bg-green-50'"
+                                        :class="$company->is_active ? 'text-[color:var(--warning)] hover:bg-[rgb(245_158_11/0.10)]' : 'text-[color:var(--success)] hover:bg-[rgb(16_185_129/0.10)]'"
                                         href="#"
                                         wire:click="toggleCompanyStatus({{ $company->id }})"
                                     >
@@ -438,11 +438,11 @@
                                     loading="lazy"
                                     onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';"
                                 />
-                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[color:var(--brand-from)] via-[color:var(--brand-via)] to-[color:var(--brand-to)] flex items-center justify-center flex-shrink-0" style="display: none;">
+                                <div class="w-12 h-12 rounded-xl bg-[color:var(--accent-orange)] flex items-center justify-center flex-shrink-0" style="display: none;">
                                     <i class="fas fa-building text-white text-lg"></i>
                                 </div>
                             @else
-                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[color:var(--brand-from)] via-[color:var(--brand-via)] to-[color:var(--brand-to)] flex items-center justify-center flex-shrink-0">
+                                <div class="w-12 h-12 rounded-xl bg-[color:var(--accent-orange)] flex items-center justify-center flex-shrink-0">
                                     <i class="fas fa-building text-white text-lg"></i>
                                 </div>
                             @endif
@@ -489,7 +489,7 @@
                             <div class="border-t border-gray-100 my-1"></div>
                             {{-- ✅ زر إعادة تعيين كلمة المرور --}}
                             <x-ui.dropdown-item 
-                                class="text-[color:var(--brand-via)] hover:bg-orange-50"
+                                class="text-[color:var(--accent-orange)] hover:bg-[rgb(var(--accent-orange-rgb)/0.08)]"
                                 href="#"
                                 x-on:click.prevent="$dispatch('open-confirm-resend-password-reset', { id: {{ $company->id }} })"
                             >
@@ -500,7 +500,7 @@
 
                             <div class="border-t border-gray-100 my-1"></div>
                             <x-ui.dropdown-item 
-                                :class="$company->is_active ? 'text-orange-600 hover:bg-orange-50' : 'text-green-600 hover:bg-green-50'"
+                                :class="$company->is_active ? 'text-[color:var(--warning)] hover:bg-[rgb(245_158_11/0.10)]' : 'text-[color:var(--success)] hover:bg-[rgb(16_185_129/0.10)]'"
                                 href="#"
                                 wire:click="toggleCompanyStatus({{ $company->id }})"
                             >

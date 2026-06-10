@@ -90,7 +90,7 @@ x-on:company-updated.window="
         class="relative bg-white rounded-3xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden ring-1 ring-black/5 flex flex-col"
     >
         {{-- Header --}}
-        <div class="px-6 pt-5 pb-4 bg-gradient-to-br from-indigo-50 via-purple-50 to-cyan-50 border-b border-indigo-200/50 relative">
+        <div class="px-6 pt-5 pb-4 bg-[rgb(var(--accent-orange-rgb)/0.08)] border-b border-[rgb(var(--accent-orange-rgb)/0.16)] relative">
             <div class="absolute top-0 right-0 w-32 h-32 opacity-10">
                 <div class="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-full blur-2xl"></div>
             </div>
@@ -139,8 +139,8 @@ x-on:company-updated.window="
                                     <svg viewBox="0 0 56 56" class="absolute inset-0 drop-shadow-sm">
                                         <polygon 
                                             points="28,4 48,20 40,48 16,48 8,20"
-                                            :fill="activeTab === {{ $stepNum }} ? 'var(--brand-via)' : (activeTab > {{ $stepNum }} ? 'var(--brand-via)' : '#f3f4f6')"
-                                            :stroke="activeTab === {{ $stepNum }} ? 'var(--brand-via)' : (activeTab > {{ $stepNum }} ? 'var(--brand-via)' : '#d1d5db')"
+                                            :fill="activeTab === {{ $stepNum }} ? 'var(--accent-orange)' : (activeTab > {{ $stepNum }} ? 'var(--accent-orange)' : '#f3f4f6')"
+                                            :stroke="activeTab === {{ $stepNum }} ? 'var(--accent-orange)' : (activeTab > {{ $stepNum }} ? 'var(--accent-orange)' : '#d1d5db')"
                                             stroke-width="2.5"
                                             class="transition-all duration-200"
                                         />
@@ -156,7 +156,7 @@ x-on:company-updated.window="
 
                                 <div 
                                     class="text-[11px] font-semibold text-center leading-tight max-w-[110px] transition-colors duration-200"
-                                    :class="activeTab === {{ $stepNum }} || activeTab > {{ $stepNum }} ? 'text-[color:var(--brand-via)]' : 'text-gray-500'"
+                                    :class="activeTab === {{ $stepNum }} || activeTab > {{ $stepNum }} ? 'text-[color:var(--accent-orange)]' : 'text-gray-500'"
                                 >
                                     {{ $stepLabel }}
                                 </div>
@@ -165,7 +165,7 @@ x-on:company-updated.window="
                             @if(!$isLast)
                                 <div 
                                     class="h-[3px] w-16 md:w-20 lg:w-24 mx-3 md:mx-4 mt-6 rounded-full transition-all duration-300"
-                                    :class="activeTab > {{ $stepNum }} ? 'bg-gradient-to-r from-[color:var(--brand-via)] to-[color:var(--brand-via)]/80 shadow-sm' : 'bg-gray-200'"
+                                    :class="activeTab > {{ $stepNum }} ? 'bg-[color:var(--accent-orange)] shadow-sm' : 'bg-gray-200'"
                                 ></div>
                             @endif
                         @endforeach
@@ -173,7 +173,7 @@ x-on:company-updated.window="
                 </div>
 
                 <div class="text-center mt-4">
-                    <span class="text-sm font-bold text-[color:var(--brand-via)] bg-white/60 px-4 py-1.5 rounded-full inline-block shadow-sm">
+                    <span class="text-sm font-bold text-[color:var(--accent-orange)] bg-white/70 px-4 py-1.5 rounded-full inline-block shadow-sm">
                         {{ tr('Step') }} <span x-text="activeTab"></span> {{ tr('of') }} 4: <span x-text="['{{ $steps[1] }}', '{{ $steps[2] }}', '{{ $steps[3] }}', '{{ $steps[4] }}'][activeTab - 1]"></span>
                     </span>
                 </div>
@@ -197,8 +197,8 @@ x-on:company-updated.window="
                                     <svg viewBox="0 0 56 56" class="absolute inset-0">
                                         <polygon 
                                             points="28,4 48,20 40,48 16,48 8,20"
-                                            :fill="activeTab === {{ $stepNum }} ? 'var(--brand-via)' : (activeTab > {{ $stepNum }} ? 'var(--brand-via)' : '#f3f4f6')"
-                                            :stroke="activeTab === {{ $stepNum }} ? 'var(--brand-via)' : (activeTab > {{ $stepNum }} ? 'var(--brand-via)' : '#d1d5db')"
+                                            :fill="activeTab === {{ $stepNum }} ? 'var(--accent-orange)' : (activeTab > {{ $stepNum }} ? 'var(--accent-orange)' : '#f3f4f6')"
+                                            :stroke="activeTab === {{ $stepNum }} ? 'var(--accent-orange)' : (activeTab > {{ $stepNum }} ? 'var(--accent-orange)' : '#d1d5db')"
                                             stroke-width="2.5"
                                         />
                                     </svg>
@@ -215,7 +215,7 @@ x-on:company-updated.window="
                             @if(!$isLast)
                                 <div 
                                     class="h-[3px] w-7 rounded-full transition-all duration-300"
-                                    :class="activeTab > {{ $stepNum }} ? 'bg-[color:var(--brand-via)]' : 'bg-gray-200'"
+                                    :class="activeTab > {{ $stepNum }} ? 'bg-[color:var(--accent-orange)]' : 'bg-gray-200'"
                                 ></div>
                             @endif
                         @endforeach
@@ -223,7 +223,7 @@ x-on:company-updated.window="
                 </div>
 
                 <div class="text-center mt-3">
-                    <span class="text-xs font-bold text-[color:var(--brand-via)] bg-white/60 px-3 py-1 rounded-full inline-block">
+                    <span class="text-xs font-bold text-[color:var(--accent-orange)] bg-white/70 px-3 py-1 rounded-full inline-block">
                         {{ tr('Step') }} <span x-text="activeTab"></span> / 4 — <span x-text="['{{ $steps[1] }}', '{{ $steps[2] }}', '{{ $steps[3] }}', '{{ $steps[4] }}'][activeTab - 1]"></span>
                     </span>
                 </div>
@@ -273,7 +273,7 @@ x-on:company-updated.window="
                 x-show="!editMode"
                 x-transition
                 @click="enableEdit()"
-                class="cursor-pointer px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-[color:var(--brand-from)] via-[color:var(--brand-via)] to-[color:var(--brand-to)] rounded-2xl hover:shadow-lg active:scale-[0.97] transition-all duration-200 shadow-sm"
+                class="cursor-pointer px-6 py-3 text-sm font-semibold text-white bg-[color:var(--accent-orange)] rounded-2xl hover:bg-[color:var(--accent-orange-hover)] hover:shadow-lg active:scale-[0.97] transition-all duration-200 shadow-sm"
             >
                 <i class="fas fa-edit me-2"></i>
                 {{ tr('Edit') }}

@@ -2,7 +2,7 @@
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
-            <h1 class="text-xl sm:text-2xl font-bold text-[color:var(--brand-via)]">
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-800">
                 {{ tr('Scheduled Emails') }}
             </h1>
             <p class="text-sm text-gray-500 mt-1">
@@ -143,7 +143,7 @@
                                 @if($scheduledEmail->status === 'pending')
                                     <div class="border-t border-gray-100 my-1"></div>
                                     <x-ui.dropdown-item 
-                                        class="text-red-600 hover:bg-red-50"
+                                        class="text-[color:var(--error)] hover:bg-[rgb(239_68_68/0.10)]"
                                         href="#"
                                         wire:click="cancelScheduled({{ $scheduledEmail->id }})"
                                         wire:confirm="{{ tr('Are you sure you want to cancel this scheduled email?') }}"
@@ -215,7 +215,7 @@
         class="relative bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden ring-1 ring-black/5 flex flex-col"
     >
         {{-- Header --}}
-        <div class="px-6 pt-5 pb-4 bg-gradient-to-br from-indigo-50 via-purple-50 to-cyan-50 border-b border-indigo-200/50 relative">
+        <div class="px-6 pt-5 pb-4 bg-[rgb(var(--accent-orange-rgb)/0.08)] border-b border-[rgb(var(--accent-orange-rgb)/0.16)] relative">
             <div class="flex items-center justify-between relative z-10">
                 <div class="min-w-0 flex-1 pr-4">
                     <h3 class="text-xl font-bold text-gray-900">
@@ -306,12 +306,12 @@
                 @if($viewingEmail->variables_data && count($viewingEmail->variables_data) > 0)
                 <div>
                     <label class="text-xs font-semibold text-gray-500 uppercase mb-2 block">{{ tr('Template Variables') }}</label>
-                    <div class="p-4 bg-orange-50 rounded-xl border border-orange-200">
+                    <div class="p-4 bg-[rgb(var(--accent-orange-rgb)/0.08)] rounded-xl border border-[rgb(var(--accent-orange-rgb)/0.16)]">
                         <div class="space-y-2">
                             @foreach($viewingEmail->variables_data as $variable => $value)
                                 <div class="flex items-start gap-2">
-                                    <span class="text-xs font-semibold text-[color:var(--brand-from)] min-w-[120px]">{{ tr(ucfirst(str_replace('_', ' ', $variable))) }}:</span>
-                                    <span class="text-sm text-[color:var(--brand-via)] flex-1">{{ $value }}</span>
+                                    <span class="text-xs font-semibold text-[color:var(--accent-orange)] min-w-[120px]">{{ tr(ucfirst(str_replace('_', ' ', $variable))) }}:</span>
+                                    <span class="text-sm text-[color:var(--accent-orange)] flex-1">{{ $value }}</span>
                                 </div>
                             @endforeach
                         </div>
@@ -323,8 +323,8 @@
                 @if($viewingEmail->status === 'failed' && $viewingEmail->error_message)
                 <div>
                     <label class="text-xs font-semibold text-gray-500 uppercase mb-2 block">{{ tr('Error Message') }}</label>
-                    <div class="p-4 bg-red-50 rounded-xl border border-red-200">
-                        <p class="text-sm text-red-700">{{ $viewingEmail->error_message }}</p>
+                    <div class="p-4 bg-[rgb(239_68_68/0.10)] rounded-xl border border-[rgb(239_68_68/0.22)]">
+                        <p class="text-sm text-[color:var(--error)]">{{ $viewingEmail->error_message }}</p>
                     </div>
                 </div>
                 @endif
@@ -346,7 +346,7 @@
                                     <p class="text-xs text-gray-500">{{ tr('Sent at') }}: {{ $log->sent_at->format('Y-m-d H:i:s') }}</p>
                                 @endif
                                 @if($log->error_message)
-                                    <p class="text-xs text-red-600 mt-1">{{ $log->error_message }}</p>
+                                    <p class="text-xs text-[color:var(--error)] mt-1">{{ $log->error_message }}</p>
                                 @endif
                             </div>
                         @endforeach
