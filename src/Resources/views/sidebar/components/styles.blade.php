@@ -1,29 +1,13 @@
 <style>
     :root {
-        --brand-via: #575757; /* fallback */
-        --brand-via-rgb: 87 87 87; /* fallback */
-
-        /* ✅ حتى language-switcher يشتغل لو ماعندك brand-from/to */
-        --brand-from: #6B6B6B;
-        --brand-to: #3F3F3F;
-        --brand-from-rgb: 107 107 107;
-        --brand-to-rgb: 63 63 63;
-
-        --accent-orange: #C45A1A;
-        --accent-orange-hover: #A94814;
-        --accent-orange-rgb: 196 90 26;
-
-        --success: #10B981;
-        --warning: #F59E0B;
-        --error: #EF4444;
-
+        /* Layout only — brand/accent/surface colors from app.css */
         --sidebar-width: 260px;
         --sidebar-collapsed: 80px;
         --transition-speed: 0.3s;
 
-        --light-bg: #f8f9fa;
-        --dark-text: #2d3748;
-        --gray-text: #718096;
+        --light-bg: var(--app-bg);
+        --dark-text: var(--text-primary);
+        --gray-text: var(--text-secondary);
 
         --border-color: rgba(255, 255, 255, 0.12);
         --hover-color: rgba(255, 255, 255, 0.10);
@@ -52,9 +36,7 @@
         height: 100vh;
         width: var(--sidebar-width);
 
-        /* ✅ لون واحد شفاف */
-        background-color: rgba(87, 87, 87, 0.96) !important; /* fallback */
-        background-color: rgb(var(--brand-via-rgb) / 0.95) !important;
+        background: var(--brand-from) !important;
 
         backdrop-filter: blur(10px);
 
