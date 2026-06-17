@@ -2,6 +2,8 @@
 
 namespace Athka\Saas\Livewire\Translations;
 
+use HananProgram\L10n\Services\AutoTranslator;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -15,6 +17,8 @@ class Index extends Component
 
     public string $search = '';
 
+    public string $group = 'all';
+
     public int $perPage = 20;
 
     public array $editing = [];
@@ -23,10 +27,16 @@ class Index extends Component
 
     protected $queryString = [
         'search' => ['except' => ''],
+        'group' => ['except' => 'all'],
         'perPage' => ['except' => 20],
     ];
 
     public function updatingSearch(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingGroup(): void
     {
         $this->resetPage();
     }
@@ -62,11 +72,23 @@ class Index extends Component
             return;
         }
 
+        $translation = DB::table('language_lines')
+            ->where('id', $id)
+            ->first();
+
+        if (! $translation) {
+            unset($this->editing[$id]);
+
+            return;
+        }
+
         $data = $this->editing[$id];
-        $text = json_encode([
+        $normalized = $this->normalizeTranslationText([
             'en' => $data['en'] ?? '',
             'ar' => $data['ar'] ?? '',
-        ], JSON_UNESCAPED_UNICODE);
+        ], (string) $translation->key);
+
+        $text = json_encode($normalized, JSON_UNESCAPED_UNICODE);
 
         DB::table('language_lines')
             ->where('id', $id)
@@ -83,6 +105,7 @@ class Index extends Component
     public function exportTranslations(): StreamedResponse
     {
         $translations = DB::table('language_lines')
+            ->when($this->group !== 'all', fn ($query) => $query->where('group', $this->group))
             ->orderBy('key')
             ->get();
 
@@ -90,13 +113,15 @@ class Index extends Component
             $text = json_decode($translation->text, true) ?? [];
 
             return [
+                'group' => $translation->group,
                 'key' => $translation->key,
                 'en' => $text['en'] ?? $translation->key,
                 'ar' => $text['ar'] ?? '',
             ];
         })->toArray();
 
-        $fileName = 'translations_'.now()->format('Y-m-d_H-i-s').'.json';
+        $groupSuffix = $this->group !== 'all' ? '_'.$this->group : '';
+        $fileName = 'translations'.$groupSuffix.'_'.now()->format('Y-m-d_H-i-s').'.json';
 
         return response()->streamDownload(function () use ($data) {
             echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
@@ -178,17 +203,23 @@ class Index extends Component
                     continue;
                 }
 
-                $text = json_encode([
+                $group = $this->normalizeImportGroup($item['group'] ?? null);
+
+                $normalized = $this->normalizeTranslationText([
                     'en' => $item['en'] ?? $item['key'] ?? '',
                     'ar' => $item['ar'] ?? '',
-                ], JSON_UNESCAPED_UNICODE);
+                ], (string) $item['key']);
+
+                $text = json_encode($normalized, JSON_UNESCAPED_UNICODE);
 
                 $exists = DB::table('language_lines')
+                    ->where('group', $group)
                     ->where('key', $item['key'])
                     ->exists();
 
                 if ($exists) {
                     DB::table('language_lines')
+                        ->where('group', $group)
                         ->where('key', $item['key'])
                         ->update([
                             'text' => $text,
@@ -197,7 +228,7 @@ class Index extends Component
                     $updated++;
                 } else {
                     DB::table('language_lines')->insert([
-                        'group' => 'ui',
+                        'group' => $group,
                         'key' => $item['key'],
                         'text' => $text,
                         'created_at' => now(),
@@ -234,9 +265,58 @@ class Index extends Component
         }
     }
 
+    public function cleanEnglishTranslations(): void
+    {
+        $query = DB::table('language_lines');
+
+        if ($this->group !== 'all') {
+            $query->where('group', $this->group);
+        }
+
+        if ($this->search) {
+            $query->where(function ($q) {
+                $q->where('key', 'like', '%'.$this->search.'%')
+                    ->orWhere('text->en', 'like', '%'.$this->search.'%')
+                    ->orWhere('text->ar', 'like', '%'.$this->search.'%');
+            });
+        }
+
+        $fixed = 0;
+        $checked = 0;
+
+        $query->orderBy('id')->chunkById(100, function ($translations) use (&$fixed, &$checked) {
+            foreach ($translations as $translation) {
+                $checked++;
+                $text = json_decode($translation->text, true) ?? [];
+                $normalized = $this->normalizeTranslationText($text, (string) $translation->key);
+
+                if (($normalized['en'] ?? '') === ($text['en'] ?? '') && ($normalized['ar'] ?? '') === ($text['ar'] ?? '')) {
+                    continue;
+                }
+
+                DB::table('language_lines')
+                    ->where('id', $translation->id)
+                    ->update([
+                        'text' => json_encode($normalized, JSON_UNESCAPED_UNICODE),
+                        'updated_at' => now(),
+                    ]);
+
+                $fixed++;
+            }
+        });
+
+        $this->resetPage();
+
+        session()->flash('status', tr('English translations cleaned successfully').': '.$fixed.' / '.$checked);
+    }
+
     public function render()
     {
         $query = DB::table('language_lines');
+
+        if ($this->group !== 'all') {
+            $query->where('group', $this->group);
+        }
 
         if ($this->search) {
             $query->where(function ($q) {
@@ -254,16 +334,86 @@ class Index extends Component
 
             return (object) [
                 'id' => $item->id,
+                'group' => $item->group,
                 'key' => $item->key,
                 'en' => $text['en'] ?? $item->key,
                 'ar' => $text['ar'] ?? '',
             ];
         });
 
+        $groups = DB::table('language_lines')
+            ->select('group')
+            ->distinct()
+            ->orderBy('group')
+            ->pluck('group')
+            ->filter()
+            ->values();
+
         return view('saas::translations.index', [
             'translations' => $translations,
+            'groups' => $groups,
         ])
             ->extends('saas::layouts.saas')
             ->section('content');
+    }
+
+    private function normalizeImportGroup(?string $group): string
+    {
+        $group = trim((string) $group);
+
+        if ($group !== '' && $group !== 'all') {
+            return $group;
+        }
+
+        return $this->group !== 'all' ? $this->group : 'ui';
+    }
+
+    private function normalizeTranslationText(array $text, string $key): array
+    {
+        $en = trim((string) ($text['en'] ?? ''));
+        $ar = trim((string) ($text['ar'] ?? ''));
+
+        if ($this->containsArabic($en)) {
+            $ar = $ar !== '' ? $ar : $en;
+            $en = $this->translateArabicToEnglish($en, $key);
+        }
+
+        if ($en === '') {
+            $en = $this->englishTextFromKey($key);
+        }
+
+        return [
+            'en' => $en,
+            'ar' => $ar,
+        ];
+    }
+
+    private function translateArabicToEnglish(string $text, string $key): string
+    {
+        if (config('l10n.auto_translate')) {
+            $translated = AutoTranslator::translate($text, 'en', 'ar');
+
+            if ($translated && ! $this->containsArabic($translated)) {
+                return trim($translated);
+            }
+        }
+
+        return $this->englishTextFromKey($key);
+    }
+
+    private function englishTextFromKey(string $key): string
+    {
+        $text = trim(Str::headline(str_replace(['.', '_', '-'], ' ', $key)));
+
+        if ($text === '' || $this->containsArabic($text)) {
+            return 'Translation '.substr(sha1($key), 0, 8);
+        }
+
+        return $text;
+    }
+
+    private function containsArabic(string $text): bool
+    {
+        return preg_match('/\p{Arabic}/u', $text) === 1;
     }
 }

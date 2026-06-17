@@ -19,6 +19,17 @@
                         <i class="fas fa-download"></i>
                         {{ tr('Export') }}
                     </button>
+                    <button
+                        type="button"
+                        wire:click="cleanEnglishTranslations"
+                        wire:loading.attr="disabled"
+                        wire:target="cleanEnglishTranslations"
+                        class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[color:var(--accent-orange)] hover:bg-[color:var(--accent-orange-hover)] shadow-lg hover:shadow-xl rounded-lg transition-all duration-300 disabled:opacity-70 disabled:cursor-wait"
+                    >
+                        <i class="fas fa-language" wire:loading.remove wire:target="cleanEnglishTranslations"></i>
+                        <i class="fas fa-spinner fa-spin" wire:loading wire:target="cleanEnglishTranslations"></i>
+                        {{ tr('Clean English') }}
+                    </button>
                     <label class="cursor-pointer inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-[color:var(--accent-orange)] hover:bg-[color:var(--accent-orange-hover)] rounded-lg transition-all duration-300 cursor-pointer relative {{ $isRtl ? 'flex-row-reverse' : '' }}"
                            wire:loading.class="opacity-70 cursor-wait"
                            wire:target="importFile,importTranslations">
@@ -48,6 +59,14 @@
                         :placeholder="tr('Search by key or text...')"
                         :debounce="300"
                     />
+                </div>
+                <div class="w-full sm:w-56">
+                    <x-ui.select wire:model.live="group">
+                        <option value="all">{{ tr('All Systems') }}</option>
+                        @foreach(($groups ?? collect()) as $translationGroup)
+                            <option value="{{ $translationGroup }}">{{ $translationGroup }}</option>
+                        @endforeach
+                    </x-ui.select>
                 </div>
                 <div class="w-full sm:w-40">
                     <x-ui.select wire:model.live="perPage">
@@ -129,6 +148,9 @@
                     <thead>
                         <tr>
                             <th class="{{ $textAlign }} py-3 px-4 text-sm font-bold text-gray-700">
+                                {{ tr('System') }}
+                            </th>
+                            <th class="{{ $textAlign }} py-3 px-4 text-sm font-bold text-gray-700">
                                 {{ tr('English') }}
                             </th>
                             <th class="{{ $textAlign }} py-3 px-4 text-sm font-bold text-gray-700">
@@ -142,6 +164,11 @@
                     <tbody>
                         @foreach($translations as $translation)
                             <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                                <td class="py-3 px-4" data-label="{{ tr('System') }}">
+                                    <span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-[11px] font-bold text-gray-600 border border-gray-100">
+                                        {{ $translation->group }}
+                                    </span>
+                                </td>
                                 <td class="py-3 px-4" data-label="{{ tr('English') }}">
                                     @if(isset($editing[$translation->id]))
                                         <x-ui.textarea
