@@ -48,9 +48,16 @@ Route::prefix('saas')
  * ✅ Route لعرض صور الشركات من storage
  */
 Route::get('/storage/company-logo/{path}', function (string $path) {
-    $fullPath = storage_path('app/public/'.$path);
+    $basePath = realpath(storage_path('app/public'));
+    $requestedPath = str_replace(['\\', '//'], '/', ltrim($path, '/\\'));
+    $fullPath = $basePath ? realpath($basePath.DIRECTORY_SEPARATOR.$requestedPath) : false;
 
-    if (! file_exists($fullPath)) {
+    if (! $basePath || ! $fullPath || ! is_file($fullPath)) {
+        abort(404);
+    }
+
+    $basePrefix = rtrim($basePath, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
+    if (! str_starts_with($fullPath, $basePrefix)) {
         abort(404);
     }
 
