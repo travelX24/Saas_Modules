@@ -50,6 +50,12 @@ Route::prefix('saas')
 Route::get('/storage/company-logo/{path}', function (string $path) {
     $basePath = realpath(storage_path('app/public'));
     $requestedPath = str_replace(['\\', '//'], '/', ltrim($path, '/\\'));
+
+    abort_unless(
+        preg_match('#^saas/companies/\d+/logo/[^/]+\.(?:jpg|jpeg|png|gif|webp|svg)$#i', $requestedPath) === 1,
+        404
+    );
+
     $fullPath = $basePath ? realpath($basePath.DIRECTORY_SEPARATOR.$requestedPath) : false;
 
     if (! $basePath || ! $fullPath || ! is_file($fullPath)) {
@@ -61,7 +67,10 @@ Route::get('/storage/company-logo/{path}', function (string $path) {
         abort(404);
     }
 
-    return response()->file($fullPath);
+    return response()->file($fullPath, [
+        'Cache-Control' => 'public, max-age=3600',
+        'Content-Security-Policy' => "default-src 'none'; style-src 'unsafe-inline'; sandbox",
+    ]);
 })->where('path', '.*')->name('storage.company-logo');
 
 /**
