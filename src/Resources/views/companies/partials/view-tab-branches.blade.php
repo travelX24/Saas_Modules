@@ -63,7 +63,6 @@
                                         <span class="text-xs text-gray-500 font-medium">({{ $branch->code }})</span>
                                     @endif
                                 </div>
-                                <div class="text-xs text-gray-500 mt-0.5">#{{ $branch->id }}</div>
                             </div>
 
                             <div class="flex items-center gap-2 flex-shrink-0">

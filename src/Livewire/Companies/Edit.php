@@ -698,7 +698,7 @@ $this->dispatch('toast', type: 'success', message: tr('Company updated successfu
         foreach ($input as $i => $row) {
             $id = isset($row['id']) && (int) $row['id'] > 0 ? (int) $row['id'] : null;
             $name = trim((string) ($row['name'] ?? ''));
-            $code = isset($row['code']) ? trim((string) $row['code']) : null;
+            $code = isset($row['code']) ? trim((string) ($row['code']) ) : null;
             $code = ($code === '') ? null : $code;
             $isActive = array_key_exists('is_active', (array) $row) ? (bool) $row['is_active'] : true;
 
@@ -727,7 +727,65 @@ $this->dispatch('toast', type: 'success', message: tr('Company updated successfu
                 $seenCodes[$kCode] = true;
             }
 
-            // DB uniqueness check (per company) - ignore same id
+            // If id provided, ensure it belongs to the company
+            if ($id) {
+                $exists = Branch::query()
+                    ->where('saas_company_id', $companyId)
+                    ->where('id', $id)
+                    ->exists();
+
+                if (! $exists) {
+                    throw ValidationException::withMessages([
+                        "branches.$i.name" => tr('Invalid branch row.'),
+                    ]);
+                }
+            }
+
+            $normalized[] = [
+                'id' => $id,
+                'name' => $name,
+                'code' => $code,
+                'is_active' => $isActive,
+            ];
+        }
+
+        // ✅ Step 1: Perform deletions FIRST (before DB uniqueness check)
+        // so that re-adding a previously deleted branch name doesn't cause a false conflict.
+        $existingIds = Branch::query()
+            ->where('saas_company_id', $companyId)
+            ->pluck('id')
+            ->map(fn ($v) => (int) $v)
+            ->all();
+
+        $inputIds = array_values(array_filter(array_map(fn ($r) => $r['id'] ?? null, $normalized)));
+        $toDelete = array_values(array_diff($existingIds, $inputIds));
+
+        if (! empty($toDelete)) {
+            foreach ($toDelete as $delId) {
+                $hasEmployees = Employee::query()
+                    ->where('saas_company_id', $companyId)
+                    ->where('branch_id', (int) $delId)
+                    ->exists();
+
+                if ($hasEmployees) {
+                    throw ValidationException::withMessages([
+                        'branches' => tr('Cannot delete branch because it has employees.'),
+                    ]);
+                }
+            }
+
+            Branch::query()
+                ->where('saas_company_id', $companyId)
+                ->whereIn('id', $toDelete)
+                ->delete();
+        }
+
+        // ✅ Step 2: Now check DB uniqueness (deleted rows are gone from DB now)
+        foreach ($normalized as $i => $row) {
+            $id = $row['id'];
+            $name = $row['name'];
+            $code = $row['code'];
+
             $qName = Branch::query()
                 ->where('saas_company_id', $companyId)
                 ->where('name', $name);
@@ -757,58 +815,6 @@ $this->dispatch('toast', type: 'success', message: tr('Company updated successfu
                     ]);
                 }
             }
-
-            // If id provided, ensure it belongs to the company
-            if ($id) {
-                $exists = Branch::query()
-                    ->where('saas_company_id', $companyId)
-                    ->where('id', $id)
-                    ->exists();
-
-                if (! $exists) {
-                    throw ValidationException::withMessages([
-                        "branches.$i.name" => tr('Invalid branch row.'),
-                    ]);
-                }
-            }
-
-            $normalized[] = [
-                'id' => $id,
-                'name' => $name,
-                'code' => $code,
-                'is_active' => $isActive,
-            ];
-        }
-
-        // Deletions (rows removed from UI)
-        $existingIds = Branch::query()
-            ->where('saas_company_id', $companyId)
-            ->pluck('id')
-            ->map(fn ($v) => (int) $v)
-            ->all();
-
-        $inputIds = array_values(array_filter(array_map(fn ($r) => $r['id'] ?? null, $normalized)));
-
-        $toDelete = array_values(array_diff($existingIds, $inputIds));
-
-        if (! empty($toDelete)) {
-            foreach ($toDelete as $delId) {
-                $hasEmployees = Employee::query()
-                    ->where('saas_company_id', $companyId)
-                    ->where('branch_id', (int) $delId)
-                    ->exists();
-
-                if ($hasEmployees) {
-                    throw ValidationException::withMessages([
-                        'branches' => tr('Cannot delete branch because it has employees.'),
-                    ]);
-                }
-            }
-
-            Branch::query()
-                ->where('saas_company_id', $companyId)
-                ->whereIn('id', $toDelete)
-                ->delete();
         }
 
         // Upserts
