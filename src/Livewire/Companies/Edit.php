@@ -9,6 +9,7 @@ use Athka\Saas\Models\SaasCompanyOtherinfo;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -772,6 +773,13 @@ $this->dispatch('toast', type: 'success', message: tr('Company updated successfu
                         'branches' => tr('Cannot delete branch because it has employees.'),
                     ]);
                 }
+            }
+
+            if (Schema::hasTable('branch_user_access')) {
+                DB::table('branch_user_access')
+                    ->where('saas_company_id', $companyId)
+                    ->whereIn('branch_id', $toDelete)
+                    ->delete();
             }
 
             Branch::query()
