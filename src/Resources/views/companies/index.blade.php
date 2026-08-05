@@ -207,7 +207,7 @@
                     ]"
 
                     :rtl="$isRtl"
-                    :perPage="10"
+                    :enable-pagination="false"
                 >
                     @foreach($companies as $company)
                         <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
@@ -590,6 +590,11 @@
             </div>
         @endif
 
+        @if($companies->hasPages())
+            <div class="mt-6">
+                {{ $companies->links() }}
+            </div>
+        @endif
         {{-- Modals and Dialogs --}}
         @foreach($companies as $company)
             {{-- View Company Modal --}}

@@ -16,7 +16,7 @@
                         wire:click="exportTranslations"
                         class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[color:var(--accent-orange)] hover:bg-[color:var(--accent-orange-hover)] shadow-lg hover:shadow-xl rounded-lg transition-all duration-300"
                     >
-                        <i class="fas fa-download"></i>
+                        <i class="fas fa-upload"></i>
                         {{ tr('Export') }}
                     </button>
                     <label class="cursor-pointer inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-[color:var(--accent-orange)] hover:bg-[color:var(--accent-orange-hover)] rounded-lg transition-all duration-300 cursor-pointer relative {{ $isRtl ? 'flex-row-reverse' : '' }}"
@@ -24,7 +24,7 @@
                            wire:target="importFile,importTranslations">
                         <input type="file" wire:model="importFile" accept=".json" class="hidden" wire:loading.attr="disabled">
                         <span wire:loading.remove wire:target="importFile,importTranslations" class="inline-flex items-center gap-2">
-                            <i class="cursor-pointer fas fa-upload"></i>
+                            <i class="cursor-pointer fas fa-download"></i>
                             {{ tr('Import') }}
                         </span>
                         <span wire:loading wire:target="importFile,importTranslations" class="flex items-center gap-2 text-white">
