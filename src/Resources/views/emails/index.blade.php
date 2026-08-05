@@ -228,7 +228,7 @@
                     {{-- Scheduled Emails List --}}
                     @if($scheduledEmails && $scheduledEmails->count() > 0)
                         <x-ui.card class="overflow-visible">
-                            <x-ui.table :headers="[
+                            <x-ui.table :enable-pagination="false" :headers="[
                                 tr('Template'),
                                 tr('Recipient'),
                                 tr('Type'),
@@ -490,7 +490,7 @@
                     {{-- Templates List --}}
                     @if($templates && $templates->count() > 0)
                         <x-ui.card class="overflow-visible">
-                            <x-ui.table :headers="[
+                            <x-ui.table :enable-pagination="false" :headers="[
                                 tr('Name'),
                                 tr('Subject'),
                                 tr('Type'),
