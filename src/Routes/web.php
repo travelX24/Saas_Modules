@@ -67,8 +67,81 @@ Route::get('/storage/company-logo/{path}', function (string $path) {
         abort(404);
     }
 
+    $thumbnailWidth = (int) request()->query('w', 0);
+    $allowedThumbnailWidths = [72, 96, 128, 160];
+    $extension = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
+
+    if (
+        in_array($thumbnailWidth, $allowedThumbnailWidths, true)
+        && extension_loaded('gd')
+        && in_array($extension, ['jpg', 'jpeg', 'png', 'webp'], true)
+    ) {
+        try {
+            [$sourceWidth, $sourceHeight] = getimagesize($fullPath) ?: [0, 0];
+
+            if ($sourceWidth > $thumbnailWidth && $sourceHeight > 0) {
+                $modifiedAt = filemtime($fullPath) ?: time();
+                $thumbnailExtension = $extension === 'png' ? 'png' : ($extension === 'webp' && function_exists('imagewebp') ? 'webp' : 'jpg');
+                $cacheDir = storage_path('framework/cache/company-logo-thumbnails/'.$thumbnailWidth);
+                $cacheFile = $cacheDir.'/'.sha1($requestedPath.'|'.$thumbnailWidth.'|'.$modifiedAt).'.'.$thumbnailExtension;
+
+                if (! is_file($cacheFile)) {
+                    if (! is_dir($cacheDir)) {
+                        mkdir($cacheDir, 0755, true);
+                    }
+
+                    $sourceImage = match ($extension) {
+                        'jpg', 'jpeg' => imagecreatefromjpeg($fullPath),
+                        'png' => imagecreatefrompng($fullPath),
+                        'webp' => function_exists('imagecreatefromwebp') ? imagecreatefromwebp($fullPath) : false,
+                        default => false,
+                    };
+
+                    if ($sourceImage !== false) {
+                        $thumbnailHeight = max(1, (int) round($sourceHeight * ($thumbnailWidth / $sourceWidth)));
+                        $thumbnailImage = imagecreatetruecolor($thumbnailWidth, $thumbnailHeight);
+
+                        if (in_array($thumbnailExtension, ['png', 'webp'], true)) {
+                            imagealphablending($thumbnailImage, false);
+                            imagesavealpha($thumbnailImage, true);
+                            $transparent = imagecolorallocatealpha($thumbnailImage, 0, 0, 0, 127);
+                            imagefilledrectangle($thumbnailImage, 0, 0, $thumbnailWidth, $thumbnailHeight, $transparent);
+                        }
+
+                        imagecopyresampled($thumbnailImage, $sourceImage, 0, 0, 0, 0, $thumbnailWidth, $thumbnailHeight, $sourceWidth, $sourceHeight);
+
+                        match ($thumbnailExtension) {
+                            'png' => imagepng($thumbnailImage, $cacheFile, 6),
+                            'webp' => imagewebp($thumbnailImage, $cacheFile, 82),
+                            default => imagejpeg($thumbnailImage, $cacheFile, 82),
+                        };
+
+                        imagedestroy($thumbnailImage);
+                        imagedestroy($sourceImage);
+                    }
+                }
+
+                if (is_file($cacheFile)) {
+                    $contentType = match ($thumbnailExtension) {
+                        'png' => 'image/png',
+                        'webp' => 'image/webp',
+                        default => 'image/jpeg',
+                    };
+
+                    return response()->file($cacheFile, [
+                        'Content-Type' => $contentType,
+                        'Cache-Control' => 'public, max-age=31536000, immutable',
+                        'Content-Security-Policy' => "default-src 'none'; style-src 'unsafe-inline'; sandbox",
+                    ]);
+                }
+            }
+        } catch (\Throwable $e) {
+            // Fall back to the original logo; thumbnail generation must never block the UI.
+        }
+    }
+
     return response()->file($fullPath, [
-        'Cache-Control' => 'public, max-age=3600',
+        'Cache-Control' => 'public, max-age=86400',
         'Content-Security-Policy' => "default-src 'none'; style-src 'unsafe-inline'; sandbox",
     ]);
 })->where('path', '.*')->name('storage.company-logo');

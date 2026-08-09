@@ -219,13 +219,17 @@
                                         @php
                                             $cleanPath = str_replace('\\', '/', $company->logo_path);
                                             $cleanPath = ltrim($cleanPath, '/');
-                                            $logoUrl = asset('storage/' . $cleanPath) . '?v=' . $company->updated_at->timestamp;
+                                            $logoUrl = route('storage.company-logo', ['path' => $cleanPath, 'w' => 72]) . '&v=' . $company->updated_at->timestamp;
                                         @endphp
                                         <img 
                                             src="{{ $logoUrl }}" 
                                             alt="{{ app()->getLocale() === 'ar' ? $company->legal_name_ar : ($company->legal_name_en ?? $company->legal_name_ar) }}"
                                             class="w-9 h-9 rounded-lg object-cover border border-gray-200 flex-shrink-0"
+                                            width="36"
+                                            height="36"
                                             loading="lazy"
+                                            decoding="async"
+                                            fetchpriority="low"
                                             onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';"
                                         />
                                         <div class="w-9 h-9 rounded-lg bg-[color:var(--accent-orange)] flex items-center justify-center flex-shrink-0" style="display: none;">
@@ -429,14 +433,18 @@
                                     // تنظيف المسار وإزالة backslashes
                                     $cleanPath = str_replace('\\', '/', $company->logo_path);
                                     $cleanPath = ltrim($cleanPath, '/');
-                                    $logoUrl = asset('storage/' . $cleanPath) . '?v=' . $company->updated_at->timestamp;
+                                    $logoUrl = route('storage.company-logo', ['path' => $cleanPath, 'w' => 96]) . '&v=' . $company->updated_at->timestamp;
                                 @endphp
                                 
                                 <img 
                                     src="{{ $logoUrl }}" 
                                     alt="{{ app()->getLocale() === 'ar' ? $company->legal_name_ar : ($company->legal_name_en ?? $company->legal_name_ar) }}"
                                     class="w-12 h-12 rounded-xl object-cover border border-gray-200 flex-shrink-0"
+                                    width="48"
+                                    height="48"
                                     loading="lazy"
+                                    decoding="async"
+                                    fetchpriority="low"
                                     onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';"
                                 />
                                 <div class="w-12 h-12 rounded-xl bg-[color:var(--accent-orange)] flex items-center justify-center flex-shrink-0" style="display: none;">

@@ -298,8 +298,17 @@
                     <div class="flex items-center gap-2 p-2 rounded-xl hover:bg-gray-50 transition-colors">
                         {{-- Company Logo or Icon --}}
                         @if($company->logo_path)
-                            <img src="{{ asset('storage/' . ltrim(str_replace(['\\', '//'], '/', $company->logo_path), '/')) }}" 
+                            @php
+                                $cleanPath = ltrim(str_replace(['\\', '//'], '/', $company->logo_path), '/');
+                                $logoUrl = route('storage.company-logo', ['path' => $cleanPath, 'w' => 96]) . '&v=' . $company->updated_at->timestamp;
+                            @endphp
+                            <img src="{{ $logoUrl }}" 
                                  class="w-10 h-10 rounded-lg object-cover flex-shrink-0 shadow-sm border border-gray-100 dark:border-gray-800"
+                                 width="40"
+                                 height="40"
+                                 loading="lazy"
+                                 decoding="async"
+                                 fetchpriority="low"
                                  onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($company->legal_name_ar) }}&color=7543eb&background=f3e8ff&bold=true&length=1';">
                         @else
                             <div class="w-10 h-10 rounded-lg bg-[color:var(--accent-orange)] flex items-center justify-center flex-shrink-0 shadow-sm">

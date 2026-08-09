@@ -63,9 +63,18 @@
                     @php
                         $cleanPath = str_replace('\\', '/', $company->logo_path);
                         $cleanPath = ltrim($cleanPath, '/');
-                        $logoUrl = asset('storage/' . $cleanPath);
+                        $logoUrl = route('storage.company-logo', ['path' => $cleanPath, 'w' => 128]) . '&v=' . $company->updated_at->timestamp;
                     @endphp
-                    <img src="{{ $logoUrl }}" alt="Logo" class="w-16 h-16 object-cover rounded-lg">
+                    <img
+                        src="{{ $logoUrl }}"
+                        alt="Logo"
+                        class="w-16 h-16 object-cover rounded-lg"
+                        width="64"
+                        height="64"
+                        loading="lazy"
+                        decoding="async"
+                        fetchpriority="low"
+                    >
                 </div>
             </div>
         @endif
