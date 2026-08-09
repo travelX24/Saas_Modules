@@ -86,7 +86,8 @@
                     {{ $stickyPosition }}: 0;
                     background-color: white;
                     z-index: 10;
-                    min-width: 120px;
+                    width: 220px;
+                    min-width: 220px;
                 }
                 .translations-table-sticky-actions thead th:last-child {
                     z-index: 11;
@@ -94,6 +95,16 @@
                 }
                 .translations-table-sticky-actions tbody tr:hover td:last-child {
                     background-color: #f9fafb;
+                }
+                .translation-row-actions {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    flex-wrap: nowrap;
+                    white-space: nowrap;
+                }
+                .translation-row-actions > * {
+                    flex: 0 0 auto;
                 }
 
                 @media (max-width: 768px) {
@@ -129,6 +140,10 @@
                         border-top: 1px solid #f8fafc !important;
                         margin-top: 0.5rem;
                         padding-top: 0.75rem !important;
+                    }
+                    .translation-row-actions {
+                        flex-wrap: wrap;
+                        white-space: normal;
                     }
                 }
             </style>
@@ -189,11 +204,11 @@
                                 </td>
                                 <td class="py-3 px-4" data-label="{{ tr('Actions') }}">
                                     @if(isset($editing[$translation->id]))
-                                        <div class="flex flex-wrap items-center gap-2 {{ $isRtl ? 'flex-row-reverse' : '' }}">
+                                        <div class="translation-row-actions {{ $isRtl ? 'flex-row-reverse' : '' }}">
                                             <x-ui.primary-button
                                                 wire:click="saveTranslation({{ $translation->id }})"
                                                 :fullWidth="false"
-                                                class="!px-4 !py-2 !text-xs !rounded-xl"
+                                                class="!px-4 !py-2 !text-xs !rounded-xl !whitespace-nowrap"
                                                 loading="saveTranslation"
                                             >
                                                 <i class="cursor-pointer fas fa-check {{ $isRtl ? 'ms-1' : 'me-1' }}"></i>
@@ -202,7 +217,7 @@
                                             <x-ui.secondary-button
                                                 wire:click="cancelEdit({{ $translation->id }})"
                                                 :fullWidth="false"
-                                                class="!px-4 !py-2 !text-xs !rounded-xl"
+                                                class="!px-4 !py-2 !text-xs !rounded-xl !whitespace-nowrap"
                                             >
                                                 <i class="fas fa-times {{ $isRtl ? 'ms-1' : 'me-1' }}"></i>
                                                 {{ tr('Cancel') }}

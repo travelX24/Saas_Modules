@@ -113,6 +113,8 @@
     {{-- Sidebar Backdrop for Mobile --}}
     <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
+    <x-ui.modal-loading-overlay />
+
 
     @livewireScripts
     
