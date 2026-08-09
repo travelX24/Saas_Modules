@@ -788,7 +788,7 @@ class Create extends Component
             return;
         }
 
-        $path = $file->store("saas/companies/{$companyId}/documents", 'public');
+        $path = $file->store("saas/companies/{$companyId}/documents", 'local');
 
         SaasCompanyDocument::updateOrCreate(
             ['company_id' => $companyId, 'type' => $type],

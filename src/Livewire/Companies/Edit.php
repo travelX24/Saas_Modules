@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Route;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Athka\Saas\Models\Branch;
@@ -179,7 +180,7 @@ class Edit extends Component
                 $this->existingDocuments[$doc->type] = [
                     'file_path' => $doc->file_path,
                     'original_name' => $doc->original_name ?: basename($doc->file_path),
-                    'url' => asset('storage/'.$cleanPath),
+                    'url' => $this->documentUrl($doc, $cleanPath),
                 ];
             }
         }
@@ -544,7 +545,7 @@ $this->dispatch('toast', type: 'success', message: tr('Company updated successfu
             return;
         }
 
-        $path = $file->store("saas/companies/{$companyId}/documents", 'public');
+        $path = $file->store("saas/companies/{$companyId}/documents", 'local');
 
         SaasCompanyDocument::updateOrCreate(
             ['company_id' => $companyId, 'type' => $type],
@@ -587,6 +588,15 @@ $this->dispatch('toast', type: 'success', message: tr('Company updated successfu
     public function existingDocument(string $type): ?array
     {
         return $this->existingDocuments[$type] ?? null;
+    }
+
+    private function documentUrl(SaasCompanyDocument $document, string $cleanPath): string
+    {
+        if (Route::has('secure.saas.company-documents.file')) {
+            return route('secure.saas.company-documents.file', ['document' => $document->id]);
+        }
+
+        return asset('storage/'.$cleanPath);
     }
 
     private function clearDashboardCache(): void

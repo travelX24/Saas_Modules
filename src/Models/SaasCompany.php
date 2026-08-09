@@ -55,6 +55,18 @@ class SaasCompany extends Model
         return $this->hasMany(\App\Models\User::class, 'saas_company_id');
     }
 
+    public function adminUser()
+    {
+        return $this->hasOne(\App\Models\User::class, 'saas_company_id')->ofMany('id', 'min');
+    }
+
+    public function companyAdminUser()
+    {
+        return $this->hasOne(\App\Models\User::class, 'saas_company_id')
+            ->whereHas('roles', fn ($query) => $query->where('name', 'company-admin'))
+            ->ofMany('id', 'min');
+    }
+
     public function branches()
     {
         return $this->hasMany(\Athka\Saas\Models\Branch::class, 'saas_company_id');

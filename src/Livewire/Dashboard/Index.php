@@ -24,6 +24,8 @@ class Index extends Component
         // إحصائيات الشركات (Cache لمدة 5 دقائق)
         $cacheKey = 'dashboard:stats:' . now()->format('Y-m-d-H');
         $stats = Cache::remember($cacheKey, now()->addMinutes(1), function () {
+            [$monthStart, $monthEnd] = $this->monthBounds(now());
+
             return [
                 'totalCompanies' => SaasCompany::count(),
                 'activeCompanies' => $this->getActiveCompaniesCount(),
@@ -31,12 +33,10 @@ class Index extends Component
                 'inactiveCompanies' => $this->getInactiveCompaniesCount(),
                 'totalUsers' => User::whereNotNull('saas_company_id')->count(),
                 'newUsersThisMonth' => User::whereNotNull('saas_company_id')
-                    ->whereMonth('created_at', now()->month)
-                    ->whereYear('created_at', now()->year)
+                    ->whereBetween('created_at', [$monthStart, $monthEnd])
                     ->count(),
                 'subscriptionsExpiringSoon' => $this->getSubscriptionsExpiringSoonCount(),
-                'newCompaniesThisMonth' => SaasCompany::whereMonth('created_at', now()->month)
-                    ->whereYear('created_at', now()->year)
+                'newCompaniesThisMonth' => SaasCompany::whereBetween('created_at', [$monthStart, $monthEnd])
                     ->count(),
             ];
         });
@@ -55,7 +55,8 @@ class Index extends Component
         $recentCacheKey = 'dashboard:recent:' . now()->format('Y-m-d-H-i');
         $recent = Cache::remember($recentCacheKey, now()->addMinutes(2), function () {
             return [
-                'recentCompanies' => SaasCompany::with(['settings', 'users'])
+                'recentCompanies' => SaasCompany::with('settings')
+                    ->withCount('users')
                     ->latest()
                     ->limit(5)
                     ->get(),
@@ -169,9 +170,9 @@ class Index extends Component
 
             for ($i = 5; $i >= 0; $i--) {
                 $date = now()->subMonths($i);
+                [$monthStart, $monthEnd] = $this->monthBounds($date);
                 $months[] = $date->format('M Y');
-                $counts[] = SaasCompany::whereYear('created_at', $date->year)
-                    ->whereMonth('created_at', $date->month)
+                $counts[] = SaasCompany::whereBetween('created_at', [$monthStart, $monthEnd])
                     ->count();
             }
 
@@ -192,10 +193,10 @@ class Index extends Component
 
             for ($i = 5; $i >= 0; $i--) {
                 $date = now()->subMonths($i);
+                [$monthStart, $monthEnd] = $this->monthBounds($date);
                 $months[] = $date->format('M Y');
                 $counts[] = User::whereNotNull('saas_company_id')
-                    ->whereYear('created_at', $date->year)
-                    ->whereMonth('created_at', $date->month)
+                    ->whereBetween('created_at', [$monthStart, $monthEnd])
                     ->count();
             }
 
@@ -220,5 +221,13 @@ class Index extends Component
                 'data' => [$active, $inactive, $expiringSoon],
             ];
         });
+    }
+
+    private function monthBounds($date): array
+    {
+        return [
+            $date->copy()->startOfMonth(),
+            $date->copy()->endOfMonth(),
+        ];
     }
 }

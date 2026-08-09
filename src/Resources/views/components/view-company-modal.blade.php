@@ -261,7 +261,7 @@ x-on:company-updated.window="
 
             {{-- Edit Mode --}}
             <div x-show="editMode" x-transition class="w-full">
-                @livewire('saas.companies.edit', ['companyId' => $company->id], key('edit-company-'.$company->id))
+                <livewire:saas.companies.edit :company-id="$company->id" :key="'edit-company-'.$company->id" lazy />
             </div>
         </div>
 

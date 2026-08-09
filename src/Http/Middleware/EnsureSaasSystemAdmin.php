@@ -33,8 +33,7 @@ class EnsureSaasSystemAdmin
         $isOnCentralDomain = ($host === $central || $host === 'www.'.$central);
 
         // ✅ التحقق من صلاحيات SaaS Admin
-        $isSaasAdmin = $u->hasAnyRole(['saas-admin', 'system-admin', 'super-admin']) ||
-                       (($u->email ?? null) === 'admin@athkahr.com');
+        $isSaasAdmin = $u->hasAnyRole(['saas-admin', 'system-admin', 'super-admin']);
 
         // ✅ إذا كان SaaS Admin على الدومين المركزي -> السماح بالدخول
         if ($isSaasAdmin && $isOnCentralDomain) {

@@ -111,11 +111,7 @@ Route::prefix('')
     ->group(function () {
 
         Route::get('/hello', function () {
-            if (view()->exists('saas::company-admin.hello')) {
-                return view('saas::company-admin.hello');
-            }
-
-            return view('company-admin.hello');
+            return redirect()->route('company-admin.dashboard');
         })->name('hello');
 
         Route::get('/dashboard', function () {

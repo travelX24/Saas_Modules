@@ -14,7 +14,7 @@
     }
     
     // Company Admin (أول مستخدم مرتبط بالشركة عادة يكون الـ admin)
-    $admin = $company->users->first();
+    $admin = $company->adminUser ?? ($company->relationLoaded('users') ? $company->users->first() : null);
 @endphp
 
 <div class="space-y-3">

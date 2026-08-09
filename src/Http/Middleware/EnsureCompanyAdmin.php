@@ -39,8 +39,7 @@ class EnsureCompanyAdmin
         }
 
         // ✅ SaaS Admin على دومين الشركة -> السماح بالدخول (للاستخدام المتزامن)
-        $isSaasAdmin = $u->hasAnyRole(['saas-admin', 'system-admin', 'super-admin']) ||
-                       (($u->email ?? null) === 'admin@athkahr.com');
+        $isSaasAdmin = $u->hasAnyRole(['saas-admin', 'system-admin', 'super-admin']);
         if ($isSaasAdmin && $isOnCompanyDomain) {
             // ✅ إذا كان SaaS Admin على دومين الشركة وكان مرتبط بشركة -> السماح بالدخول
             if (! empty($u->saas_company_id)) {

@@ -1,4 +1,4 @@
-<div class="space-y-4" wire:poll.30s>
+<div class="space-y-4" wire:poll.60s>
     {{-- Header --}}
     <div class="mobile-header-adjust">
         <x-ui.page-header
@@ -316,10 +316,10 @@
                                     <i class="fas fa-calendar me-1"></i>
                                     {{ $company->created_at->diffForHumans() }}
                                 </span>
-                                @if($company->users->count() > 0)
+                                @if(($company->users_count ?? 0) > 0)
                                     <span class="text-xs text-gray-500">
                                         <i class="fas fa-users me-1"></i>
-                                        {{ $company->users->count() }} {{ tr('users') }}
+                                        {{ $company->users_count }} {{ tr('users') }}
                                     </span>
                                 @endif
                             </div>

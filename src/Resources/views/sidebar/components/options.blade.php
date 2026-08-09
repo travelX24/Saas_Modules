@@ -67,13 +67,14 @@
         } 
     }">
         {{-- Logout Form (Hidden) --}}
-        <form id="logout-form" method="POST" action="{{ route('authkit.logout') }}" style="display: none;">
+        <form id="logout-form" method="POST" action="{{ route('authkit.logout') }}" style="display: none;" data-athka-skip-loading>
             @csrf
         </form>
 
         <button 
             type="button" 
             class="logout-btn"
+            data-athka-skip-loading
             @click="$dispatch('open-confirm-logout')"
         >
             <i class="fas fa-sign-out-alt"></i>

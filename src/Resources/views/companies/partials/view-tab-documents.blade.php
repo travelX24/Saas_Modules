@@ -22,7 +22,9 @@
                         @php
                             $cleanPath = str_replace('\\', '/', $doc->file_path);
                             $cleanPath = ltrim($cleanPath, '/');
-                            $fileUrl = asset('storage/' . $cleanPath);
+                            $fileUrl = \Illuminate\Support\Facades\Route::has('secure.saas.company-documents.file')
+                                ? route('secure.saas.company-documents.file', ['document' => $doc->id])
+                                : asset('storage/' . $cleanPath);
                             $isImage = in_array(strtolower(pathinfo($doc->file_path, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'gif']);
                         @endphp
                         

@@ -7,6 +7,7 @@
             </h1>
 
             <a href="{{ route('saas.emails.index', ['tab' => 'templates']) }}"
+               wire:navigate
                class="w-full sm:w-auto px-4 py-2 bg-white border border-gray-200 rounded-2xl hover:bg-gray-50 flex items-center justify-center gap-2 text-sm sm:text-base">
                 <i class="fas fa-arrow-left"></i>
                 <span>{{ tr('Back') }}</span>
@@ -109,6 +110,7 @@
         <div class="flex justify-end gap-3 pt-6">
             <x-ui.secondary-button
                 href="{{ route('saas.emails.index', ['tab' => 'templates']) }}"
+                wire:navigate
                 :fullWidth="false"
             >
                 {{ tr('Cancel') }}

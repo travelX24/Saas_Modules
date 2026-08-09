@@ -11,6 +11,7 @@
             @endphp
             <x-ui.secondary-button
                 :href="route('saas.companies.index')"
+                wire:navigate
                 :fullWidth="false"
                 class="!py-2 !px-4 !rounded-2xl !text-sm sm:!text-base"
             >

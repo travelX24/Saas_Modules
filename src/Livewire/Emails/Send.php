@@ -404,7 +404,11 @@ class Send extends Component
             ->orderBy('name')
             ->get();
 
-        $companies = SaasCompany::where('is_active', true)
+        $companies = SaasCompany::with([
+                'companyAdminUser',
+                'adminUser',
+            ])
+            ->where('is_active', true)
             ->orderBy('legal_name_ar')
             ->get();
 

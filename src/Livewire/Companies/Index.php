@@ -238,11 +238,12 @@ public function resendPasswordReset(int $companyId): void
     {
         $query = SaasCompany::with([
                 'settings',
-                'users',
+                'adminUser',
                 'documents',
                 'branches' => fn ($q) => $q->select('id', 'saas_company_id', 'name', 'is_active')->orderBy('name'),
             ])
             ->withCount([
+                'users',
                 'branches',
                 'branches as active_branches_count' => fn ($q) => $q->where('is_active', true),
             ])

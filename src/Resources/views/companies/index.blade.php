@@ -13,6 +13,7 @@
 
             <x-ui.primary-button
                 href="{{ route('saas.companies.create') }}"
+                wire:navigate
                 :arrow="false"
                 :fullWidth="false"
             >
@@ -308,7 +309,7 @@
                     <td class="py-3 px-3">
                         @if($company->settings)
                             <span class="text-sm text-gray-700">
-                                {{ $company->users->count() }} / {{ $company->settings->allowed_users }}
+                                {{ $company->users_count ?? 0 }} / {{ $company->settings->allowed_users }}
                             </span>
                         @else
                             <span class="text-sm text-gray-400">—</span>
@@ -549,7 +550,7 @@
                             <div class="flex items-center justify-between">
                                 <span class="text-xs text-gray-500">{{ tr('Users') }}</span>
                                 <span class="text-xs font-medium text-gray-700">
-                                    {{ $company->users->count() }} / {{ $company->settings->allowed_users }}
+                                    {{ $company->users_count ?? 0 }} / {{ $company->settings->allowed_users }}
                                 </span>
                             </div>
                         @endif

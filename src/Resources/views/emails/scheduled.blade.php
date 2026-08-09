@@ -1,4 +1,4 @@
-<div class="space-y-4 sm:space-y-6" wire:poll.10s>
+<div class="space-y-4 sm:space-y-6" wire:poll.30s>
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
@@ -79,20 +79,12 @@
                         <td class="py-3 px-3">
                             @if($scheduledEmail->recipient_type === 'single')
                                 @php
-                                    $companyId = $scheduledEmail->recipient_company_ids[0] ?? null;
-                                    $company = $companyId ? \Athka\Saas\Models\SaasCompany::find($companyId) : null;
-                                    if ($company) {
-                                        $admin = $company->users()->whereHas('roles', function ($q) {
-                                            $q->where('name', 'company-admin');
-                                        })->first();
-                                        if (!$admin) {
-                                            $admin = $company->users()->first();
-                                        }
-                                    }
+                                    $recipientItems = $recipientItemsByEmail[$scheduledEmail->id] ?? [];
+                                    $recipientItem = $recipientItems[0] ?? null;
                                 @endphp
                                 <div class="text-sm text-gray-700">
-                                    @if($admin && $admin->email)
-                                        {{ $admin->email }}
+                                    @if($recipientItem)
+                                        {{ $recipientItem['email'] }}
                                     @else
                                         {{ tr('No admin email found') }}
                                     @endif

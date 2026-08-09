@@ -7,6 +7,7 @@
             </h1>
 
             <a href="{{ route('saas.emails.index', ['tab' => 'emails']) }}"
+               wire:navigate
                class="w-full sm:w-auto px-4 py-2 bg-white border border-gray-200 rounded-2xl hover:bg-gray-50 flex items-center justify-center gap-2 text-sm sm:text-base">
                 <i class="fas fa-arrow-left"></i>
                 <span>{{ tr('Back') }}</span>
@@ -165,15 +166,8 @@
                         <div class="border border-gray-200 rounded-xl p-4 max-h-60 overflow-y-auto">
                             @foreach($companies as $company)
                                 @php
-                                    // Get company admin email for display
-                                    $admin = $company->users()->whereHas('roles', function ($q) {
-                                        $q->where('name', 'company-admin');
-                                    })->first();
-                                    
-                                    if (!$admin) {
-                                        $admin = $company->users()->first();
-                                    }
-                                    
+                                    $admin = $company->companyAdminUser ?? $company->adminUser;
+
                                     $companyName = app()->getLocale() === 'ar' 
                                         ? $company->legal_name_ar 
                                         : ($company->legal_name_en ?: $company->legal_name_ar);
@@ -240,6 +234,7 @@
         <div class="flex justify-end gap-3">
             <x-ui.secondary-button
                 href="{{ route('saas.emails.index', ['tab' => 'emails']) }}"
+                wire:navigate
             >
                 {{ tr('Cancel') }}
             </x-ui.secondary-button>

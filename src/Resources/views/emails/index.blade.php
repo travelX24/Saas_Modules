@@ -1,4 +1,4 @@
-<div class="space-y-4 sm:space-y-6" wire:poll.3s>
+<div class="space-y-4 sm:space-y-6" wire:poll.15s>
     {{-- Top Fixed Loading Bar (shows on tab switch) --}}
     <div wire:loading wire:target="setActiveTab" class="fixed top-0 left-0 right-0 h-[3px] z-[9999] overflow-hidden pointer-events-none">
         <div class="h-full w-full bg-[color:var(--accent-orange)]">
@@ -104,6 +104,7 @@
                     @if($activeTab === 'emails')
                         <x-ui.primary-button
                             href="{{ route('saas.emails.send') }}"
+                            wire:navigate
                             :arrow="false"
                             :fullWidth="false"
                         >
@@ -113,6 +114,7 @@
                     @else
                         <x-ui.primary-button
                             href="{{ route('saas.email-templates.create') }}"
+                            wire:navigate
                             :arrow="false"
                             :fullWidth="false"
                         >
@@ -249,37 +251,7 @@
 
 <td class="py-3 px-3">
     @php
-        $recipientCompanyIds = $scheduledEmail->recipient_company_ids ?? [];
-
-        $recipientCompanies = \Athka\Saas\Models\SaasCompany::with('users.roles')
-            ->whereIn('id', $recipientCompanyIds)
-            ->get();
-
-        $recipientItems = [];
-
-        foreach ($recipientCompanies as $company) {
-            $admin = $company->users->first(function ($user) {
-                return $user->roles->contains('name', 'company-admin');
-            });
-
-            if (!$admin) {
-                $admin = $company->users->first();
-            }
-
-            $companyName = app()->isLocale('ar')
-                ? ($company->legal_name_ar ?: $company->legal_name_en ?: tr('Unnamed company'))
-                : ($company->legal_name_en ?: $company->legal_name_ar ?: tr('Unnamed company'));
-
-            $emailText = ($admin && $admin->email)
-                ? $admin->email
-                : tr('No admin email found');
-
-            $recipientItems[] = [
-                'company_name' => $companyName,
-                'email' => $emailText,
-            ];
-        }
-
+        $recipientItems = $recipientItemsByEmail[$scheduledEmail->id] ?? [];
         $companiesCount = count($recipientItems);
     @endphp
 
@@ -535,6 +507,7 @@
                                                 <x-ui.dropdown-menu>
                                                     <x-ui.dropdown-item
                                                         href="{{ route('saas.email-templates.edit', $template->id) }}"
+                                                        wire:navigate
                                                     >
                                                         <i class="fas fa-edit w-4 me-2"></i>
                                                         {{ tr('Edit') }}
@@ -542,6 +515,7 @@
 
                                                     <x-ui.dropdown-item
                                                         href="{{ route('saas.emails.send', ['templateId' => $template->id]) }}"
+                                                        wire:navigate
                                                     >
                                                         <i class="fas fa-paper-plane w-4 me-2"></i>
                                                         {{ tr('Send') }}

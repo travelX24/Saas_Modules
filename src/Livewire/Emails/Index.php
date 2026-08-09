@@ -4,6 +4,7 @@ namespace Athka\Saas\Livewire\Emails;
 
 use Athka\Saas\Jobs\SendScheduledEmailJob;
 use Athka\Saas\Models\EmailTemplate;
+use Athka\Saas\Models\SaasCompany;
 use Athka\Saas\Models\ScheduledEmail;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -246,6 +247,7 @@ class Index extends Component
     public function render()
     {
         $scheduledEmails = null;
+        $recipientItemsByEmail = [];
         $viewingEmail = null;
         $systemTimezone = null;
 
@@ -260,6 +262,8 @@ class Index extends Component
                 ->latest();
 
             $scheduledEmails = $query->paginate(15);
+
+            $recipientItemsByEmail = $this->buildRecipientItemsByEmail($scheduledEmails);
 
             $viewingEmail = $this->viewingEmailId
                 ? ScheduledEmail::with(['template', 'logs'])->find($this->viewingEmailId)
@@ -307,6 +311,7 @@ class Index extends Component
 
         return view('saas::emails.index', [
             'scheduledEmails' => $scheduledEmails,
+            'recipientItemsByEmail' => $recipientItemsByEmail,
             'viewingEmail' => $viewingEmail,
             'systemTimezone' => $systemTimezone,
             'templates' => $templates,
@@ -314,5 +319,54 @@ class Index extends Component
         ])
             ->extends('saas::layouts.saas')
             ->section('content');
+    }
+
+    private function buildRecipientItemsByEmail($scheduledEmails): array
+    {
+        $companyIds = $scheduledEmails->getCollection()
+            ->flatMap(fn ($email) => $email->recipient_company_ids ?? [])
+            ->filter()
+            ->unique()
+            ->values();
+
+        if ($companyIds->isEmpty()) {
+            return [];
+        }
+
+        $companies = SaasCompany::with([
+                'companyAdminUser',
+                'adminUser',
+            ])
+            ->whereIn('id', $companyIds)
+            ->get()
+            ->keyBy('id');
+
+        $locale = app()->getLocale();
+        $itemsByEmail = [];
+
+        foreach ($scheduledEmails as $email) {
+            $itemsByEmail[$email->id] = collect($email->recipient_company_ids ?? [])
+                ->map(function ($companyId) use ($companies, $locale) {
+                    $company = $companies->get((int) $companyId);
+
+                    if (! $company) {
+                        return null;
+                    }
+
+                    $admin = $company->companyAdminUser ?? $company->adminUser;
+
+                    return [
+                        'company_name' => $locale === 'ar'
+                            ? ($company->legal_name_ar ?: $company->legal_name_en ?: tr('Unnamed company'))
+                            : ($company->legal_name_en ?: $company->legal_name_ar ?: tr('Unnamed company')),
+                        'email' => ($admin && $admin->email) ? $admin->email : tr('No admin email found'),
+                    ];
+                })
+                ->filter()
+                ->values()
+                ->all();
+        }
+
+        return $itemsByEmail;
     }
 }

@@ -2,6 +2,8 @@
 @php
     $locale = app()->getLocale();
     $isRtl  = in_array(substr($locale, 0, 2), ['ar','fa','ur','he']);
+    $needsCharts = request()->routeIs('saas.dashboard');
+    $needsMaps = request()->routeIs('saas.companies.*');
 @endphp
 
 <html lang="{{ $locale }}" dir="{{ $isRtl ? 'rtl' : 'ltr' }}">
@@ -12,7 +14,7 @@
     <title>{{ config('app.name') }} - @tr('SaaS')</title>
 
     {{-- Assets --}}
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/saas.js'])
     @livewireStyles
 
     <link rel="stylesheet" href="https://unpkg.com/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
@@ -24,10 +26,9 @@
         <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     @endif
     
-    {{-- Leaflet CSS --}}
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-          crossorigin=""/>
+    @if($needsMaps)
+        @vite('resources/js/saas-maps.js')
+    @endif
 
     <style>
         [x-cloak]{display:none!important}
@@ -118,14 +119,12 @@
 
     @livewireScripts
     
-    {{-- Chart.js --}}
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    @if($needsCharts)
+        {{-- Chart.js --}}
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    @endif
     
-    {{-- Leaflet JS --}}
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-            crossorigin=""></script>
-    
+    @if($needsMaps)
     {{-- Map Picker Alpine Component --}}
     <script>
         function registerMapPickerModal() {
@@ -535,6 +534,7 @@
             }, 100);
         }
     </script>
+    @endif
     
     @stack('scripts')
 
@@ -602,6 +602,7 @@
             });
         })();
 
+        @if($needsMaps)
         // ✅ Fix: Re-initialize Alpine.js after Livewire components load (for Edit mode in modal)
         document.addEventListener('livewire:init', () => {
             if (typeof Alpine !== 'undefined' && window.Alpine && !Alpine.data('mapPickerModal')) {
@@ -728,6 +729,7 @@
                 }
             }, 100);
         }
+        @endif
     </script>
 
 </body>

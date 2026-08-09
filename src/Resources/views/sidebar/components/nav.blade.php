@@ -12,6 +12,7 @@
                 </div>
             @else
                 <a href="{{ $item['href'] }}"
+                   wire:navigate
                    class="nav-link {{ $item['active'] ? 'active' : '' }}">
                     <div class="nav-icon">{!! $item['icon'] !!}</div>
                     <span class="nav-text">{{ $item['label'] }}</span>
