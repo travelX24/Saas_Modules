@@ -29,7 +29,14 @@
                         @endphp
                         
                         @if($isImage)
-                            <img src="{{ $fileUrl }}" alt="{{ $docTypes[$doc->type] ?? $doc->type }}" class="w-full h-28 object-cover rounded-lg mb-1.5">
+                            <img
+                                x-bind:src="typeof open !== 'undefined' && typeof activeTab !== 'undefined' && open && activeTab === 4 ? @js($fileUrl) : null"
+                                alt="{{ $docTypes[$doc->type] ?? $doc->type }}"
+                                class="w-full h-28 object-cover rounded-lg mb-1.5"
+                                loading="lazy"
+                                decoding="async"
+                                fetchpriority="low"
+                            >
                         @else
                             <div class="w-full h-28 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg mb-1.5 flex items-center justify-center">
                                 <i class="fas fa-file-pdf text-3xl text-[color:var(--error)]"></i>
