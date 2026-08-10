@@ -1,4 +1,4 @@
-<div class="space-y-4" wire:poll.60s>
+<div class="space-y-4" wire:poll.120s>
     {{-- Header --}}
     <div class="mobile-header-adjust">
         <x-ui.page-header
@@ -423,8 +423,6 @@
             
             const chartData = getChartData('companies');
             
-            console.log('Companies chart data:', chartData);
-            
             if (!chartData.labels.length || !chartData.data.length) {
                 console.warn('No chart data available for companies chart', chartData);
                 return;
@@ -503,8 +501,6 @@
             
             const chartData = getChartData('users');
             
-            console.log('Users chart data:', chartData);
-            
             if (!chartData.labels.length || !chartData.data.length) {
                 console.warn('No chart data available for users chart', chartData);
                 return;
@@ -577,8 +573,6 @@
             }
             
             const chartData = getChartData('subscriptions');
-            
-            console.log('Subscriptions chart data:', chartData);
             
             if (!chartData.labels.length || !chartData.data.length) {
                 console.warn('No chart data available for subscriptions chart', chartData);

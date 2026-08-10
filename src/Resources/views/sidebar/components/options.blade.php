@@ -45,7 +45,6 @@
         init() {
             // استمع للـ event عند التحميل
             window.addEventListener('logoutConfirmed', () => {
-                console.log('Logout event received - submitting form...');
                 this.logout();
             });
         },
@@ -55,7 +54,6 @@
             if (form) {
                 form.submit();
             } else {
-                console.error('Logout form not found!');
                 // Fallback: redirect manually
                 @php
                     $loginRoute = \Illuminate\Support\Facades\Route::has('authkit.login')

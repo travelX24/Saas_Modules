@@ -1,4 +1,4 @@
-<div class="space-y-4 sm:space-y-6" wire:poll.30s>
+<div class="space-y-4 sm:space-y-6" wire:poll.60s>
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>

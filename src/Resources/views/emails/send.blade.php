@@ -242,7 +242,6 @@
                 type="submit"
                 wire:loading.attr="disabled"
                 wire:target="send"
-                onclick="console.log('Send button clicked');"
                 class="cursor-pointer"
             >
                 <span wire:loading.remove wire:target="send">
@@ -271,42 +270,3 @@
         </div>
     @endif
 </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.getElementById('send-email-form');
-        const submitButton = form?.querySelector('button[type="submit"]');
-        
-        if (submitButton) {
-            submitButton.addEventListener('click', function(e) {
-                console.log('Submit button clicked');
-                console.log('Form data:', {
-                    templateId: @js($templateId),
-                    recipientCompanyId: @js($recipientCompanyId),
-                    sendType: @js($sendType),
-                    recipientType: @js($recipientType),
-                });
-            });
-        }
-        
-        form?.addEventListener('submit', function(e) {
-            console.log('Form submitted');
-        });
-    });
-
-    document.addEventListener('livewire:init', () => {
-        console.log('Livewire initialized');
-        
-        Livewire.on('validation-failed', (errors) => {
-            console.log('Validation failed:', errors);
-        });
-        
-        Livewire.on('error', (error) => {
-            console.error('Livewire error:', error);
-        });
-        
-        Livewire.hook('message.processed', (message, component) => {
-            console.log('Livewire message processed:', message);
-        });
-    });
-</script>

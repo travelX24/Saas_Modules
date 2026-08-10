@@ -11,7 +11,7 @@
         <x-ui.input :label="tr('Legal Name (EN)')" wire:model.lazy="legal_name_en" error="legal_name_en"/>
 
         {{-- ✅ IMPORTANT: use model= instead of wire:model --}}
-        <x-ui.select :label="tr('Company Type')" model="company_type" error="company_type" :required="true">
+        <x-ui.select :label="tr('Company Type')" wire:model.defer="company_type" error="company_type" :required="true">
             <option value="individual">{{ tr('Individual') }}</option>
             <option value="foundation">{{ tr('Foundation') }}</option>
             <option value="company">{{ tr('Company') }}</option>
@@ -26,6 +26,7 @@
                 :label="tr('Logo')"
                 name="logo"
                 wire:model="logo"
+                :syncUploadErrors="false"
                 target="logo"
                 :file="$logo"
                 :existingImage="isset($isEditMode) && $isEditMode ? $this->logoUrl : null"

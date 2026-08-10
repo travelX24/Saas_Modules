@@ -25,6 +25,8 @@ class Index extends Component
 
     public string $viewMode = 'list'; // 'list' or 'cards'
 
+    public ?int $viewingCompanyId = null;
+
     protected $queryString = [
         'search' => ['except' => ''],
         'statusFilter' => ['except' => 'all'],
@@ -40,6 +42,16 @@ class Index extends Component
         if (in_array($mode, ['list', 'cards'])) {
             $this->viewMode = $mode;
         }
+    }
+
+    public function openCompanyModal(int $companyId): void
+    {
+        $this->viewingCompanyId = $companyId;
+    }
+
+    public function closeCompanyModal(): void
+    {
+        $this->viewingCompanyId = null;
     }
 
     protected $listeners = ['company-updated' => '$refresh'];
@@ -239,7 +251,6 @@ public function resendPasswordReset(int $companyId): void
         $query = SaasCompany::with([
                 'settings',
                 'adminUser',
-                'documents',
                 'branches' => fn ($q) => $q->select('id', 'saas_company_id', 'name', 'is_active')->orderBy('name'),
             ])
             ->withCount([
@@ -302,6 +313,26 @@ public function resendPasswordReset(int $companyId): void
             ->latest();
 
         $companies = $query->paginate(12);
+
+        $viewingCompany = null;
+        if ($this->viewingCompanyId) {
+            $viewingCompany = SaasCompany::with([
+                    'settings',
+                    'adminUser',
+                    'documents',
+                    'branches' => fn ($q) => $q->select('id', 'saas_company_id', 'name', 'is_active')->orderBy('name'),
+                ])
+                ->withCount([
+                    'users',
+                    'branches',
+                    'branches as active_branches_count' => fn ($q) => $q->where('is_active', true),
+                ])
+                ->find($this->viewingCompanyId);
+
+            if (! $viewingCompany) {
+                $this->viewingCompanyId = null;
+            }
+        }
 
         // جلب القيم الفريدة للفلاتر مع Cache (15 دقيقة)
         $locale = app()->getLocale();
@@ -384,6 +415,7 @@ public function resendPasswordReset(int $companyId): void
             'cities' => $cities,
             'countries' => $countries,
             'companyTypes' => $companyTypes,
+            'viewingCompany' => $viewingCompany,
         ])
             ->extends('saas::layouts.saas')
             ->section('content');

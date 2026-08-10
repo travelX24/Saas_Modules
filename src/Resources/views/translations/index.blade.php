@@ -69,7 +69,7 @@
     </x-ui.card>
 
     {{-- Translations Table --}}
-    <div wire:poll.60s>
+    <div wire:poll.120s>
     @if($translations->count() > 0)
         <x-ui.card class="relative overflow-hidden">
             @php

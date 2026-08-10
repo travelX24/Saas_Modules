@@ -385,7 +385,7 @@
                                 <x-ui.dropdown-menu>
                                     <x-ui.dropdown-item 
                                         href="#"
-                                        x-on:click="$dispatch('open-view-company-{{ $company->id }}')"
+                                        wire:click.prevent="openCompanyModal({{ $company->id }})"
                                     >
                                         <i class="fas fa-eye w-4 me-2"></i>
                                         {{ tr('View & Edit') }}
@@ -490,7 +490,7 @@
                         <x-ui.dropdown-menu>
                             <x-ui.dropdown-item 
                                 href="#"
-                                x-on:click="$dispatch('open-view-company-{{ $company->id }}')"
+                                wire:click.prevent="openCompanyModal({{ $company->id }})"
                             >
                                 <i class="fas fa-eye w-4 me-2"></i>
                                 {{ tr('View & Edit') }}
@@ -604,11 +604,13 @@
                 {{ $companies->links() }}
             </div>
         @endif
-        {{-- Modals and Dialogs --}}
-        @foreach($companies as $company)
-            {{-- View Company Modal --}}
-            @include('saas::components.view-company-modal', ['company' => $company])
-        @endforeach
+        {{-- Modal loads only after clicking View & Edit. --}}
+        @if($viewingCompany)
+            @include('saas::components.view-company-modal', [
+                'company' => $viewingCompany,
+                'initialOpen' => true,
+            ])
+        @endif
     @else
         {{-- Empty State --}}
         <x-ui.card>

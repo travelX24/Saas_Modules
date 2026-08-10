@@ -54,7 +54,7 @@
             {{-- Timezone --}}
             <x-ui.select
                 :label="tr('Timezone')"
-                wire:model="timezone"
+                wire:model.defer="timezone"
                 error="timezone"
                 align="up"
             >
@@ -66,7 +66,7 @@
             {{-- Default Locale --}}
             <x-ui.select
                 :label="tr('Default Locale')"
-                wire:model="default_locale"
+                wire:model.defer="default_locale"
                 error="default_locale"
                 align="up"
             >
@@ -77,7 +77,7 @@
             {{-- DateTime Format --}}
             <x-ui.select
                 :label="tr('DateTime Format')"
-                wire:model="datetime_format"
+                wire:model.defer="datetime_format"
                 error="datetime_format"
                 align="up"
             >

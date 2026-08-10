@@ -1,4 +1,4 @@
-<div class="space-y-4 sm:space-y-6" wire:poll.15s>
+<div class="space-y-4 sm:space-y-6" wire:poll.60s>
     {{-- Top Fixed Loading Bar (shows on tab switch) --}}
     <div wire:loading wire:target="setActiveTab" class="fixed top-0 left-0 right-0 h-[3px] z-[9999] overflow-hidden pointer-events-none">
         <div class="h-full w-full bg-[color:var(--accent-orange)]">

@@ -1,5 +1,6 @@
 @props([
     'company' => null,
+    'initialOpen' => false,
 ])
 
 @php
@@ -19,10 +20,11 @@
 
 <div
     x-data="{
-        open: false,
+        open: @js($initialOpen),
         activeTab: 1,
         editMode: false,
         companyId: {{ $company->id }},
+        managedByLivewire: @js($initialOpen),
         show() {
             this.open = true;
             this.activeTab = 1;
@@ -33,6 +35,9 @@
             this.open = false;
             this.editMode = false;
             document.body.style.overflow = '';
+            if (this.managedByLivewire && typeof $wire !== 'undefined') {
+                $wire.closeCompanyModal();
+            }
         },
         enableEdit() {
             this.editMode = true;
@@ -44,6 +49,7 @@
             window.dispatchEvent(new CustomEvent('company-edit-cancelled'));
         },
     }"
+x-init="if (open) document.body.style.overflow = 'hidden'"
 x-on:company-updated.window="
     if ($event.detail && Number($event.detail.companyId) === companyId) {
         editMode = false;
