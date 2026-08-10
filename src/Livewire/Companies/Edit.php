@@ -579,7 +579,7 @@ $this->dispatch('toast', type: 'success', message: tr('Company updated successfu
             $cleanPath = str_replace('\\', '/', $this->logoPath);
             $cleanPath = ltrim($cleanPath, '/');
 
-            return asset('storage/'.$cleanPath);
+            return Storage::disk('public')->url($cleanPath);
         }
 
         return null;
