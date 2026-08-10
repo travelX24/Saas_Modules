@@ -184,7 +184,7 @@ Route::prefix('')
     ->group(function () {
 
         Route::get('/hello', function () {
-            return redirect()->route('company-admin.dashboard');
+            return view('company-admin.hello');
         })->name('hello');
 
         Route::get('/dashboard', function () {
