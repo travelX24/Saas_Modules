@@ -370,8 +370,9 @@ class Index extends Component
 
     private function normalizeTranslationText(array $text, string $key): array
     {
-        $en = trim((string) ($text['en'] ?? ''));
-        $ar = trim((string) ($text['ar'] ?? ''));
+        $key = $this->cleanUtf8($key);
+        $en = trim($this->cleanUtf8((string) ($text['en'] ?? '')));
+        $ar = trim($this->cleanUtf8((string) ($text['ar'] ?? '')));
 
         if ($this->containsArabic($en)) {
             $ar = $ar !== '' ? $ar : $en;
@@ -414,6 +415,41 @@ class Index extends Component
 
     private function containsArabic(string $text): bool
     {
+        $text = $this->cleanUtf8($text);
+
         return preg_match('/\p{Arabic}/u', $text) === 1;
+    }
+
+    private function cleanUtf8(string $value): string
+    {
+        if ($value === '') {
+            return '';
+        }
+
+        if (function_exists('mb_check_encoding') && mb_check_encoding($value, 'UTF-8')) {
+            return $value;
+        }
+
+        foreach (['Windows-1256', 'ISO-8859-6', 'Windows-1252', 'ISO-8859-1'] as $encoding) {
+            if (! function_exists('mb_convert_encoding')) {
+                break;
+            }
+
+            $converted = @mb_convert_encoding($value, 'UTF-8', $encoding);
+
+            if (is_string($converted) && $converted !== '' && mb_check_encoding($converted, 'UTF-8')) {
+                return $converted;
+            }
+        }
+
+        if (function_exists('iconv')) {
+            $converted = @iconv('UTF-8', 'UTF-8//IGNORE', $value);
+
+            if (is_string($converted)) {
+                return $converted;
+            }
+        }
+
+        return preg_replace('/[^\x09\x0A\x0D\x20-\x7E]/', '', $value) ?? '';
     }
 }
