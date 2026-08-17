@@ -327,10 +327,19 @@
                         }).setView([defaultLat, defaultLng], 13);
                         
                         // Add tile layer (OpenStreetMap)
-                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                            attribution: '© OpenStreetMap contributors',
-                            maxZoom: 19
-                        }).addTo(this.map);
+                        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
+                        attribution: '© OpenStreetMap contributors © CARTO',
+                        subdomains: 'abcd',
+                        maxZoom: 20,
+                        detectRetina: true,
+                    }).addTo(this.map);
+
+                    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
+                        attribution: '© OpenStreetMap contributors © CARTO',
+                        subdomains: 'abcd',
+                        maxZoom: 20,
+                        detectRetina: true,
+                    }).addTo(this.map);
                         
                         // Invalidate size to ensure map renders correctly
                         setTimeout(() => {
@@ -693,10 +702,19 @@
             zoomControl: true
         });
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors',
-            maxZoom: 19
-        }).addTo(this.map);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
+                        attribution: '© OpenStreetMap contributors © CARTO',
+                        subdomains: 'abcd',
+                        maxZoom: 20,
+                        detectRetina: true,
+                    }).addTo(this.map);
+
+                    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
+                        attribution: '© OpenStreetMap contributors © CARTO',
+                        subdomains: 'abcd',
+                        maxZoom: 20,
+                        detectRetina: true,
+                    }).addTo(this.map);
 
         this.marker = L.marker([defaultLat, defaultLng], { draggable: false }).addTo(this.map);
 

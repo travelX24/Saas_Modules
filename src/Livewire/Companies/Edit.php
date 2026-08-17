@@ -96,6 +96,8 @@ class Edit extends Component
 
     public array $branches = [];
 
+    public array $timezones = [];
+
     // TAB 4: Documents
     public $doc_cr = null;
 
@@ -116,6 +118,7 @@ class Edit extends Component
     {
         $this->companyId = $companyId;
         $company = SaasCompany::with(['settings', 'documents', 'users'])->findOrFail($companyId);
+        $this->timezones = $this->timezoneOptions();
 
         // Load company data
         $this->legal_name_ar = $company->legal_name_ar;
@@ -620,16 +623,23 @@ $this->dispatch('toast', type: 'success', message: tr('Company updated successfu
 
     public function render()
     {
-        $company = SaasCompany::with(['settings', 'documents'])->findOrFail($this->companyId);
-
-        $timezones = collect(\DateTimeZone::listIdentifiers())->map(function($tz) {
-            return ['value' => $tz, 'label' => $tz];
-        })->toArray();
-
         return view('saas::companies.edit', [
-            'company' => $company,
-            'timezones' => $timezones,
+            'timezones' => $this->timezones,
         ]);
+    }
+
+    public function placeholder()
+    {
+        return view('saas::companies.partials.edit-placeholder');
+    }
+
+    private function timezoneOptions(): array
+    {
+        return Cache::remember('saas:company-edit:timezone-options', now()->addDay(), function () {
+            return collect(\DateTimeZone::listIdentifiers())
+                ->map(fn ($tz) => ['value' => $tz, 'label' => $tz])
+                ->toArray();
+        });
     }
 
 
