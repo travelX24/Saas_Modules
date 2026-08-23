@@ -361,6 +361,8 @@
             </div>
         </x-ui.card>
     </div>
+
+    @livewire(\App\Livewire\ForceChangePasswordModal::class)
 </div>
 
 @push('scripts')

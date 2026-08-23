@@ -116,6 +116,8 @@
 
     <x-ui.modal-loading-overlay />
 
+    @livewire(\App\Livewire\ForceChangePasswordModal::class)
+
 
     @livewireScripts
     
