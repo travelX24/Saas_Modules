@@ -30,15 +30,32 @@ class SendScheduledEmailJob implements ShouldQueue
             $template = $this->scheduledEmail->template;
             $variablesData = $this->scheduledEmail->variables_data ?? [];
 
-            // Get recipients
+            // Get recipients (deduplicated)
             $recipients = $this->getRecipients();
 
             if (empty($recipients)) {
                 throw new \Exception(tr('No recipients found'));
             }
 
+            $sentCount = 0;
+            $failedCount = 0;
+
             // Send to each recipient
             foreach ($recipients as $recipient) {
+                $email = strtolower(trim($recipient['email']));
+
+                // ✅ Idempotency Check: Skip recipient if already sent in a previous attempt
+                $alreadySent = EmailLog::where('scheduled_email_id', $this->scheduledEmail->id)
+                    ->where('recipient_email', $email)
+                    ->where('status', 'sent')
+                    ->exists();
+
+                if ($alreadySent) {
+                    $sentCount++;
+                    \Log::info("SendScheduledEmailJob: Skipping already sent recipient: {$email}");
+                    continue;
+                }
+
                 try {
                     // Replace variables in subject and body
                     $subject = $this->replaceVariables($template->subject, $variablesData, $recipient, $template);
@@ -54,69 +71,65 @@ class SendScheduledEmailJob implements ShouldQueue
                             : ($company->legal_name_en ?: $company->legal_name_ar);
                         
                         // Get admin name if available
-                        $admin = $company->users()->whereHas('roles', function ($q) {
-                            $q->where('name', 'company-admin');
-                        })->first();
-                        if (!$admin) {
-                            $admin = $company->users()->first();
-                        }
+                        $admin = $company->users->first(fn($u) => $u->roles->contains('name', 'company-admin')) ?: $company->users->first();
                         if ($admin) {
                             $recipientName = $admin->name;
                         }
                     }
 
                     \Log::info("SendScheduledEmailJob: Attempting to send email", [
-                        'recipient_email' => $recipient['email'],
+                        'recipient_email' => $email,
                         'subject' => $subject,
                         'mailer' => config('mail.mailer'),
                         'host' => config('mail.mailers.smtp.host'),
                     ]);
 
                     // Send email
-                    Mail::to($recipient['email'])->send(
-                        new TemplateEmailNotification($subject, $body, $companyName, $recipientName, $recipient['email'])
+                    Mail::to($email)->send(
+                        new TemplateEmailNotification($subject, $body, $companyName, $recipientName, $email)
                     );
 
-                    \Log::info("SendScheduledEmailJob: Email sent successfully to " . $recipient['email']);
+                    \Log::info("SendScheduledEmailJob: Email sent successfully to " . $email);
+                    $sentCount++;
 
                     // Log success in DB
                     EmailLog::create([
                         'scheduled_email_id' => $this->scheduledEmail->id,
-                        'recipient_email' => $recipient['email'],
+                        'recipient_email' => $email,
                         'subject' => $subject,
                         'body' => $body,
                         'status' => 'sent',
                         'sent_at' => now(),
                     ]);
                 } catch (\Throwable $e) {
-                    \Log::error("SendScheduledEmailJob ERROR: Failed to send email to " . $recipient['email'], [
+                    $failedCount++;
+                    \Log::error("SendScheduledEmailJob ERROR: Failed to send email to " . $email, [
                         'error_message' => $e->getMessage(),
                         'exception' => get_class($e),
                         'file' => $e->getFile(),
                         'line' => $e->getLine(),
-                        'smtp_config' => [
-                            'host' => config('mail.mailers.smtp.host'),
-                            'port' => config('mail.mailers.smtp.port'),
-                            'encryption' => config('mail.mailers.smtp.encryption'),
-                            'username' => config('mail.mailers.smtp.username'),
-                        ]
                     ]);
 
                     // Log failure in DB
                     EmailLog::create([
                         'scheduled_email_id' => $this->scheduledEmail->id,
-                        'recipient_email' => $recipient['email'],
-                        'subject' => $template->subject,
-                        'body' => $template->body,
+                        'recipient_email' => $email,
+                        'subject' => $template->subject ?? '',
+                        'body' => $template->body ?? '',
                         'status' => 'failed',
                         'error_message' => $e->getMessage(),
                     ]);
                 }
             }
 
-            // Update scheduled email status
+            // Update scheduled email status accurately based on results
+            $finalStatus = 'sent';
+            if ($failedCount > 0) {
+                $finalStatus = $sentCount > 0 ? 'partially_sent' : 'failed';
+            }
+
             $this->scheduledEmail->update([
-                'status' => 'sent',
+                'status' => $finalStatus,
                 'sent_at' => now(),
             ]);
         } catch (\Throwable $e) {
@@ -132,93 +145,57 @@ class SendScheduledEmailJob implements ShouldQueue
 
     private function getRecipients(): array
     {
-        $recipients = [];
+        $rawRecipients = [];
 
         if ($this->scheduledEmail->recipient_type === 'single') {
-            // Single recipient: get company admin email from selected company
             if ($this->scheduledEmail->recipient_company_ids && count($this->scheduledEmail->recipient_company_ids) > 0) {
                 $companyId = $this->scheduledEmail->recipient_company_ids[0];
-                $company = SaasCompany::with('users')->find($companyId);
+                $company = SaasCompany::with(['users.roles', 'settings'])->find($companyId);
                 
-                if (!$company) {
-                    \Log::error("SendScheduledEmailJob: Company not found with ID: {$companyId}");
-                    return $recipients;
-                }
-
-                // Get company admin email - try role first, then fallback to first user
-                $admin = $company->users()->whereHas('roles', function ($q) {
-                    $q->where('name', 'company-admin');
-                })->first();
-
-                // Fallback: if no admin with role, get first user of the company
-                if (!$admin) {
-                    $admin = $company->users()->first();
-                }
-
-                if ($admin && $admin->email) {
-                    \Log::info("SendScheduledEmailJob: Found recipient", [
-                        'company_id' => $companyId,
-                        'company_name' => $company->legal_name_ar,
-                        'admin_email' => $admin->email,
-                        'admin_name' => $admin->name,
-                    ]);
-                    
-                    $recipients[] = [
-                        'email' => $admin->email,
-                        'company' => $company,
-                    ];
-                } else {
-                    \Log::error("SendScheduledEmailJob: No admin user found for company", [
-                        'company_id' => $companyId,
-                        'company_name' => $company->legal_name_ar,
-                        'users_count' => $company->users()->count(),
-                    ]);
+                if ($company) {
+                    $admin = $company->users->first(fn($u) => $u->roles->contains('name', 'company-admin')) ?: $company->users->first();
+                    if ($admin && $admin->email) {
+                        $rawRecipients[] = [
+                            'email' => strtolower(trim($admin->email)),
+                            'company' => $company,
+                        ];
+                    }
                 }
             }
         } else {
-            // Multiple companies
             $companyIds = $this->scheduledEmail->recipient_company_ids ?? [];
-            $companies = SaasCompany::with('users')->whereIn('id', $companyIds)->get();
+            $companies = SaasCompany::with(['users.roles', 'settings'])->whereIn('id', $companyIds)->get();
 
             foreach ($companies as $company) {
-                // Get company admin email - try role first, then fallback to first user
-                $admin = $company->users()->whereHas('roles', function ($q) {
-                    $q->where('name', 'company-admin');
-                })->first();
-
-                // Fallback: if no admin with role, get first user of the company
-                if (!$admin) {
-                    $admin = $company->users()->first();
-                }
+                $admin = $company->users->first(fn($u) => $u->roles->contains('name', 'company-admin')) ?: $company->users->first();
 
                 if ($admin && $admin->email) {
-                    \Log::info("SendScheduledEmailJob: Found recipient", [
-                        'company_id' => $company->id,
-                        'company_name' => $company->legal_name_ar,
-                        'admin_email' => $admin->email,
-                        'admin_name' => $admin->name,
-                    ]);
-                    
-                    $recipients[] = [
-                        'email' => $admin->email,
+                    $rawRecipients[] = [
+                        'email' => strtolower(trim($admin->email)),
                         'company' => $company,
                     ];
-                } else {
-                    \Log::error("SendScheduledEmailJob: No admin user found for company", [
-                        'company_id' => $company->id,
-                        'company_name' => $company->legal_name_ar,
-                        'users_count' => $company->users()->count(),
-                    ]);
                 }
             }
         }
 
-        \Log::info("SendScheduledEmailJob: Total recipients found", [
-            'count' => count($recipients),
-            'recipients' => array_map(fn($r) => $r['email'], $recipients),
+        // ✅ Recipient Deduplication: Ensure each recipient email address appears ONLY ONCE
+        $uniqueRecipients = [];
+        $seenEmails = [];
+
+        foreach ($rawRecipients as $r) {
+            $email = $r['email'];
+            if (!isset($seenEmails[$email])) {
+                $seenEmails[$email] = true;
+                $uniqueRecipients[] = $r;
+            }
+        }
+
+        \Log::info("SendScheduledEmailJob: Total unique recipients found", [
+            'count' => count($uniqueRecipients),
+            'recipients' => array_map(fn($r) => $r['email'], $uniqueRecipients),
         ]);
 
-        return $recipients;
+        return $uniqueRecipients;
     }
 
     private function replaceVariables(string $text, array $variablesData, array $recipient, $template = null): string

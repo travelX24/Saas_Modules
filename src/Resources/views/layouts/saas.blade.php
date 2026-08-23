@@ -752,5 +752,6 @@
         @endif
     </script>
 
+    @livewire('force-change-password-modal')
 </body>
 </html>
