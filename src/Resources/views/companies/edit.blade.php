@@ -278,12 +278,11 @@
                 @else
                     <div wire:loading.class="opacity-50 pointer-events-none" wire:target="update">
                         <x-ui.primary-button
-                            type="button"
+                            type="submit"
                             :arrow="false"
                             :fullWidth="true"
                             wire:loading.attr="disabled"
                             wire:target="update"
-                            x-on:click="$dispatch('open-confirm-update-company-{{ $companyId }}')"
                             class="cursor-pointer disabled:opacity-50 disabled:cursor-wait"
                         >
                             <span wire:loading.remove wire:target="update" class="flex items-center gap-2">
